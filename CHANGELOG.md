@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## 10 rounds per map, thaw radius 200
+**Sun Oct 25, 2026 · 5:24 AM HST**
+- **Changed:** `maxrounds` is 10 (was 30, and 15 in one profile) and `radius` is 200 (was 150) in all 10 profiles of `freezetag_maps.cfg`.
+- **Removed:** nothing. The map now changes after 10 rounds, and a teammate can thaw you from further away. Not tested yet.
+
 ## No thawing by yourself
 **Sun Oct 25, 2026 · 5:22 AM HST**
 - **Changed:** `autotimered` and `autotimeblue` in `freezetag_maps.cfg` are 0 (off) in all 10 profiles (the default and 9 map profiles; they were 60, or 10 to 15 on payload and some other profiles).
