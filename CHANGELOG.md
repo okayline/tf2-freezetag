@@ -4,7 +4,7 @@
 
 ## Welcome screen with the map pool
 **Sun Oct 25, 2026 · 5:42 AM HST**
-- **Added:** `88x31_settings` is 1.1. 5 seconds after a real player joins, a window titled "Hi!" shows the map pool (read from `mapcycle.txt`) for 30 seconds, with a Close button. Bots don't get it.
+- **Added:** `88x31_settings` is 1.1. The moment a real player joins, a window shows "Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!", a blank line, "Freeze Tag mod with a snowy map pool:" and the map pool (read from `mapcycle.txt`) for 30 seconds, with a Close button. Bots don't get it.
 - **Removed:** nothing. Not compiled or tested yet (the build runs when pushed).
 
 ## One payload map
