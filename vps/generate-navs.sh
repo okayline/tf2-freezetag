@@ -17,6 +17,8 @@ trap 'say "all done, starting the tf2 service again"; systemctl start tf2' EXIT
 
 say "maps to do: $*"
 systemctl stop tf2
+sudo -u tf2 screen -S navgen -X quit 2>/dev/null     # clear out anything left over from an earlier run
+pkill -f "srcds_linux.*port 27015" 2>/dev/null
 sleep 3
 
 for m in "$@"; do
@@ -25,7 +27,12 @@ for m in "$@"; do
   sudo -u tf2 screen -dmS navgen "$SRV/srcds_run" -game tf -console -port 27015 +maxplayers 24 +map "$m"
   sleep 60
   say "$m: running nav_generate"
+  send "sv_cheats 1"                                   # nav_generate is a cheat command
+  sleep 2
   send "nav_generate"
+  sleep 20
+  sudo -u tf2 screen -S navgen -X hardcopy -h /tmp/navgen-console.txt 2>/dev/null
+  say "$m: console after nav_generate: $(tail -n 6 /tmp/navgen-console.txt 2>/dev/null | tr '\n' '|' | cut -c1-400)"
   waited=0
   while [ "$waited" -lt 1500 ]; do                     # up to 25 minutes per map
     sleep 10; waited=$((waited + 10))
