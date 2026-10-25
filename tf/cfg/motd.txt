@@ -7,7 +7,15 @@
 <li>cp_frostwatch</li>
 <li>cp_snowplow</li>
 <li>cp_coldfront</li>
+<li>cp_yukon_final</li>
+<li>cp_vanguard</li>
+<li>cp_mountainlab</li>
+<li>cp_steel</li>
+<li>cp_process_final</li>
 <li>koth_snowtower</li>
 <li>koth_winter_ridge</li>
+<li>koth_highpass</li>
+<li>koth_overcast_final</li>
+<li>koth_krampus</li>
 </ul>
 </body></html>
