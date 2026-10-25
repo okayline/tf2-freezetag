@@ -7,6 +7,11 @@
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
 - **Changed:** nothing else. Not tested yet.
 
+## Three community maps taken out of the pool
+**Sun Oct 25, 2026 · 10:30 AM HST**
+- **Removed:** `koth_coldline_b2p`, `koth_winterstorm_b3a` and `cp_coldlands_rc3` from `mapcycle.txt` and from the welcome window map list (`motd.txt`, `motd_text.txt`). The pool is back to 14 maps. The map files stay in `tf/maps/` and on the server, so they can be added back by putting their names in those three files.
+- **Changed:** nothing else. Not tested yet.
+
 ## Three community snow maps added
 **Sun Oct 25, 2026 · 10:30 AM HST**
 - **Added:** the community snow maps `koth_coldline_b2p`, `koth_winterstorm_b3a` and `cp_coldlands_rc3` (sent by Ryan), stored packed in `tf/maps/` (`*.bsp.bz2`, about 79 MB together), in `mapcycle.txt` and in the welcome window map list (`motd.txt`, `motd_text.txt`). The map pool is now 17 maps. They use the existing `koth_` and `cp_` profiles.
