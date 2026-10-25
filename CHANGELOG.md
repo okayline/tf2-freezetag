@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Frozen in place, no snap-back
+**Sun Oct 25, 2026 · 4:50 AM HST**
+- **Changed:** in `freezetag.sp`, frozen players are now set to "no movement" when frozen (`freezeClient`) and back to walking when unfrozen (`unfreezeClient`), so the game holds them still instead of pulling them back after they try to move.
+- **Added:** the `addadmin` action in `.github/workflows/server-tools.yml` (adds an admin to the server's `admins_simple.ini`).
+- **Removed:** nothing. Not tested yet.
+
 ## Frozen players can't walk; the deploy compiles again
 **Sun Oct 25, 2026 · 4:39 AM HST** (771f195)
 - **Changed:** in `OnPlayerRunCmd` in `freezetag.sp`, frozen players now have their move input zeroed on every tick (before, only jumping and attacking were blocked and their speed was set every 0.2 s). The game could change their speed in between, so they could walk.
