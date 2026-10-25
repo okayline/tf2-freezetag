@@ -11,6 +11,7 @@ name: VPS tools (manual only)
 #   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
 #   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
 #   list-maps        lists installed maps; snow/winter/event ones, or ones matching a filter in the box (like cp_|koth_)
+#   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
 #   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
 #   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
@@ -25,7 +26,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -84,6 +85,10 @@ jobs:
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
                 vps "tail -n 100 -- $COMMAND" 2>&1 | tail -c 3000 >> "$R"
               else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
+            install-maps)
+              if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
+                vps "command -v bzip2 >/dev/null || apt-get install -y -qq bzip2 >/dev/null 2>&1; cd /home/tf2/server/tf/maps && for m in $COMMAND; do if [ -f \$m.bsp ]; then echo \$m: already there; elif curl -fsSL -m 120 -o \$m.bsp.bz2 https://fastdl.serveme.tf/maps/\$m.bsp.bz2 && bzip2 -df \$m.bsp.bz2; then chown tf2:tf2 \$m.bsp; echo \$m: installed; else rm -f \$m.bsp.bz2; echo \$m: not found; fi; done" 2>&1 | tail -c 3000 >> "$R"
+              else echo "Give map names like koth_coldline cp_glacier (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
             list-maps)
               F='snow|frost|winter|xmas|ice|cold|event|polar'
               printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_|]{1,60}$' && F="$COMMAND"   # optional filter, like cp_|koth_
