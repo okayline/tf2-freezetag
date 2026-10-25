@@ -23,20 +23,40 @@ jobs:
 
       - name: Upload plugins to the server
         run: |
-          # Plugins are binary: use the panel's file-upload method (the "write" method mangles binary files).
+          # Plugins are binary (the "write" method mangles them).
+          # Method A: panel's signed upload link. Method B: server downloads the file from GitHub.
+          # Every panel reply is printed as an annotation so failures can be read without the log.
+          API="$PTERO_URL/api/client/servers/$PTERO_SERVER_ID"
+          AUTH=(-H "Authorization: Bearer $PTERO_API_KEY" -H "Accept: application/json")
+          ok_all=1
           for f in \
             tf/addons/sourcemod/plugins/freezetag.smx \
             tf/addons/sourcemod/plugins/88x31_settings.smx
           do
-            url=$(curl --fail-with-body -sS \
-              "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/files/upload" \
-              -H "Authorization: Bearer $PTERO_API_KEY" \
-              -H "Accept: application/json" | jq -r '.attributes.url')
-            curl --fail-with-body -sS -X POST \
-              "$url&directory=%2Ftf%2Faddons%2Fsourcemod%2Fplugins" \
-              -F "files=@$f"
-            echo "Uploaded $f"
+            name=$(basename "$f")
+            done_it=0
+
+            r=$(curl -sS -w '\nHTTP %{http_code}' "$API/files/upload" "${AUTH[@]}" 2>&1 || true)
+            echo "::notice::A1 $name: $(echo "$r" | tr '\n' ' ' | cut -c1-300)"
+            url=$(echo "$r" | head -n -1 | jq -r '.attributes.url // empty' 2>/dev/null || true)
+            if [ -n "$url" ]; then
+              r=$(curl -sS -w '\nHTTP %{http_code}' -X POST "$url&directory=%2Ftf%2Faddons%2Fsourcemod%2Fplugins" -F "files=@$f" 2>&1 || true)
+              echo "::notice::A2 $name: $(echo "$r" | tr '\n' ' ' | cut -c1-300)"
+              echo "$r" | tail -n1 | grep -qE 'HTTP 2[0-9][0-9]' && done_it=1
+            fi
+
+            if [ $done_it = 0 ]; then
+              raw="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/$f"
+              r=$(curl -sS -w '\nHTTP %{http_code}' -X POST "$API/files/pull" "${AUTH[@]}" \
+                -H "Content-Type: application/json" \
+                -d "{\"url\":\"$raw\",\"directory\":\"/tf/addons/sourcemod/plugins\",\"filename\":\"$name\",\"use_header\":false,\"foreground\":true}" 2>&1 || true)
+              echo "::notice::B $name: $(echo "$r" | tr '\n' ' ' | cut -c1-300)"
+              echo "$r" | tail -n1 | grep -qE 'HTTP 2[0-9][0-9]' && done_it=1
+            fi
+
+            if [ $done_it = 1 ]; then echo "Uploaded $name"; else echo "::error::Could not upload $name"; ok_all=0; fi
           done
+          [ $ok_all = 1 ]
 
       - name: Upload text files to the server
         run: |
