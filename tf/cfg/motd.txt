@@ -6,6 +6,8 @@
 <li>cp_gravelpit_snowy</li>
 <li>cp_frostwatch</li>
 <li>cp_snowplow</li>
+<li>cp_coldfront</li>
 <li>koth_snowtower</li>
+<li>koth_winter_ridge</li>
 </ul>
 </body></html>
