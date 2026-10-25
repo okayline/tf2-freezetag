@@ -28,6 +28,7 @@ on:
       - tf/custom/freezetag_models/models/custom/freezetag/iceshard.sw.vtx
       - tf/custom/freezetag_models/models/custom/freezetag/iceshard.vvd
       - tf/addons/sourcemod/plugins/88x31_settings.smx
+      - tf/maps/*.bsp.bz2
       - tf/cfg/88x31.cfg
       - tf/cfg/mapcycle.txt
       - tf/cfg/motd.txt
@@ -136,6 +137,7 @@ jobs:
             tf/custom/freezetag_models/models/custom/freezetag/iceshard.vvd \
             tf/addons/sourcemod/plugins/freezetag.smx \
             tf/addons/sourcemod/plugins/88x31_settings.smx \
+            $(ls tf/maps/*.bsp.bz2) \
             tf/cfg/88x31.cfg \
             tf/cfg/mapcycle.txt \
             tf/cfg/motd.txt \
@@ -144,6 +146,11 @@ jobs:
             # rsync -c compares checksums, so a file is only "OK" if the copy on the server matches
             if rsync -c --chown=tf2:tf2 --rsync-path="mkdir -p /home/tf2/server/$(dirname "$f") && rsync" -e "$SSH" "$f" "$VPS_USER@$VPS_HOST:/home/tf2/server/$f" 2> "$RUNNER_TEMP/err"; then
               say "OK     /$f  ($(stat -c %s "$f") bytes)"
+              case "$f" in
+                tf/maps/*.bsp.bz2)   # community maps are stored packed (bzip2); unpack on the server only when the packed file is newer
+                  b=$(basename "$f"); m=${b%.bz2}
+                  if $SSH "$VPS_USER@$VPS_HOST" "cd /home/tf2/server/tf/maps && { [ -f $m ] && [ $m -nt $b ] || bzip2 -dkf $b; } && chown tf2:tf2 $m" 2> "$RUNNER_TEMP/err"; then say "UNPACK /tf/maps/$m"; else say "FAILED unpacking $m  $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-200)"; ok=0; fi ;;
+              esac
             else
               say "FAILED /$f  $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-200)"; ok=0
             fi
