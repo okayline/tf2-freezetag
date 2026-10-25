@@ -62,8 +62,10 @@ jobs:
                 note "Files in /$dir/" "$RUNNER_TEMP/names"
                 # newest 3 files that end in .log, errors files first
                 for n in $(grep '\.log$' "$RUNNER_TEMP/names" | sort -r | head -n 3); do
-                  sftp "$base/$dir/$n" 2>&1 | tr -d '\r' | tail -n 25 | cut -c1-200 > "$RUNNER_TEMP/one"
-                  note "/$dir/$n (last 25 lines)" "$RUNNER_TEMP/one"
+                  sftp "$base/$dir/$n" 2>&1 | tr -d '\r' > "$RUNNER_TEMP/full"
+                  { echo "$(wc -l < "$RUNNER_TEMP/full") lines in the file. First 12:"; head -n 12 "$RUNNER_TEMP/full" | cut -c1-130
+                    echo "... last 10:"; tail -n 10 "$RUNNER_TEMP/full" | cut -c1-130; } > "$RUNNER_TEMP/one"
+                  note "/$dir/$n (start and end)" "$RUNNER_TEMP/one"
                 done
               done
               sftp "$base/tf/console.log" 2>&1 | tr -d '\r' | tail -n 25 | cut -c1-200 > "$RUNNER_TEMP/one"
