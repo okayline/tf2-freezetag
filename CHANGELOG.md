@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## No penalty for joining a round in progress
+**Sun Oct 25, 2026 · 5:16 AM HST**
+- **Changed:** in `freezetag.sp`, a player who joins during a round now just plays, instead of being killed (and so frozen) on arrival.
+- **Removed:** the "slay late joiners" step and its chat message (`feedback_joinpenalty`). The message text stays unused in `freezetag.phrases.txt`. Not tested yet.
+
 ## Frozen players are not pushed around
 **Sun Oct 25, 2026 · 5:13 AM HST**
 - **Added:** `sm_freezetag_forcemulti 0` in `tf/cfg/88x31.cfg`. This is a setting the plugin already had (it was 10); no code changed.

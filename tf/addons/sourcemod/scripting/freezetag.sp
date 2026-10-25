@@ -1450,15 +1450,6 @@ public event_post_inventory_application(Handle:hEvent, String:strName[], bool:bD
                         g_bFrozen[client] = false;                                                        // Set them unfrozen, so they can suicide
                         g_bUnassigned[client] = false;
                         g_stuck[client] = 0;
-                	if (g_activeround == 2)
-                	{
-                        	FakeClientCommand(client,"kill");                                         // Slay them in the active round
-
-                        	if (g_bFeedback)
-                        	{
-                                	PrintToChat(client,"\x04[Freeze]:\x01 %t","feedback_joinpenalty");
-         	        	}
-                	}
 			g_playerclass[client] = TF2_GetPlayerClass(client);                               // Store the class of late joiners - it will persist for the round and reconnects
 			g_futureclass[client] = TFClass_Unknown;
                 }
