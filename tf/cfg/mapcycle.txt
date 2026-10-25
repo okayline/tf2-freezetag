@@ -1,5 +1,4 @@
 cp_gravelpit_snowy
-cp_frostwatch
 cp_snowplow
 cp_coldfront
 cp_yukon_final
