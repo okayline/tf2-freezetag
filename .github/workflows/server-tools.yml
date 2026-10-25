@@ -156,6 +156,25 @@ jobs:
                 if sftp --ftp-create-dirs -T "$D/x/$f" "$base/$rel"; then say "UPLOADED /$rel"; else say "FAILED /$rel"; fi
               done
               ;;
+            installsm)
+              # Installs the newest SourceMod 1.12 and Metamod 1.12 files (bin, extensions, gamedata, translations) on top of the server's; configs, data and plugins are not touched
+              W="$RUNNER_TEMP/inst"; mkdir -p "$W/sm" "$W/mm"
+              smn=$(curl -fsSL https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux) && curl -fsSL "https://sm.alliedmods.net/smdrop/1.12/$smn" -o "$W/sm.tgz" && tar -xzf "$W/sm.tgz" -C "$W/sm" && say "SourceMod: $smn" || say "SourceMod download FAILED"
+              mmn=$(curl -fsSL https://mms.alliedmods.net/mmsdrop/1.12/mmsource-latest-linux) && curl -fsSL "https://mms.alliedmods.net/mmsdrop/1.12/$mmn" -o "$W/mm.tgz" && tar -xzf "$W/mm.tgz" -C "$W/mm" && say "Metamod: $mmn" || say "Metamod download FAILED"
+              export SFTP_HOST SFTP_USER SFTP_PASSWORD SFTP_PORT
+              up() { # local file, remote path
+                curl -sS -k --ftp-create-dirs --user "$SFTP_USER:$SFTP_PASSWORD" -T "$1" "sftp://$SFTP_HOST:${SFTP_PORT:-2022}/tf/$2" 2>/dev/null || echo "FAILED $2" >> "$RUNNER_TEMP/failed"
+              }
+              export -f up; export RUNNER_TEMP
+              : > "$RUNNER_TEMP/failed"
+              ( cd "$W/sm" && find addons/sourcemod/bin addons/sourcemod/extensions addons/sourcemod/gamedata addons/sourcemod/translations -type f ) > "$W/files"
+              ( cd "$W/mm" && find addons/metamod/bin -type f ) > "$W/files_mm"
+              say "files: SourceMod $(wc -l < "$W/files"), Metamod $(wc -l < "$W/files_mm")"
+              ( cd "$W/sm" && xargs -P 8 -I{} bash -c 'up "$1" "$1"' _ {} < "$W/files" )
+              ( cd "$W/mm" && xargs -P 8 -I{} bash -c 'up "$1" "$1"' _ {} < "$W/files_mm" )
+              say "failed uploads: $(wc -l < "$RUNNER_TEMP/failed")"
+              head -n 5 "$RUNNER_TEMP/failed" >> "$R"
+              ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
             logs)

@@ -1,0 +1,16 @@
+"Games"
+{
+	"tf"
+	{
+		"Offsets"
+		{
+			"GiveNamedItem"
+			{
+				"windows64"	"413"
+				"windows"	"413"
+				"linux"	"414"
+				"linux64"	"414"
+			}
+		}
+	}
+}
