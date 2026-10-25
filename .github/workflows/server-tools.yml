@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command, restart, list, show, matchoffset or noautoupdate"
+        description: "logs, command, restart, list, show, matchoffset, noautoupdate or hash"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart, list, show, matchoffset, noautoupdate]
+        options: [logs, command, restart, list, show, matchoffset, noautoupdate, hash]
       path:
         description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
         required: false
@@ -115,6 +115,15 @@ jobs:
               else
                 say "WRITE FAILED or the copy on the server differs"
               fi
+              ;;
+            hash)
+              # size and checksum of the file(s) at path (several paths can be separated by spaces)
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              for f in $SPATH; do
+                sftp "$base/$f" -o "$RUNNER_TEMP/h" 2>/dev/null
+                say "$(stat -c %s "$RUNNER_TEMP/h") bytes  sha1 $(sha1sum "$RUNNER_TEMP/h" | cut -c1-12)  /$f"
+                rm -f "$RUNNER_TEMP/h"
+              done
               ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
