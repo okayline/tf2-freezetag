@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Control point maps: no more instant caps
+**Sun Oct 25, 2026 · 10:12 AM HST**
+- **Changed:** in `freezetag_maps.cfg`, the `cp_` and `koth_` profiles now block capturing (`blockcaps` 1) and use a 5 minute round timer (`timer` 300, was 0 = the map's own timer). Before, a team could capture the points in about a minute and the game ended. Rounds now end by freezing the other team or when the timer runs out. Applies from the next map change.
+- **Removed:** nothing. Not tested yet.
+
 ## Maps last longer
 **Sun Oct 25, 2026 · 10:10 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, the round limit per map (`maxrounds`) went from 10 to 30 for every profile, so a map no longer ends after 10 short rounds. The plugin also uses this number as the win limit. The new limit applies from the next map change.
