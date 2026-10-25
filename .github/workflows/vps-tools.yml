@@ -103,7 +103,7 @@ jobs:
               printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_|]{1,60}$' && F="$COMMAND"   # optional filter, like cp_|koth_
               vps "ls /home/tf2/server/tf/maps | grep -iE '\\.bsp$' | sed 's/\\.bsp$//' | grep -E '$F' | tr '\\n' ' '" 2>&1 | tail -c 3000 >> "$R" ;;
             list-navs)
-              vps "cd /home/tf2/server/tf && for m in \$(grep -E '^[a-z0-9_]+\$' cfg/mapcycle.txt); do if [ -f maps/\$m.nav ]; then echo \"\$m  nav: yes\"; else echo \"\$m  nav: NO\"; fi; done" 2>&1 | tail -c 3000 >> "$R" ;;
+              vps "python3 -" < vps/nav-check.py 2>&1 | tail -c 3000 >> "$R" ;;
             list-dir)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
                 vps "ls -lAh --group-directories-first -- $COMMAND" 2>&1 | head -n 60 | tail -c 3000 >> "$R"
