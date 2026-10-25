@@ -2,11 +2,6 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## No ice block on frozen players
-**Sun Oct 25, 2026 · 4:58 AM HST**
-- **Added:** `sm_freezetag_model 0` in `tf/cfg/88x31.cfg`. This is a setting the plugin already had; no code changed. Takes effect from the next map change.
-- **Removed:** the ice block shown on frozen players. They are tinted translucent red or blue instead, with the plugin's own glow effect, because that is what the plugin does when the model is off. The ice model files stay in the repo and on the server, unused. Not tested yet.
-
 ## Frozen players fall instead of hanging in the air
 **Sun Oct 25, 2026 · 4:55 AM HST**
 - **Changed:** nothing new. Frozen players are held still by the zeroed walk input and speed 1 again, so gravity works and anyone frozen mid-jump falls and lands.
