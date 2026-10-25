@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome screen with the map pool
+**Sun Oct 25, 2026 · 5:42 AM HST**
+- **Added:** `88x31_settings` is 1.1. 5 seconds after a real player joins, a window titled "Hi!" shows the map pool (read from `mapcycle.txt`) for 30 seconds, with a Close button. Bots don't get it.
+- **Removed:** nothing. Not compiled or tested yet (the build runs when pushed).
+
 ## One payload map
 **Sun Oct 25, 2026 · 5:40 AM HST**
 - **Changed:** `mapcycle.txt` has 5 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`, `pl_snowycoast`.
