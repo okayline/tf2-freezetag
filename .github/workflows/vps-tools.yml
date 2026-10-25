@@ -9,6 +9,7 @@ name: VPS tools (manual only)
 #   install-package  apt-get installs one package (name in the box; letters, digits, . + - : only)
 #   l4d-setup        installs Left 4 Dead 1 next to TF2 (service "l4d", port 27016). Takes a few minutes.
 #   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
+#   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
 #   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
 #   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
@@ -23,7 +24,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -68,6 +69,14 @@ jobs:
             l4d-start|l4d-stop|l4d-restart) vps "systemctl ${ACTION#l4d-} l4d; sleep 2; systemctl is-active l4d" >> "$R" 2>&1 ;;
             l4d-console)
               vps 'sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; sleep 1; tail -n 40 /home/tf2/l4d-console.txt; echo "-- processes:"; pgrep -a srcds | grep left4dead | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
+            add-admin)
+              SID="$COMMAND"
+              if printf '%s' "$SID" | grep -Eq '^7656[0-9]{13}$'; then   # SteamID64 -> STEAM_0:y:z
+                acc=$((SID - 76561197960265728)); SID="STEAM_0:$((acc % 2)):$((acc / 2))"
+              fi
+              if printf '%s' "$SID" | grep -Eq '^STEAM_[0-5]:[01]:[0-9]{1,12}$'; then
+                vps "f=/home/tf2/server/tf/addons/sourcemod/configs/admins_simple.ini; if grep -qF '\"$SID\"' \$f 2>/dev/null; then echo 'already an admin'; else printf '\"%s\" \"z\"\n' '$SID' >> \$f; echo 'added'; fi; chown tf2:tf2 \$f; sudo -u tf2 screen -S tf2 -X stuff \"sm_reloadadmins\$(printf '\\r')\"; tail -n 3 \$f" >> "$R" 2>&1
+              else echo "Give a Steam ID like STEAM_0:1:12345 or a 17-digit SteamID64." >> "$R"; fi ;;
             console-view)
               vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
             show-file)
