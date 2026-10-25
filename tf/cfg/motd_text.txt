@@ -1,0 +1,8 @@
+Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!
+
+Freeze Tag mod with a snowy map pool:
+cp_gravelpit_snowy
+cp_frostwatch
+cp_snowplow
+koth_snowtower
+pl_snowycoast

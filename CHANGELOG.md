@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome screen is now the server's MOTD
+**Sun Oct 25, 2026 · 5:45 AM HST**
+- **Added:** `tf/cfg/motd.txt` and `tf/cfg/motd_text.txt`: the window TF2 shows when you join says "Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!", a blank line, "Freeze Tag mod with a snowy map pool:" and the 5 maps. Both files are in the deploy. The map list is typed in, so it must be updated when `mapcycle.txt` changes.
+- **Removed:** the welcome popup in `88x31_settings` (back to 1.0). Not tested yet; not checked that the server uses `cfg/motd.txt`.
+
 ## Welcome screen with the map pool
 **Sun Oct 25, 2026 · 5:42 AM HST**
 - **Added:** `88x31_settings` is 1.1. The moment a real player joins, a window shows "Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!", a blank line, "Freeze Tag mod with a snowy map pool:" and the map pool (read from `mapcycle.txt`) for 30 seconds, with a Close button. Bots don't get it.

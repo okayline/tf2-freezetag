@@ -31,6 +31,8 @@ on:
       - tf/addons/sourcemod/plugins/88x31_settings.smx
       - tf/cfg/88x31.cfg
       - tf/cfg/mapcycle.txt
+      - tf/cfg/motd.txt
+      - tf/cfg/motd_text.txt
       - .github/workflows/deploy.yml
   workflow_dispatch:
 
@@ -134,7 +136,9 @@ jobs:
             tf/addons/sourcemod/plugins/freezetag.smx \
             tf/addons/sourcemod/plugins/88x31_settings.smx \
             tf/cfg/88x31.cfg \
-            tf/cfg/mapcycle.txt
+            tf/cfg/mapcycle.txt \
+            tf/cfg/motd.txt \
+            tf/cfg/motd_text.txt
           do
             url="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/$f"
             # -k: do not check the server's host key (the password goes only to the host in the secret)

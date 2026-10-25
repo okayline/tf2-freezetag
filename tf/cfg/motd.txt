@@ -1,0 +1,12 @@
+<html><body bgcolor="#101820" text="#e8f4ff" style="font-family:Verdana,Arial;font-size:16px">
+<h2>Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!</h2>
+<p>&nbsp;</p>
+<p>Freeze Tag mod with a snowy map pool:</p>
+<ul>
+<li>cp_gravelpit_snowy</li>
+<li>cp_frostwatch</li>
+<li>cp_snowplow</li>
+<li>koth_snowtower</li>
+<li>pl_snowycoast</li>
+</ul>
+</body></html>
