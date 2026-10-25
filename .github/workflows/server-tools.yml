@@ -1,0 +1,70 @@
+name: Server tools (manual only)
+
+# Never runs on its own. Started by hand from the Actions tab (or with `gh workflow run`).
+#   action = logs     reads the newest SourceMod and server log files over SFTP and prints them as ONE note
+#   action = command  sends one console command to the server (the command goes in the "command" box)
+#   action = restart  restarts the whole server through the panel
+# Uses the same secrets as deploy.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "logs, command or restart"
+        required: true
+        default: logs
+        type: choice
+        options: [logs, command, restart]
+      command:
+        description: "Console command (only for action = command)"
+        required: false
+        default: ""
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    env:
+      ACTION: ${{ inputs.action }}
+      COMMAND: ${{ inputs.command }}
+      SFTP_HOST: ${{ secrets.SFTP_HOST }}
+      SFTP_USER: ${{ secrets.SFTP_USER }}
+      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+      PTERO_URL: ${{ secrets.PTERO_URL }}
+      PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+      PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+    steps:
+      - name: Run
+        run: |
+          set +e +o pipefail
+          R="$RUNNER_TEMP/result.txt"; : > "$R"
+          say() { echo "$*" >> "$R"; }
+          sftp() { curl -sS -k --user "$SFTP_USER:$SFTP_PASSWORD" "$@"; }
+          panel() { curl -sS -o /dev/null -w '%{http_code}' -X POST "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/$1" \
+            -H "Authorization: Bearer $PTERO_API_KEY" -H "Accept: application/json" -H "Content-Type: application/json" -d "$2" 2>&1 || true; }
+
+          case "$ACTION" in
+            command)
+              [ -n "$COMMAND" ] || { say "No command was given."; ok=0; }
+              if [ -z "${ok:-}" ]; then
+                body=$(python3 -c 'import json,os;print(json.dumps({"command":os.environ["COMMAND"]}))')
+                say "COMMAND \"$COMMAND\"  panel answered HTTP $(panel command "$body")"
+              fi ;;
+            restart)
+              say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
+            logs)
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              for dir in tf/addons/sourcemod/logs tf/logs; do
+                say "== folder /$dir/"
+                names=$(sftp --list-only "$base/$dir/" 2>&1 | tr -d '\r' | sort | tail -n 6)
+                say "$(echo "$names" | cut -c1-200)"
+                # newest 2 files that end in .log
+                for n in $(echo "$names" | grep '\.log$' | tail -n 2); do
+                  say "== /$dir/$n  (last 60 lines)"
+                  sftp "$base/$dir/$n" 2>&1 | tr -d '\r' | tail -n 60 | cut -c1-300 >> "$R"
+                done
+              done
+              say "== /tf/console.log  (last 60 lines, if the file exists)"
+              sftp "$base/tf/console.log" 2>&1 | tr -d '\r' | tail -n 60 | cut -c1-300 >> "$R" ;;
+          esac
+
+          msg=$(head -c 40000 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+          echo "::notice title=Server tools ($ACTION)::$msg"
