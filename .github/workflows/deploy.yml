@@ -11,6 +11,8 @@ on:
     branches: [main]
     paths:
       - tf/addons/sourcemod/plugins/freezetag.smx
+      - tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so
+      - tf/addons/sourcemod/extensions/tf2items.autoload
       - tf/addons/sourcemod/plugins/88x31_settings.smx
       - tf/cfg/88x31.cfg
       - tf/cfg/mapcycle.txt
@@ -37,6 +39,8 @@ jobs:
           say() { echo "$*" >> "$R"; }
           ok=1
           for f in \
+            tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so \
+            tf/addons/sourcemod/extensions/tf2items.autoload \
             tf/addons/sourcemod/plugins/freezetag.smx \
             tf/addons/sourcemod/plugins/88x31_settings.smx \
             tf/cfg/88x31.cfg \
