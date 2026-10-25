@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Freezing everyone no longer wins the round
+**Sun Oct 25, 2026 · 10:45 AM HST**
+- **Changed:** in `freezetag_maps.cfg`, `eliminations` is now 0 in every profile (it was 1 in most), so freezing a whole team no longer ends the round. Rounds end by capturing points / the king of the hill timer, and frozen players still go back to spawn after 30 seconds. Applies from the next map change.
+- **Removed:** nothing. Not tested yet.
+
 ## Payload map removed
 **Sun Oct 25, 2026 · 10:15 AM HST**
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
