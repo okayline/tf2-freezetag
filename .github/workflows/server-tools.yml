@@ -52,18 +52,23 @@ jobs:
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
             logs)
               base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              # GitHub cuts a note at about 4000 characters, so every file gets its own note
+              note() { # title, file holding the text
+                m=$(tail -c 3600 "$2" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+                echo "::notice title=$1::$m"
+              }
               for dir in tf/addons/sourcemod/logs tf/logs; do
-                say "== folder /$dir/"
-                names=$(sftp --list-only "$base/$dir/" 2>&1 | tr -d '\r' | sort | tail -n 6)
-                say "$(echo "$names" | cut -c1-200)"
-                # newest 2 files that end in .log
-                for n in $(echo "$names" | grep '\.log$' | tail -n 2); do
-                  say "== /$dir/$n  (last 60 lines)"
-                  sftp "$base/$dir/$n" 2>&1 | tr -d '\r' | tail -n 60 | cut -c1-300 >> "$R"
+                sftp --list-only "$base/$dir/" 2>&1 | tr -d '\r' | sort > "$RUNNER_TEMP/names"
+                note "Files in /$dir/" "$RUNNER_TEMP/names"
+                # newest 3 files that end in .log, errors files first
+                for n in $(grep '\.log$' "$RUNNER_TEMP/names" | sort -r | head -n 3); do
+                  sftp "$base/$dir/$n" 2>&1 | tr -d '\r' | tail -n 25 | cut -c1-200 > "$RUNNER_TEMP/one"
+                  note "/$dir/$n (last 25 lines)" "$RUNNER_TEMP/one"
                 done
               done
-              say "== /tf/console.log  (last 60 lines, if the file exists)"
-              sftp "$base/tf/console.log" 2>&1 | tr -d '\r' | tail -n 60 | cut -c1-300 >> "$R" ;;
+              sftp "$base/tf/console.log" 2>&1 | tr -d '\r' | tail -n 25 | cut -c1-200 > "$RUNNER_TEMP/one"
+              note "/tf/console.log (last 25 lines, if it exists)" "$RUNNER_TEMP/one"
+              exit 0 ;;
           esac
 
           msg=$(head -c 40000 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
