@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command, restart, list, show, matchoffset, noautoupdate or hash"
+        description: "logs, command, restart, list, show, matchoffset, noautoupdate, hash or useold"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart, list, show, matchoffset, noautoupdate, hash]
+        options: [logs, command, restart, list, show, matchoffset, noautoupdate, hash, useold]
       path:
         description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
         required: false
@@ -124,6 +124,18 @@ jobs:
                 say "$(stat -c %s "$RUNNER_TEMP/h") bytes  sha1 $(sha1sum "$RUNNER_TEMP/h" | cut -c1-12)  /$f"
                 rm -f "$RUNNER_TEMP/h"
               done
+              ;;
+            useold)
+              # copies the server file at path (an older freezetag.smx kept in the plugins folder) over plugins/freezetag.smx
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              D="$RUNNER_TEMP/uo"; mkdir -p "$D"
+              sftp "$base/$SPATH" -o "$D/src" || say "could not read /$SPATH"
+              say "source /$SPATH: $(stat -c %s "$D/src") bytes, sha1 $(sha1sum "$D/src" | cut -c1-12)"
+              if sftp -T "$D/src" "$base/tf/addons/sourcemod/plugins/freezetag.smx" && sftp "$base/tf/addons/sourcemod/plugins/freezetag.smx" -o "$D/back" && cmp -s "$D/src" "$D/back"; then
+                say "WROTE plugins/freezetag.smx and downloaded it back: identical to the source"
+              else
+                say "WRITE FAILED or the copy on the server differs"
+              fi
               ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
