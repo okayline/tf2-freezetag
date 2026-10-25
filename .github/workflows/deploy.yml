@@ -1,0 +1,43 @@
+name: Deploy to TF2 server
+
+# Runs when a push to main changes the compiled plugin, or by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - tf/addons/sourcemod/plugins/freezetag.smx
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload freezetag.smx to the server
+        env:
+          PTERO_URL: ${{ secrets.PTERO_URL }}
+          PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+          PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+        run: |
+          curl --fail-with-body -sS -X POST \
+            "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/files/write?file=%2Ftf%2Faddons%2Fsourcemod%2Fplugins%2Ffreezetag.smx" \
+            -H "Authorization: Bearer $PTERO_API_KEY" \
+            -H "Accept: application/json" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @tf/addons/sourcemod/plugins/freezetag.smx
+          echo "Uploaded."
+
+      - name: Reload the plugin
+        env:
+          PTERO_URL: ${{ secrets.PTERO_URL }}
+          PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+          PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+        run: |
+          curl --fail-with-body -sS -X POST \
+            "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/command" \
+            -H "Authorization: Bearer $PTERO_API_KEY" \
+            -H "Accept: application/json" \
+            -H "Content-Type: application/json" \
+            -d '{"command":"sm plugins reload freezetag"}'
+          echo "Reload command sent."
