@@ -55,7 +55,7 @@ jobs:
               fi ;;
             list)
               base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
-              sftp --list-only "$base/${SPATH%/}/" 2>&1 | tr -d '\r' | sort | head -n 80 > "$RUNNER_TEMP/one"
+              sftp "$base/${SPATH%/}/" 2>&1 | tr -d '\r' | sort -k9 | cut -c1-120 | head -n 60 > "$RUNNER_TEMP/one"
               m=$(tail -c 3600 "$RUNNER_TEMP/one" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
               echo "::notice title=Files in /$SPATH::$m"
               exit 0 ;;
