@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Frozen players are not pushed around
+**Sun Oct 25, 2026 · 5:13 AM HST**
+- **Added:** `sm_freezetag_forcemulti 0` in `tf/cfg/88x31.cfg`. This is a setting the plugin already had (it was 10); no code changed.
+- **Removed:** the push a frozen player gets when shot. They no longer fly or bounce around from hits. Not tested yet; if they still move, the cause is something else (for example explosion knockback).
+
 ## Frozen players are held still on the ground only
 **Sun Oct 25, 2026 · 5:05 AM HST**
 - **Changed:** in `OnPlayerRunCmd` in `freezetag.sp`, a frozen player is set to "no movement" every tick while standing on the ground, and to walking while in the air, so the game holds them still (no sliding and snapping back) but gravity still works. `unfreezeClient` sets walking again, so nobody is left stuck.
