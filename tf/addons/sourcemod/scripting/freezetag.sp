@@ -2302,7 +2302,6 @@ freezeClient(client)
         SetEntProp(client, Prop_Send, "m_CollisionGroup", 13);                                  // Remove collision from frozen players (projectile group, can still be hit by most weapons)
 
         SetEntPropFloat(client, Prop_Data, "m_flMaxspeed", 1.0);
-        SetEntityMoveType(client, MOVETYPE_NONE);                                               // Frozen in place: the game itself holds them still, so no snap-back
 
         if (g_bUseModel)
         {
@@ -2654,7 +2653,6 @@ unfreezeClient(client, other, bool:automatic=false, bool:sound=true, bool:partic
         SetEntPropFloat(client, Prop_Send, "m_flInvisChangeCompleteTime", 0.0);   // Reset cloak timer so they stay visible
 
         SetEntProp(client, Prop_Send, "m_CollisionGroup", 5);                // Normal player Solidity
-        SetEntityMoveType(client, MOVETYPE_WALK);                            // Let them move again
 
 	if (sound)
 	{
