@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## No thawing by yourself
+**Sun Oct 25, 2026 · 5:22 AM HST**
+- **Changed:** `autotimered` and `autotimeblue` in `freezetag_maps.cfg` are 0 (off) in all 10 profiles (the default and 9 map profiles; they were 60, or 10 to 15 on payload and some other profiles).
+- **Removed:** the automatic thaw. A frozen player now stays frozen until a teammate thaws them or the round ends. Not tested yet.
+
 ## Bots are "normal" difficulty
 **Sun Oct 25, 2026 · 5:20 AM HST**
 - **Changed:** `tf_bot_difficulty` in `tf/cfg/88x31.cfg` is now 1 (normal), was 2 (hard).
