@@ -1,8 +1,10 @@
 name: Probe TF2 server file upload
 
-# One-time test. Runs when this file is pushed, or by hand from the Actions tab.
-# Changes nothing real: it only reads the plugins folder, then writes a few scratch
-# files (88x31_probe_*.bin) in /tf and deletes them again. Results are printed as annotations.
+# One-time test, second version. Runs when this file is pushed, or by hand from the Actions tab.
+# 1) Tries several folder-list addresses on the panel to find the one that works.
+# 2) Reads sizes (plugins folder, and the 3 scratch files left by the first test) - read-only.
+# 3) Deletes the 3 scratch files (/tf/88x31_probe_m1.bin, _m2.bin, _m3.bin) and checks they are gone.
+# Results are printed as annotations.
 on:
   push:
     branches: [main]
@@ -27,40 +29,48 @@ jobs:
           enc() { jq -rn --arg s "$1" '$s|@uri'; }
           note() { echo "::notice::$*"; }
 
-          # Size of a file in a server folder, from the panel's file list ("none" if not found).
+          # 1. Find a folder-list address that answers with a JSON list.
+          LIST_ROUTE=""; LIST_PARAM=""
+          for cand in "files/list?directory" "files/list?path" "files/directory?directory" "files/directory?path" "files?directory" "files?path"; do
+            route=${cand%%\?*}; param=${cand#*\?}
+            out=$(curl -sS -w $'\n%{http_code}' "$API/$route?$param=%2Ftf" "${H[@]}" 2>&1 || true)
+            code=${out##*$'\n'}; text=${out%$'\n'*}
+            if echo "$text" | jq -e '.data|type=="array"' >/dev/null 2>&1; then
+              ok="JSON LIST"; [ -z "$LIST_ROUTE" ] && LIST_ROUTE=$route && LIST_PARAM=$param
+            else ok="not a list"; fi
+            note "ROUTE GET $route?$param=/tf -> HTTP $code, $ok, starts: $(echo "$text" | tr '\n' ' ' | cut -c1-110)"
+          done
+
+          list_dir() { curl -sS "$API/$LIST_ROUTE?$LIST_PARAM=$(enc "$1")" "${H[@]}" 2>/dev/null; }
           server_size() { # folder name
-            curl -sS "$API/files/list?directory=$(enc "$1")" "${H[@]}" 2>/dev/null \
-              | jq -r --arg n "$2" '[.data[]? | select(.attributes.name==$n) | .attributes.size][0] // "none"' 2>/dev/null \
-              || echo "none"
+            [ -z "$LIST_ROUTE" ] && { echo "no-list-route"; return; }
+            list_dir "$1" | jq -r --arg n "$2" '[.data[]? | select(.attributes.name==$n) | .attributes.size][0] // "none"' 2>/dev/null || echo none
           }
 
-          # 1. Read-only: what the plugins folder holds now, next to what the repo holds.
-          raw=$(curl -sS "$API/files/list?directory=%2Ftf%2Faddons%2Fsourcemod%2Fplugins" "${H[@]}" 2>&1 || true)
-          note "LIST plugins folder (first 300 chars of reply): $(echo "$raw" | tr '\n' ' ' | cut -c1-300)"
-          for n in freezetag.smx 88x31_settings.smx; do
-            note "SIZE $n: server=$(server_size /tf/addons/sourcemod/plugins "$n") repo=$(stat -c %s tf/addons/sourcemod/plugins/$n)"
-          done
+          if [ -z "$LIST_ROUTE" ]; then
+            note "NO WORKING LIST ADDRESS FOUND - cannot read sizes"
+          else
+            note "USING list address: $LIST_ROUTE?$LIST_PARAM="
+            note "RAW first entry of /tf listing: $(list_dir /tf | jq -c '.data[0]' 2>/dev/null | cut -c1-300)"
+            note "NAMES in /tf: $(list_dir /tf | jq -r '[.data[]?.attributes.name] | join(" ")' 2>/dev/null | cut -c1-400)"
+            # 2. Read-only sizes: real plugins vs repo, and the scratch files from the first test.
+            for n in freezetag.smx 88x31_settings.smx; do
+              note "SIZE plugin $n: server=$(server_size /tf/addons/sourcemod/plugins "$n") repo=$(stat -c %s tf/addons/sourcemod/plugins/$n)"
+            done
+            repo_size=$(stat -c %s tf/addons/sourcemod/plugins/freezetag.smx)
+            for m in m1 m2 m3; do
+              note "SIZE scratch 88x31_probe_$m.bin: server=$(server_size /tf 88x31_probe_$m.bin) repo copy of freezetag.smx=$repo_size (m1=octet-stream, m2=text/plain, m3=curl default)"
+            done
+          fi
 
-          # 2. Scratch writes of the real freezetag.smx with three different Content-Types.
-          F=tf/addons/sourcemod/plugins/freezetag.smx
-          local_size=$(stat -c %s "$F")
-          write_test() { # scratch name, content type ("" = curl's default)
-            p=$(enc "/tf/$1")
-            ct=(); [ -n "$2" ] && ct=(-H "Content-Type: $2")
-            curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/files/write?file=$p&path=$p" "${H[@]}" "${ct[@]}" --data-binary @"$F" 2>&1 || true
+          # 3. Delete the scratch files. Try request shapes until one is accepted, then check.
+          gone() { [ -n "$LIST_ROUTE" ] && [ "$(server_size /tf 88x31_probe_m1.bin)" = "none" ] && [ "$(server_size /tf 88x31_probe_m2.bin)" = "none" ] && [ "$(server_size /tf 88x31_probe_m3.bin)" = "none" ]; }
+          try_delete() { # label json
+            r=$(curl -sS -w ' HTTP %{http_code}' -X POST "$API/files/delete" "${H[@]}" -H "Content-Type: application/json" -d "$2" 2>&1 || true)
+            note "DELETE $1: $(echo "$r" | tr '\n' ' ' | cut -c1-200)"
           }
-          code1=$(write_test 88x31_probe_m1.bin application/octet-stream)
-          code2=$(write_test 88x31_probe_m2.bin text/plain)
-          code3=$(write_test 88x31_probe_m3.bin "")
-          for pair in "m1 octet-stream $code1" "m2 text/plain $code2" "m3 curl-default $code3"; do
-            set -- $pair
-            got=$(server_size /tf "88x31_probe_$1.bin")
-            if [ "$got" = "$local_size" ]; then v="SAME SIZE"; else v="DIFFERENT"; fi
-            note "WRITE $2: HTTP $3, server size $got, repo size $local_size -> $v"
-          done
-
-          # 3. Clean up the scratch files.
-          r=$(curl -sS -w ' HTTP %{http_code}' -X POST "$API/files/delete" "${H[@]}" -H "Content-Type: application/json" \
-            -d '{"root":"/tf","files":["88x31_probe_m1.bin","88x31_probe_m2.bin","88x31_probe_m3.bin"]}' 2>&1 || true)
-          note "DELETE scratch files: $(echo "$r" | tr '\n' ' ' | cut -c1-200)"
-          for m in m1 m2 m3; do note "LEFTOVER $m: $(server_size /tf 88x31_probe_$m.bin)"; done
+          try_delete "root+paths(names)" '{"root":"/tf","paths":["88x31_probe_m1.bin","88x31_probe_m2.bin","88x31_probe_m3.bin"]}'
+          if gone; then note "SCRATCH FILES GONE after shape 1"; else
+            try_delete "paths(full paths)" '{"paths":["/tf/88x31_probe_m1.bin","/tf/88x31_probe_m2.bin","/tf/88x31_probe_m3.bin"]}'
+            if gone; then note "SCRATCH FILES GONE after shape 2"; else note "SCRATCH FILES NOT CONFIRMED GONE (list address found: ${LIST_ROUTE:-none})"; fi
+          fi
