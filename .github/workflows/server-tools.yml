@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command, restart, list, show or matchoffset"
+        description: "logs, command, restart, list, show, matchoffset or noautoupdate"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart, list, show, matchoffset]
+        options: [logs, command, restart, list, show, matchoffset, noautoupdate]
       path:
         description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
         required: false
@@ -98,6 +98,20 @@ jobs:
           PY
               if sftp -T "$D/tf2.items.txt" "$base/tf2.items.txt" && sftp "$base/tf2.items.txt" -o "$D/back.txt" && cmp -s "$D/tf2.items.txt" "$D/back.txt"; then
                 say "WROTE tf2.items.txt and downloaded it back: identical"
+              else
+                say "WRITE FAILED or the copy on the server differs"
+              fi
+              ;;
+            noautoupdate)
+              # Sets "DisableAutoUpdate" to "yes" in configs/core.cfg so SourceMod stops rewriting gamedata files at start-up
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/tf/addons/sourcemod/configs"
+              D="$RUNNER_TEMP/cc"; mkdir -p "$D"
+              sftp "$base/core.cfg" -o "$D/core.cfg" || say "could not read core.cfg"
+              grep -n '"DisableAutoUpdate"' "$D/core.cfg" | sed 's/^/BEFORE line /' >> "$R"
+              sed -i -E 's/("DisableAutoUpdate"[[:space:]]+)"no"/\1"yes"/' "$D/core.cfg"
+              grep -n '"DisableAutoUpdate"' "$D/core.cfg" | sed 's/^/AFTER  line /' >> "$R"
+              if sftp -T "$D/core.cfg" "$base/core.cfg" && sftp "$base/core.cfg" -o "$D/back" && cmp -s "$D/core.cfg" "$D/back"; then
+                say "WROTE core.cfg and downloaded it back: identical"
               else
                 say "WRITE FAILED or the copy on the server differs"
               fi
