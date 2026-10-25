@@ -15,9 +15,11 @@ HOSTNAME_ARG="${TF2_HOSTNAME:-88x31 Freeze Tag}"
 echo "== Packages =="
 dpkg --add-architecture i386
 apt-get update -y
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  ca-certificates curl tar screen rsync sudo lib32gcc-s1 lib32stdc++6 libsdl2-2.0-0:i386 libcurl4:i386 2>/dev/null \
-  || DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl tar screen rsync sudo lib32gcc-s1 lib32stdc++6
+DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl tar screen rsync sudo lib32gcc-s1 lib32stdc++6
+# 32-bit libraries the TF2 server needs (replay_srv.so fails to load without libcurl). Names differ by Debian/Ubuntu version.
+for p in libcurl4t64:i386 libcurl4:i386 libsdl2-2.0-0:i386; do
+  DEBIAN_FRONTEND=noninteractive apt-get install -y "$p" >/dev/null 2>&1 && echo "installed $p" || true
+done
 
 echo "== Server user =="
 id "$SRV_USER" >/dev/null 2>&1 || useradd -m -s /bin/bash "$SRV_USER"
