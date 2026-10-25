@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## Original plugin file restored
-**Sun Oct 25, 2026 · 3:42 AM HST** (commit pending)
+**Sun Oct 25, 2026 · 3:42 AM HST** (8ce7181)
 - **Changed:** `freezetag.smx` is the exact file from commit 92ec34f (47,645 bytes), not the fresh build GitHub made from the same source (47,603 bytes). The source `freezetag.sp` was already identical to 92ec34f.
 - **Removed:** the rebuilt `freezetag.smx` (commit 9e967c5).
 
