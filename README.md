@@ -42,13 +42,3 @@ spcomp freezetag.sp -o freezetag.smx
 ```
 
 This needs SourceMod 1.12's include files plus `tf2items.inc` from the TF2Items download.
-
-## Server settings and auto-deploy
-
-- `tf/cfg/88x31.cfg`: server name, bots, friendly fire, waiting-for-players. Run by
-  `88x31_settings.smx` after all other config files, so it wins over `server.cfg`.
-- `tf/cfg/mapcycle.txt`: map rotation (official cp_ and koth_ maps, minus junction and steel).
-- Pushing a change to any of these, or to `freezetag.smx`, makes GitHub Actions upload them to the
-  server and run `sm plugins refresh` and `exec 88x31.cfg`. Needs repo secrets `PTERO_URL`,
-  `PTERO_SERVER_ID`, `PTERO_API_KEY`.
-- Not deployed: `freezetag_maps.cfg` (the server's copy differs from this one), admins.
