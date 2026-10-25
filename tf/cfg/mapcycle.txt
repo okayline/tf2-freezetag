@@ -1,7 +1,3 @@
-ctf_doublecross_snowy
-ctf_frosty
-ctf_snowfall_final
-ctf_turbine_winter
 cp_gravelpit_snowy
 cp_frostwatch
 cp_snowplow
