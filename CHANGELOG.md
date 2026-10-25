@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Thawed players come back with 75% health, more
+**Sun Oct 25, 2026 · 5:28 AM HST**
+- **Changed:** `hpratiored` and `hpratioblue` are 0.75 (were 0.5, and 0.75 for Red in `pl_` and `cp_`) in all 10 profiles, so a teammate thaws you with 75% health. `cp_` now has `eliminations` 1, so a control point round ends when a whole team is frozen. `88x31.cfg` sets `sm_freezetag_thirdperson 1` (third person view while frozen), `sm_freezetag_proxpulse 0.1` (thaw rings update 10 times a second, was 0.2) and `sm_freezetag_forcecap 0` (push cap, was 500).
+- **Removed:** nothing. Map settings apply from the next map; `thirdperson` and `proxpulse` should apply from the next map too (not checked). Not tested yet.
+
 ## 10 rounds per map, thaw radius 200
 **Sun Oct 25, 2026 · 5:24 AM HST**
 - **Changed:** `maxrounds` is 10 (was 30, and 15 in one profile) and `radius` is 200 (was 150) in all 10 profiles of `freezetag_maps.cfg`.
