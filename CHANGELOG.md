@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Only snowy maps in the rotation
+**Sun Oct 25, 2026 · 5:36 AM HST**
+- **Changed:** `mapcycle.txt` has 8 maps: `ctf_doublecross_snowy`, `ctf_frosty`, `ctf_snowfall_final`, `ctf_turbine_winter`, `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`.
+- **Removed:** all 28 old maps (`cp_gravelpit`, `cp_dustbowl`, `koth_viaduct`, `cp_mountainlab` and the rest). Not tested yet; not checked that the server has all 8 map files.
+
 ## Thawed players come back with 75% health, more
 **Sun Oct 25, 2026 · 5:28 AM HST**
 - **Changed:** `hpratiored` and `hpratioblue` are 0.75 (were 0.5, and 0.75 for Red in `pl_` and `cp_`) in all 10 profiles, so a teammate thaws you with 75% health. `cp_` now has `eliminations` 1, so a control point round ends when a whole team is frozen. `88x31.cfg` sets `sm_freezetag_thirdperson 1` (third person view while frozen), `sm_freezetag_proxpulse 0.1` (thaw rings update 10 times a second, was 0.2) and `sm_freezetag_forcecap 0` (push cap, was 500).
