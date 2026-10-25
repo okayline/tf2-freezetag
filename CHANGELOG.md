@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Server tools, matching weapon numbers, SourceMod auto-update off
+**Sun Oct 25, 2026 · 4:03 AM HST** (45996ef, 6c0a4d5, cf0a363 and the commits before them)
+- **Added:** `.github/workflows/server-tools.yml`, started by hand only: read the server's logs, list a folder, show a file, send a console command, restart the server, make the `GiveNamedItem` numbers in the server's `tf2.items.txt` equal to the ones in `sdktools.games/game.tf.txt`, and switch off SourceMod's automatic gamedata update.
+- **Changed on the server (not in this repo):** `tf2.items.txt` was 487/494, now 413/414 (the same numbers `game.tf.txt` has); `configs/core.cfg` `DisableAutoUpdate` "no" → "yes".
+- **Removed:** nothing from the repo. The updater no longer rewrites `tf2.items.txt` at start-up.
+- **Why:** the plugin's README says the two numbers must match, and the server log shows the updater putting 494 back at every start (00:12 and 03:53).
+
 ## Everything from tonight's plugin edit restored
 **Sun Oct 25, 2026 · 3:43 AM HST** (1510e07)
 - **Changed:** `deploy.yml`, `88x31.cfg`, `freezetag.sp` and `freezetag.smx` are the files from commit 92ec34f, the state before tonight's plugin edit (commit c276347 changed the first three plus this changelog). Kept: bots, no random crits and no damage spread (they were already in 92ec34f), and `server-tools.yml`.
