@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Admin commands to skip the map: sm_next and sm_random
+**Sun Oct 25, 2026 · 10:55 AM HST**
+- **Added:** `88x31_settings` is now version 1.1 with two admin commands. `sm_next` (or `!next` in chat) changes to the next map in `mapcycle.txt` after a 3 second warning; `sm_random` (or `!random`) picks a random map from the cycle, never the one already being played. Both need the change-map admin right, which the full admins have.
+- **Changed:** nothing else. Not tested yet (the new plugin is compiled by the deploy, so check that it built).
+
 ## Freezing everyone no longer wins the round
 **Sun Oct 25, 2026 · 10:45 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, `eliminations` is now 0 in every profile (it was 1 in most), so freezing a whole team no longer ends the round. Rounds end by capturing points / the king of the hill timer, and frozen players still go back to spawn after 30 seconds. Applies from the next map change.
