@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Krampus taken out of the pool
+**Sun Oct 25, 2026 · 12:59 PM HST**
+- **Removed:** `koth_krampus` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), at the owner's request. The pool is now 10 maps. Takes effect when the map cycle is next read.
+- **Changed:** nothing else. Not tested yet.
+
 ## Frozen too long: back to spawn after 10 seconds
 **Sun Oct 25, 2026 · 12:52 PM HST**
 - **Changed:** in `freezetag_maps.cfg`, `autotimered` and `autotimeblue` are 10 in the `default`, `cp_` and `koth_` profiles (they were 30), so a player who stays frozen for 10 seconds is respawned in their team's spawn room. Applies from the next map change.

@@ -8,4 +8,3 @@ koth_snowtower
 koth_winter_ridge
 koth_highpass
 koth_overcast_final
-koth_krampus

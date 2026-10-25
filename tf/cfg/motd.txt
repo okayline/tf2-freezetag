@@ -13,6 +13,5 @@
 <li>koth_winter_ridge</li>
 <li>koth_highpass</li>
 <li>koth_overcast_final</li>
-<li>koth_krampus</li>
 </ul>
 </body></html>
