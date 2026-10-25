@@ -21,12 +21,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upload files to the server
+      - name: Upload plugins to the server
+        run: |
+          # Plugins are binary: use the panel's file-upload method (the "write" method mangles binary files).
+          for f in \
+            tf/addons/sourcemod/plugins/freezetag.smx \
+            tf/addons/sourcemod/plugins/88x31_settings.smx
+          do
+            url=$(curl --fail-with-body -sS \
+              "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/files/upload" \
+              -H "Authorization: Bearer $PTERO_API_KEY" \
+              -H "Accept: application/json" | jq -r '.attributes.url')
+            curl --fail-with-body -sS -X POST \
+              "$url&directory=%2Ftf%2Faddons%2Fsourcemod%2Fplugins" \
+              -F "files=@$f"
+            echo "Uploaded $f"
+          done
+
+      - name: Upload text files to the server
         run: |
           # Each file goes to the same path under /home/container on the server.
           for f in \
-            tf/addons/sourcemod/plugins/freezetag.smx \
-            tf/addons/sourcemod/plugins/88x31_settings.smx \
             tf/cfg/88x31.cfg \
             tf/cfg/mapcycle.txt
           do
@@ -35,7 +50,7 @@ jobs:
               "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/files/write?file=$p&path=$p" \
               -H "Authorization: Bearer $PTERO_API_KEY" \
               -H "Accept: application/json" \
-              -H "Content-Type: application/octet-stream" \
+              -H "Content-Type: text/plain" \
               --data-binary @"$f"
             echo "Uploaded $f"
           done
