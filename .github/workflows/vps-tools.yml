@@ -8,6 +8,7 @@ name: VPS tools (manual only)
 #   command  sends one console command to the running server (goes in the "command" box)
 #   install-package  apt-get installs one package (name in the box; letters, digits, . + - : only)
 #   l4d-setup        installs Left 4 Dead 1 next to TF2 (service "l4d", port 27016). Takes a few minutes.
+#   l4d-sourcemod    installs Metamod:Source + SourceMod into the L4D1 server and makes ryan an admin there (then restart l4d)
 #   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
 #   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
 #   list-maps        lists installed maps; snow/winter/event ones, or ones matching a filter in the box (like cp_|koth_)
@@ -26,7 +27,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -68,6 +69,9 @@ jobs:
             l4d-setup)
               scp $SSHO vps/setup-l4d.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d.sh" >> "$R" 2>&1 \
                 && vps "bash /root/setup-l4d.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+            l4d-sourcemod)
+              scp $SSHO vps/setup-l4d-sourcemod.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d-sourcemod.sh" >> "$R" 2>&1 \
+                && vps "bash /root/setup-l4d-sourcemod.sh" 2>&1 | tail -c 2500 >> "$R" ;;
             l4d-start|l4d-stop|l4d-restart) vps "systemctl ${ACTION#l4d-} l4d; sleep 2; systemctl is-active l4d" >> "$R" 2>&1 ;;
             l4d-console)
               vps 'sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; sleep 1; tail -n 40 /home/tf2/l4d-console.txt; echo "-- processes:"; pgrep -a srcds | grep left4dead | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
