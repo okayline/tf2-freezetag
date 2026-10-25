@@ -118,6 +118,7 @@ new g_iceblock[MAXPLAYERS+1];                     // Track iceblock models
 
 new Float:g_fDeathVec[MAXPLAYERS+1][3];		  // Track Death Positions
 new Float:g_fDeathAng[MAXPLAYERS+1][3];		  // Track Death Angle
+new Float:g_fDeathVel[MAXPLAYERS+1][3];		  // Track Death Velocity - LOL
 new bool:g_bDeathDuck[MAXPLAYERS+1];              // Track Crouching State
 new g_playerProx[MAXPLAYERS+1][MAXPLAYERS+1];	  // Track Nearby Players When Frozen, BIG!
 new g_unfreezer[MAXPLAYERS+1];                    // Track the unfreezing client so visual-priority can be granted
@@ -1449,6 +1450,15 @@ public event_post_inventory_application(Handle:hEvent, String:strName[], bool:bD
                         g_bFrozen[client] = false;                                                        // Set them unfrozen, so they can suicide
                         g_bUnassigned[client] = false;
                         g_stuck[client] = 0;
+                	if (g_activeround == 2)
+                	{
+                        	FakeClientCommand(client,"kill");                                         // Slay them in the active round
+
+                        	if (g_bFeedback)
+                        	{
+                                	PrintToChat(client,"\x04[Freeze]:\x01 %t","feedback_joinpenalty");
+         	        	}
+                	}
 			g_playerclass[client] = TF2_GetPlayerClass(client);                               // Store the class of late joiners - it will persist for the round and reconnects
 			g_futureclass[client] = TFClass_Unknown;
                 }
@@ -1631,10 +1641,9 @@ public Action:OnTakeDamage(client, &attacker, &inflictor, &Float:damage, &damage
                 }
 
                 new Float:newdamage = damage*g_fForceMulti;
-                if(newdamage == 0.0)                                                            // No push (force 0): still no damage
+                if(newdamage == 0.0)                                                            // If there's no force, don't bother
         	{
-                        damage = 0.0;
-                        return Plugin_Changed;
+                        return Plugin_Continue;
                 }
 
                 decl Float:clientposition[3], Float:targetposition[3], Float:vector[3];
@@ -1808,6 +1817,7 @@ public event_player_death(Handle:event, const String:name[], bool:dontBroadcast)
 
                 GetClientAbsOrigin(client, g_fDeathVec[client]);                          // Store the location they died at
                 GetClientEyeAngles(client, g_fDeathAng[client]);                          // Store where they were looking
+                GetEntPropVector(client, Prop_Data, "m_vecVelocity", g_fDeathVel[client]);// Store their Velocity
 
 	        if (GetEntProp(client, Prop_Send, "m_bDucked"))                           // Store if they were ducking or not
 	        {
@@ -1955,7 +1965,7 @@ public Action:Timer_FreezeClientInPlace(Handle:timer, any:userid)
 	                SetEntityFlags(client, GetEntityFlags(client) | FL_DUCKING);
                 }
 
-                TeleportEntity(client, g_fDeathVec[client], g_fDeathAng[client], NULL_VECTOR);  // Frozen players start still
+                TeleportEntity(client, g_fDeathVec[client], g_fDeathAng[client], g_fDeathVel[client]);  // Players will continue along the path they had in life
 
                 freezeClient(client);                                                      // Freeze Player, check proximity, draw rings, etc
         }
