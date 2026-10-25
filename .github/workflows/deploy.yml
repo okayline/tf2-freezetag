@@ -14,6 +14,15 @@ on:
       - tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so
       - tf/addons/sourcemod/extensions/tf2items.autoload
       - tf/addons/sourcemod/gamedata/tf2.items.txt
+      - tf/addons/sourcemod/translations/freezetag.phrases.txt
+      - tf/addons/sourcemod/configs/freezetag_maps.cfg
+      - tf/custom/freezetag_models/materials/models/custom/freezetag/ice_tint_blue.vmt
+      - tf/custom/freezetag_models/materials/models/custom/freezetag/ice_tint_red.vmt
+      - tf/custom/freezetag_models/models/custom/freezetag/iceshard.dx80.vtx
+      - tf/custom/freezetag_models/models/custom/freezetag/iceshard.dx90.vtx
+      - tf/custom/freezetag_models/models/custom/freezetag/iceshard.mdl
+      - tf/custom/freezetag_models/models/custom/freezetag/iceshard.sw.vtx
+      - tf/custom/freezetag_models/models/custom/freezetag/iceshard.vvd
       - tf/addons/sourcemod/plugins/88x31_settings.smx
       - tf/cfg/88x31.cfg
       - tf/cfg/mapcycle.txt
@@ -43,6 +52,15 @@ jobs:
             tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so \
             tf/addons/sourcemod/extensions/tf2items.autoload \
             tf/addons/sourcemod/gamedata/tf2.items.txt \
+            tf/addons/sourcemod/translations/freezetag.phrases.txt \
+            tf/addons/sourcemod/configs/freezetag_maps.cfg \
+            tf/custom/freezetag_models/materials/models/custom/freezetag/ice_tint_blue.vmt \
+            tf/custom/freezetag_models/materials/models/custom/freezetag/ice_tint_red.vmt \
+            tf/custom/freezetag_models/models/custom/freezetag/iceshard.dx80.vtx \
+            tf/custom/freezetag_models/models/custom/freezetag/iceshard.dx90.vtx \
+            tf/custom/freezetag_models/models/custom/freezetag/iceshard.mdl \
+            tf/custom/freezetag_models/models/custom/freezetag/iceshard.sw.vtx \
+            tf/custom/freezetag_models/models/custom/freezetag/iceshard.vvd \
             tf/addons/sourcemod/plugins/freezetag.smx \
             tf/addons/sourcemod/plugins/88x31_settings.smx \
             tf/cfg/88x31.cfg \
@@ -50,7 +68,7 @@ jobs:
           do
             url="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/$f"
             # -k: do not check the server's host key (the password goes only to the host in the secret)
-            if curl -sS --fail-with-body -k --user "$SFTP_USER:$SFTP_PASSWORD" -T "$f" "$url" 2> "$RUNNER_TEMP/err"; then
+            if curl -sS --fail-with-body -k --ftp-create-dirs --user "$SFTP_USER:$SFTP_PASSWORD" -T "$f" "$url" 2> "$RUNNER_TEMP/err"; then
               rm -f "$RUNNER_TEMP/back"
               if curl -sS --fail-with-body -k --user "$SFTP_USER:$SFTP_PASSWORD" "$url" -o "$RUNNER_TEMP/back" 2> "$RUNNER_TEMP/err" \
                  && cmp -s "$f" "$RUNNER_TEMP/back"; then
