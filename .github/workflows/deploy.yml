@@ -4,10 +4,9 @@ name: Deploy to TF2 server
 #  1. If a .sp (source) file changed, it compiles the plugin first. If nothing .sp changed, this step is skipped,
 #     so ordinary setting changes stay quick. The compiled .smx is saved back into the repo
 #     (commit message ends with [skip ci]). If compiling fails, nothing is sent to the server.
-#  2. Sends the server files over SFTP and checks each one arrived byte for byte (downloads it back and compares).
-#  3. Tells the server to reload the plugins and re-read 88x31.cfg.
-# Needs repo secrets: SFTP_HOST, SFTP_USER, SFTP_PASSWORD (WinterNode panel > server > Settings > SFTP Details)
-# and, for the reload commands, PTERO_URL, PTERO_SERVER_ID, PTERO_API_KEY.
+#  2. Sends the server files to the VPS over SSH (rsync) and checks each one arrived by checksum.
+#  3. Tells the server console to reload the plugins and re-read 88x31.cfg.
+# Needs repo secrets: VPS_HOST (the VPS's IP), VPS_USER (root) and VPS_SSH_KEY (private key whose public half is in the VPS's authorized_keys).
 # The result of every run is printed as ONE note on the run page (so nothing gets cut off).
 on:
   push:
@@ -109,16 +108,18 @@ jobs:
             fi
           fi
 
-      - name: Send the files and check them
+      - name: Send the files to the VPS
         id: send
         if: steps.compile.outputs.ok == '1'
         env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
         run: |
           R="$RUNNER_TEMP/result.txt"
           say() { echo "$*" >> "$R"; }
+          mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
+          SSH="ssh -i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
           ok=1
           for f in \
             tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so \
@@ -140,16 +141,9 @@ jobs:
             tf/cfg/motd.txt \
             tf/cfg/motd_text.txt
           do
-            url="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/$f"
-            # -k: do not check the server's host key (the password goes only to the host in the secret)
-            if curl -sS --fail-with-body -k --ftp-create-dirs --user "$SFTP_USER:$SFTP_PASSWORD" -T "$f" "$url" 2> "$RUNNER_TEMP/err"; then
-              rm -f "$RUNNER_TEMP/back"
-              if curl -sS --fail-with-body -k --user "$SFTP_USER:$SFTP_PASSWORD" "$url" -o "$RUNNER_TEMP/back" 2> "$RUNNER_TEMP/err" \
-                 && cmp -s "$f" "$RUNNER_TEMP/back"; then
-                say "OK     /$f  ($(stat -c %s "$f") bytes, downloaded back and identical)"
-              else
-                say "BAD    /$f  sent, but the copy on the server is different or could not be read back: $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-160)"; ok=0
-              fi
+            # rsync -c compares checksums, so a file is only "OK" if the copy on the server matches
+            if rsync -c --chown=tf2:tf2 --rsync-path="mkdir -p /home/tf2/server/$(dirname "$f") && rsync" -e "$SSH" "$f" "$VPS_USER@$VPS_HOST:/home/tf2/server/$f" 2> "$RUNNER_TEMP/err"; then
+              say "OK     /$f  ($(stat -c %s "$f") bytes)"
             else
               say "FAILED /$f  $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-200)"; ok=0
             fi
@@ -160,20 +154,18 @@ jobs:
       - name: Reload the plugins and apply settings
         if: steps.send.outputs.ok == '1'
         env:
-          PTERO_URL: ${{ secrets.PTERO_URL }}
-          PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
-          PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           R="$RUNNER_TEMP/result.txt"
+          SSH="ssh -i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
           # refresh = load new plugins and reload changed ones; then apply 88x31.cfg now.
           for c in "sm plugins refresh" "exec 88x31.cfg"; do
-            code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
-              "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/command" \
-              -H "Authorization: Bearer $PTERO_API_KEY" \
-              -H "Accept: application/json" \
-              -H "Content-Type: application/json" \
-              -d "{\"command\":\"$c\"}" 2>&1 || true)
-            echo "COMMAND \"$c\"  panel answered HTTP $code" >> "$R"
+            if $SSH "sudo -u tf2 screen -S tf2 -X stuff \"$c\$(printf '\\r')\"" 2>"$RUNNER_TEMP/err"; then
+              echo "COMMAND \"$c\"  sent to the server console" >> "$R"
+            else
+              echo "COMMAND \"$c\"  FAILED (is the tf2 service running?): $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-150)" >> "$R"
+            fi
             sleep 2
           done
 

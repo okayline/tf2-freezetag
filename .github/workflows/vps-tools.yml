@@ -1,0 +1,56 @@
+name: VPS tools (manual only)
+
+# Never runs on its own. Started by hand from the Actions tab (or by Claude).
+#   setup    uploads vps/setup.sh to the VPS and runs it (installs steamcmd, TF2, Metamod, SourceMod, the "tf2" service). Takes a while.
+#   start / stop / restart   controls the tf2 service
+#   status   shows the service state and disk space
+#   logs     prints the last lines of the server's screen/journal output and the newest SourceMod error log
+#   command  sends one console command to the running server (goes in the "command" box)
+# Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "What to do"
+        required: true
+        default: status
+        type: choice
+        options: [setup, start, stop, restart, status, logs, command]
+      command:
+        description: "Console command (only for action = command)"
+        required: false
+        default: ""
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    env:
+      ACTION: ${{ inputs.action }}
+      COMMAND: ${{ inputs.command }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run
+        run: |
+          set +e
+          mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
+          SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20"
+          vps() { ssh $SSHO "$VPS_USER@$VPS_HOST" "$@"; }
+          R="$RUNNER_TEMP/result.txt"; : > "$R"
+          case "$ACTION" in
+            setup)
+              scp $SSHO vps/setup.sh "$VPS_USER@$VPS_HOST:/root/setup.sh" >> "$R" 2>&1 \
+                && vps "bash /root/setup.sh" 2>&1 | tail -n 40 >> "$R" ;;
+            start|stop|restart) vps "systemctl $ACTION tf2; sleep 2; systemctl is-active tf2" >> "$R" 2>&1 ;;
+            status) vps "systemctl is-active tf2; df -h /home | tail -1; free -m | sed -n 2p" >> "$R" 2>&1 ;;
+            logs)
+              vps "journalctl -u tf2 -n 40 --no-pager; echo ---; f=\$(ls -t /home/tf2/server/tf/addons/sourcemod/logs/errors_*.log 2>/dev/null | head -1); [ -n \"\$f\" ] && tail -n 30 \"\$f\"" 2>&1 | tail -n 70 >> "$R" ;;
+            command)
+              [ -n "$COMMAND" ] || { echo "No command was given." >> "$R"; }
+              [ -z "$COMMAND" ] || { printf '%s' "$COMMAND" | vps 'c=$(cat); sudo -u tf2 screen -S tf2 -X stuff "$c$(printf "\r")"' >> "$R" 2>&1 && echo "sent: $COMMAND" >> "$R"; } ;;
+          esac
+          [ -s "$R" ] || echo "(no output)" >> "$R"
+          m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+          echo "::notice title=VPS $ACTION::$m"
