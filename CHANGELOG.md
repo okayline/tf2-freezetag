@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Payload map removed
+**Sun Oct 25, 2026 · 10:15 AM HST**
+- **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
+- **Changed:** nothing else. Not tested yet.
+
 ## Maps last longer
 **Sun Oct 25, 2026 · 10:10 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, the round limit per map (`maxrounds`) went from 10 to 30 for every profile, so a map no longer ends after 10 short rounds. The plugin also uses this number as the win limit. The new limit applies from the next map change.
