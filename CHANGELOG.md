@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Trying sp-discordrelay for chat in both directions
+**Sun Oct 25, 2026 · 2:20 PM HST**
+- **Added:** `vps/install-discordrelay.sh` and the `relay-install` action. It downloads [sp-discordrelay](https://github.com/log-ical/sp-discordrelay) (log-ical) and the three things it needs (ripext, SteamWorks, discord-api) into a staging folder on the VPS, and only if every piece is found copies them into the TF2 server's `addons/sourcemod`. It does not restart the server or change any settings. The webhook link and the bot token get typed into `discordrelay.cfg` on the VPS by the owner, never into the repo.
+- **Why:** the log-feed script (`discord-feed.py`) received 0 log lines from the server, and the cause wasn't found.
+- **Removed:** nothing. `discord-feed.py` is still installed and running; it is not removed.
+- **Not tested:** nothing has run yet. Which release files are picked, the plugin's own `.smx` being current with its source, and whether these load on this TF2 server are all not checked.
+
 ## TF2 feed: no log lines were arriving
 **Sun Oct 25, 2026 · 2:05 PM HST**
 - **Found:** the feed ran but received 0 log lines in 5 minutes (journal: "last 5 min: 0 log lines"). Likely cause, not confirmed: `discord-feed.py` ran `log on` and `logaddress_add` in one block, so if the server gave no reply to `log on`, the timeout skipped `logaddress_add`.
