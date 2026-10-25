@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## Plugin rolled back to before tonight's edits
-**Sun Oct 25, 2026 · 3:36 AM HST** (commit pending)
+**Sun Oct 25, 2026 · 3:36 AM HST** (5507a98)
 - **Why:** the bots stopped moving after tonight's changes; Kura asked to roll the plugin back and change one thing at a time.
 - **Removed:** the 3 edits to `freezetag.sp` (hits on frozen players do no push and no damage; no slide at freeze; no kill for joining a round in progress) and the plugin build made from them. `freezetag.sp` and `freezetag.smx` are the files from commit 92ec34f. `freezetag.smx` will be rebuilt from that source when this is pushed (the build step runs because the `.sp` changes), so it may not be byte-identical to the old file.
 - **Changed:** `tf/cfg/88x31.cfg`: `sm_freezetag_model` 0 → 1 and `sm_freezetag_forcemulti` 0 → 10 (the plugin's own values; written out because a value already set on the running server stays until changed). Kept: bots, no random crits, no damage spread.
