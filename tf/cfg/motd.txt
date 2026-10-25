@@ -7,6 +7,5 @@
 <li>cp_frostwatch</li>
 <li>cp_snowplow</li>
 <li>koth_snowtower</li>
-<li>pl_snowycoast</li>
 </ul>
 </body></html>

@@ -2,4 +2,3 @@ cp_gravelpit_snowy
 cp_frostwatch
 cp_snowplow
 koth_snowtower
-pl_snowycoast
