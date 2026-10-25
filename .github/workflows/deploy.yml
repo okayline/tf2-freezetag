@@ -1,0 +1,88 @@
+name: Deploy to TF2 server
+
+# Sends the server files over SFTP, checks each one arrived byte for byte (by downloading it back
+# and comparing), then tells the server to reload. Runs when a push to main changes one of the
+# files below (or this file), or by hand from the Actions tab.
+# Needs repo secrets: SFTP_HOST, SFTP_USER, SFTP_PASSWORD (WinterNode panel > server > Settings > SFTP Details)
+# and, for the reload commands, PTERO_URL, PTERO_SERVER_ID, PTERO_API_KEY.
+# The result of every run is printed as ONE note on the run page (so nothing gets cut off).
+on:
+  push:
+    branches: [main]
+    paths:
+      - tf/addons/sourcemod/plugins/freezetag.smx
+      - tf/addons/sourcemod/plugins/88x31_settings.smx
+      - tf/cfg/88x31.cfg
+      - tf/cfg/mapcycle.txt
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SFTP_HOST: ${{ secrets.SFTP_HOST }}
+      SFTP_USER: ${{ secrets.SFTP_USER }}
+      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+      PTERO_URL: ${{ secrets.PTERO_URL }}
+      PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+      PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send the files and check them
+        id: send
+        run: |
+          R="$RUNNER_TEMP/result.txt"; : > "$R"
+          say() { echo "$*" >> "$R"; }
+          ok=1
+          for f in \
+            tf/addons/sourcemod/plugins/freezetag.smx \
+            tf/addons/sourcemod/plugins/88x31_settings.smx \
+            tf/cfg/88x31.cfg \
+            tf/cfg/mapcycle.txt
+          do
+            url="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/$f"
+            # -k: do not check the server's host key (the password goes only to the host in the secret)
+            if curl -sS --fail-with-body -k --user "$SFTP_USER:$SFTP_PASSWORD" -T "$f" "$url" 2> "$RUNNER_TEMP/err"; then
+              rm -f "$RUNNER_TEMP/back"
+              if curl -sS --fail-with-body -k --user "$SFTP_USER:$SFTP_PASSWORD" "$url" -o "$RUNNER_TEMP/back" 2> "$RUNNER_TEMP/err" \
+                 && cmp -s "$f" "$RUNNER_TEMP/back"; then
+                say "OK     /$f  ($(stat -c %s "$f") bytes, downloaded back and identical)"
+              else
+                say "BAD    /$f  sent, but the copy on the server is different or could not be read back: $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-160)"; ok=0
+              fi
+            else
+              say "FAILED /$f  $(tr '\n' ' ' < "$RUNNER_TEMP/err" | cut -c1-200)"; ok=0
+            fi
+          done
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          [ "$ok" = 1 ]
+
+      - name: Reload the plugins and apply settings
+        if: steps.send.outputs.ok == '1'
+        run: |
+          R="$RUNNER_TEMP/result.txt"
+          # refresh = load new plugins and reload changed ones; then apply 88x31.cfg now.
+          for c in "sm plugins refresh" "exec 88x31.cfg"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+              "$PTERO_URL/api/client/servers/$PTERO_SERVER_ID/command" \
+              -H "Authorization: Bearer $PTERO_API_KEY" \
+              -H "Accept: application/json" \
+              -H "Content-Type: application/json" \
+              -d "{\"command\":\"$c\"}" 2>&1 || true)
+            echo "COMMAND \"$c\"  panel answered HTTP $code" >> "$R"
+            sleep 2
+          done
+
+      - name: Print the result
+        if: always()
+        run: |
+          R="$RUNNER_TEMP/result.txt"
+          [ -s "$R" ] || echo "Nothing was sent (the run stopped before the first file)." > "$R"
+          msg=$(sed ':a;N;$!ba;s/\n/%0A/g' "$R")
+          if [ "${{ steps.send.outputs.ok }}" = "1" ]; then
+            echo "::notice title=Deploy result::$msg"
+          else
+            echo "::error title=Deploy problem::$msg"
+          fi
