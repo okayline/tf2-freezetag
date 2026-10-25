@@ -6,6 +6,11 @@ name: VPS tools (manual only)
 #   status   shows the service state and disk space
 #   logs     prints the last lines of the server's screen/journal output and the newest SourceMod error log
 #   command  sends one console command to the running server (goes in the "command" box)
+#   install-package  apt-get installs one package (name in the box; letters, digits, . + - only)
+#   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
+#   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
+#   open-port        allows a port through the firewall, like 27015/udp (ufw, only if ufw is on)
+#   system-check     OS, uptime, load, memory, disk, listening ports, firewall
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
   workflow_dispatch:
@@ -15,9 +20,9 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command]
+        options: [setup, start, stop, restart, status, logs, command, install-package, show-file, list-dir, open-port, system-check]
       command:
-        description: "Console command (only for action = command)"
+        description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
         default: ""
 
@@ -50,6 +55,24 @@ jobs:
             command)
               [ -n "$COMMAND" ] || { echo "No command was given." >> "$R"; }
               [ -z "$COMMAND" ] || { printf '%s' "$COMMAND" | vps 'c=$(cat); sudo -u tf2 screen -S tf2 -X stuff "$c$(printf "\r")"' >> "$R" 2>&1 && echo "sent: $COMMAND" >> "$R"; } ;;
+            install-package)
+              if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9][a-z0-9.+-]{0,60}$'; then
+                vps "DEBIAN_FRONTEND=noninteractive apt-get install -y $COMMAND" 2>&1 | tail -n 15 >> "$R"
+              else echo "Give one package name (lowercase letters, digits, . + -)." >> "$R"; fi ;;
+            show-file)
+              if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
+                vps "tail -n 100 -- $COMMAND" 2>&1 | tail -c 3000 >> "$R"
+              else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
+            list-dir)
+              if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
+                vps "ls -lAh --group-directories-first -- $COMMAND" 2>&1 | head -n 60 | tail -c 3000 >> "$R"
+              else echo "Give a folder under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
+            open-port)
+              if printf '%s' "$COMMAND" | grep -Eq '^[0-9]{1,5}/(tcp|udp)$'; then
+                vps "if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow $COMMAND; else echo 'ufw is not active, nothing to open (any firewall is at the VPS provider)'; fi" 2>&1 | tail -n 5 >> "$R"
+              else echo "Give a port like 27015/udp." >> "$R"; fi ;;
+            system-check)
+              vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5)' 2>&1 | tail -c 3000 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
           m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
