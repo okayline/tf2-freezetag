@@ -22,6 +22,8 @@ name: VPS tools (manual only)
 #   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
 #   open-port        allows a port through the firewall, like 27015/udp (ufw, only if ufw is on)
 #   system-check     OS, uptime, load, memory, disk, listening ports, firewall
+#   discord-install  uploads vps/discord-status.py and discord-status-setup.sh and runs the setup (a timer that posts both servers' status to Discord every minute). The webhook links and RCON passwords stay on the VPS, never here.
+#   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
   workflow_dispatch:
@@ -31,7 +33,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -123,6 +125,12 @@ jobs:
               else echo "Give a port like 27015/udp." >> "$R"; fi ;;
             system-check)
               vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5)' 2>&1 | tail -c 3000 >> "$R" ;;
+            discord-install)
+              scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
+                && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
+                && vps "bash /root/discord-status-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+            discord-check)
+              vps 'systemctl is-active discord-status.timer; systemctl list-timers discord-status.timer --no-pager | head -3; journalctl -u discord-status.service -n 6 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
           m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')
