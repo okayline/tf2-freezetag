@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Rounds start with no setup wait
+**Sun Oct 25, 2026 · 5:01 AM HST**
+- **Changed:** `preround` in `freezetag_maps.cfg` is now 0 (was 10) in the default profile and all 9 map profiles, so the round starts as soon as it loads.
+- **Removed:** the 10-second setup wait before each round. That wait was also the time players had to change class, so there is no class change before a round starts now. Not tested yet.
+
 ## Frozen players fall instead of hanging in the air
 **Sun Oct 25, 2026 · 4:55 AM HST**
 - **Changed:** nothing new. Frozen players are held still by the zeroed walk input and speed 1 again, so gravity works and anyone frozen mid-jump falls and lands.
