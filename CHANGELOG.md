@@ -2,11 +2,6 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## Frozen players fall instead of hanging in the air
-**Sun Oct 25, 2026 · 4:55 AM HST**
-- **Changed:** nothing new. Frozen players are held still by the zeroed walk input and speed 1 again, so gravity works and anyone frozen mid-jump falls and lands.
-- **Removed:** in `freezetag.sp`, the "no movement" setting when frozen (`freezeClient`) and the "walking" setting when unfrozen (`unfreezeClient`). "No movement" also turns gravity off, which left players hanging in the air. Not tested yet; if the snap-back comes back, that is what to look at.
-
 ## Frozen in place, no snap-back
 **Sun Oct 25, 2026 · 4:50 AM HST**
 - **Changed:** in `freezetag.sp`, frozen players are now set to "no movement" when frozen (`freezeClient`) and back to walking when unfrozen (`unfreezeClient`), so the game holds them still instead of pulling them back after they try to move.
