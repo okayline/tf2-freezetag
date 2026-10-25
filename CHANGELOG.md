@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## 3 snowy payload maps added
+**Sun Oct 25, 2026 · 5:37 AM HST**
+- **Added:** `pl_frostcliff`, `pl_snowycoast` and `pl_coal_event` in `mapcycle.txt` (11 maps now). They use the `pl_` profile: no round timer, and a round does not end when a team is all frozen.
+- **Removed:** nothing. Not tested yet; not checked that the server has the map files.
+
 ## Only snowy maps in the rotation
 **Sun Oct 25, 2026 · 5:36 AM HST**
 - **Changed:** `mapcycle.txt` has 8 maps: `ctf_doublecross_snowy`, `ctf_frosty`, `ctf_snowfall_final`, `ctf_turbine_winter`, `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`.

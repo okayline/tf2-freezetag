@@ -6,3 +6,6 @@ cp_gravelpit_snowy
 cp_frostwatch
 cp_snowplow
 koth_snowtower
+pl_frostcliff
+pl_snowycoast
+pl_coal_event
