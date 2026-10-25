@@ -66,6 +66,10 @@ jobs:
                   { echo "$(wc -l < "$RUNNER_TEMP/full") lines in the file. First 12:"; head -n 12 "$RUNNER_TEMP/full" | cut -c1-130
                     echo "... last 10:"; tail -n 10 "$RUNNER_TEMP/full" | cut -c1-130; } > "$RUNNER_TEMP/one"
                   note "/$dir/$n (start and end)" "$RUNNER_TEMP/one"
+                  # each different problem once, with the time it first appeared and the full message
+                  grep -E 'Unable|Required|Failed|Could not|xception|UPDATER|xtension|Fatal' "$RUNNER_TEMP/full" \
+                    | grep -v 'Call stack\|Blaming' | awk '!seen[substr($0,26)]++' | head -n 14 | cut -c1-290 > "$RUNNER_TEMP/one"
+                  note "/$dir/$n (each different problem once)" "$RUNNER_TEMP/one"
                 done
               done
               sftp "$base/tf/console.log" 2>&1 | tr -d '\r' | tail -n 25 | cut -c1-200 > "$RUNNER_TEMP/one"
