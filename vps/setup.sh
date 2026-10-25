@@ -16,8 +16,8 @@ echo "== Packages =="
 dpkg --add-architecture i386
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  ca-certificates curl tar screen lib32gcc-s1 lib32stdc++6 libsdl2-2.0-0:i386 libcurl4:i386 2>/dev/null \
-  || DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl tar screen lib32gcc-s1 lib32stdc++6
+  ca-certificates curl tar screen rsync sudo lib32gcc-s1 lib32stdc++6 libsdl2-2.0-0:i386 libcurl4:i386 2>/dev/null \
+  || DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl tar screen rsync sudo lib32gcc-s1 lib32stdc++6
 
 echo "== Server user =="
 id "$SRV_USER" >/dev/null 2>&1 || useradd -m -s /bin/bash "$SRV_USER"
@@ -53,7 +53,7 @@ Wants=network-online.target
 [Service]
 User=$SRV_USER
 WorkingDirectory=$SRV_DIR
-ExecStart=$SRV_DIR/srcds_run -game tf -console -port 27015 +maxplayers 24 +map cp_gravelpit_snowy +hostname "$HOSTNAME_ARG"
+ExecStart=/usr/bin/screen -DmS tf2 $SRV_DIR/srcds_run -game tf -console -port 27015 +maxplayers 24 +map cp_gravelpit_snowy +hostname "$HOSTNAME_ARG"
 Restart=on-failure
 RestartSec=10
 
