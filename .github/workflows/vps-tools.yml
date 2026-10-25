@@ -15,6 +15,7 @@ name: VPS tools (manual only)
 #   list-maps        lists installed maps; snow/winter/event ones, or ones matching a filter in the box (like cp_|koth_)
 #   list-navs        for every map in mapcycle.txt, says whether it has a bot navigation file (.nav); bots stand still on maps without one
 #   map-history      shows the last 15 map changes from the SourceMod logs
+#   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with show-file)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
 #   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
@@ -30,7 +31,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -107,6 +108,11 @@ jobs:
               vps "python3 -" < vps/nav-check.py 2>&1 | tail -c 3000 >> "$R" ;;
             map-history)
               vps "grep -h 'Mapchange to' /home/tf2/server/tf/addons/sourcemod/logs/L*.log | tail -n 15" 2>&1 | tail -c 3000 >> "$R" ;;
+            generate-navs)
+              if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
+                scp $SSHO vps/generate-navs.sh "$VPS_USER@$VPS_HOST:/root/generate-navs.sh" >> "$R" 2>&1 \
+                  && vps "systemctl reset-failed navgen 2>/dev/null; systemd-run --unit navgen --collect /bin/bash /root/generate-navs.sh $COMMAND" 2>&1 | tail -n 5 >> "$R"
+              else echo "Give map names like koth_snowtower cp_frostwatch (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
             list-dir)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
                 vps "ls -lAh --group-directories-first -- $COMMAND" 2>&1 | head -n 60 | tail -c 3000 >> "$R"
