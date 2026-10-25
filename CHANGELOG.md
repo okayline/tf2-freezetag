@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Live TF2 feed to Discord: chat, kills, joins
+**Sun Oct 25, 2026 · 1:55 PM HST**
+- **Added:** `vps/discord-feed.py` (Python standard library only) listens for the TF2 server's own log lines on 127.0.0.1 and posts them in batches every few seconds to a separate Discord channel: chat (all and team), kills with the weapon, joins and leaves, suicides, round wins and map changes. `vps/discord-feed-setup.sh` runs it as an always-on service; `vps-tools.yml` gets `discord-feed-install` and `discord-feed-check`. Every minute the script tells the server over RCON to turn logging on and send it there, so a restart can't silently stop it and `server.cfg` doesn't change.
+- **Kept off GitHub and out of Discord:** the feed's webhook link goes in `/home/tf2/discord/tf2-feed.url` on the VPS. IP addresses and Steam IDs are never posted, and chat text is never written to the journal. Kills between two bots are skipped.
+- **Removed:** nothing.
+- **Tested here:** against a fake RCON server, a fake webhook and made-up log packets in the expected format. Not tested on the real server, so whether TF2's real log lines match is not checked. L4D1 is not included yet. Freeze and rescue events would need changes to `freezetag.sp` and are not included.
+
 ## Discord status for the TF2 and L4D1 servers
 **Sun Oct 25, 2026 · 1:20 PM HST**
 - **Added:** `vps/discord-status.py` (Python standard library only) asks each server for `status` over RCON on 127.0.0.1 and edits one Discord message through a webhook: online or offline, map, player count, and human players' names (bots are counted, not named; IP addresses are never posted). `vps/discord-status-setup.sh` installs it with a systemd timer that runs every minute (TF2 port 27015, L4D1 port 27016). `vps-tools.yml` gets two actions: `discord-install` and `discord-check`.
