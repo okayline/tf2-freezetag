@@ -52,7 +52,7 @@ jobs:
         run: |
           set +e
           mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
-          SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20"
+          SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20 -o LogLevel=ERROR"
           vps() { ssh $SSHO "$VPS_USER@$VPS_HOST" "$@"; }
           R="$RUNNER_TEMP/result.txt"; : > "$R"
           case "$ACTION" in
@@ -125,5 +125,5 @@ jobs:
               vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5)' 2>&1 | tail -c 3000 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
-          m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+          m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')
           echo "::notice title=VPS $ACTION::$m"
