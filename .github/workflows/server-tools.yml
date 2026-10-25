@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command, restart, list or show"
+        description: "logs, command, restart, list, show or matchoffset"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart, list, show]
+        options: [logs, command, restart, list, show, matchoffset]
       path:
         description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
         required: false
@@ -68,6 +68,39 @@ jobs:
               m=$(head -c 3600 "$RUNNER_TEMP/one" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
               echo "::notice title=/$SPATH::$m"
               exit 0 ;;
+            matchoffset)
+              # Makes the GiveNamedItem numbers in gamedata/tf2.items.txt equal to the ones in gamedata/sdktools.games/game.tf.txt
+              # (the plugin's README says they must match). Prints the old and new numbers; verifies by downloading back.
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}/tf/addons/sourcemod/gamedata"
+              D="$RUNNER_TEMP/gd"; mkdir -p "$D"
+              sftp "$base/sdktools.games/game.tf.txt" -o "$D/game.tf.txt" || say "could not read game.tf.txt"
+              sftp "$base/tf2.items.txt" -o "$D/tf2.items.txt" || say "could not read tf2.items.txt"
+              cp "$D/tf2.items.txt" "$D/tf2.items.txt.orig"
+              python3 - "$D" >> "$R" <<'PY'
+          import re, sys
+          d = sys.argv[1]
+          g = open(d + "/game.tf.txt").read()
+          t = open(d + "/tf2.items.txt").read()
+          m = re.search(r'"GiveNamedItem"\s*\{(.*?)\}', g, re.S)
+          want = dict(re.findall(r'"(windows64|windows|linux64|linux)"\s*"(\d+)"', m.group(1)))
+          def fix(mt):
+              b = mt.group(0)
+              for k, v in want.items():
+                  b = re.sub(r'("%s"\s*")(\d+)(")' % k, lambda x: x.group(1) + v + x.group(3), b)
+              return b
+          t2 = re.sub(r'"GiveNamedItem"\s*\{.*?\}', fix, t, count=1, flags=re.S)
+          old = dict(re.findall(r'"(windows64|windows|linux64|linux)"\s*"(\d+)"', re.search(r'"GiveNamedItem"\s*\{(.*?)\}', t, re.S).group(1)))
+          print("sdktools game.tf.txt says:", want)
+          print("tf2.items.txt WAS:", old)
+          open(d + "/tf2.items.txt", "w").write(t2)
+          print("tf2.items.txt NOW:", dict(re.findall(r'"(windows64|windows|linux64|linux)"\s*"(\d+)"', re.search(r'"GiveNamedItem"\s*\{(.*?)\}', t2, re.S).group(1))))
+          PY
+              if sftp -T "$D/tf2.items.txt" "$base/tf2.items.txt" && sftp "$base/tf2.items.txt" -o "$D/back.txt" && cmp -s "$D/tf2.items.txt" "$D/back.txt"; then
+                say "WROTE tf2.items.txt and downloaded it back: identical"
+              else
+                say "WRITE FAILED or the copy on the server differs"
+              fi
+              ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
             logs)
