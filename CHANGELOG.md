@@ -7,6 +7,11 @@
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
 - **Changed:** nothing else. Not tested yet.
 
+## Frozen too long: back to spawn after 30 seconds
+**Sun Oct 25, 2026 · 10:35 AM HST**
+- **Changed:** in `freezetag_maps.cfg`, the `default`, `cp_` and `koth_` profiles now have `autotimered` and `autotimeblue` at 30 (was 0 = never) and `autohpratiored` and `autohpratioblue` at 0.0, so a player who stays frozen for 30 seconds is respawned in their team's spawn room instead of being thawed in place. Frozen players still take no damage. Applies from the next map change.
+- **Removed:** nothing. Not tested yet.
+
 ## Three community maps taken out of the pool
 **Sun Oct 25, 2026 · 10:30 AM HST**
 - **Removed:** `koth_coldline_b2p`, `koth_winterstorm_b3a` and `cp_coldlands_rc3` from `mapcycle.txt` and from the welcome window map list (`motd.txt`, `motd_text.txt`). The pool is back to 14 maps. The map files stay in `tf/maps/` and on the server, so they can be added back by putting their names in those three files.
