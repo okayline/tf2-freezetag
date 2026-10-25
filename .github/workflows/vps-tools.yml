@@ -13,6 +13,7 @@ name: VPS tools (manual only)
 #   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
 #   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
 #   list-maps        lists installed maps; snow/winter/event ones, or ones matching a filter in the box (like cp_|koth_)
+#   list-navs        for every map in mapcycle.txt, says whether it has a bot navigation file (.nav); bots stand still on maps without one
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
 #   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
@@ -28,7 +29,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -101,6 +102,8 @@ jobs:
               F='snow|frost|winter|xmas|ice|cold|event|polar'
               printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_|]{1,60}$' && F="$COMMAND"   # optional filter, like cp_|koth_
               vps "ls /home/tf2/server/tf/maps | grep -iE '\\.bsp$' | sed 's/\\.bsp$//' | grep -E '$F' | tr '\\n' ' '" 2>&1 | tail -c 3000 >> "$R" ;;
+            list-navs)
+              vps "cd /home/tf2/server/tf && for m in \$(grep -E '^[a-z0-9_]+\$' cfg/mapcycle.txt); do if [ -f maps/\$m.nav ]; then echo \"\$m  nav: yes\"; else echo \"\$m  nav: NO\"; fi; done" 2>&1 | tail -c 3000 >> "$R" ;;
             list-dir)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
                 vps "ls -lAh --group-directories-first -- $COMMAND" 2>&1 | head -n 60 | tail -c 3000 >> "$R"
