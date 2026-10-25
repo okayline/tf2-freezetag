@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Bots are "normal" difficulty
+**Sun Oct 25, 2026 · 5:20 AM HST**
+- **Changed:** `tf_bot_difficulty` in `tf/cfg/88x31.cfg` is now 1 (normal), was 2 (hard).
+- **Removed:** nothing. Takes effect when the bots are next added (map change). Not tested yet.
+
 ## No penalty for joining a round in progress
 **Sun Oct 25, 2026 · 5:16 AM HST**
 - **Changed:** in `freezetag.sp`, a player who joins during a round now just plays, instead of being killed (and so frozen) on arrival.
