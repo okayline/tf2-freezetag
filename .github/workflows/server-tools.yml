@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command, restart, list, show, matchoffset, noautoupdate, hash or useold"
+        description: "logs, command, restart, list, show, matchoffset, noautoupdate, hash, useold, tf2itemslinks or installzip"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart, list, show, matchoffset, noautoupdate, hash, useold]
+        options: [logs, command, restart, list, show, matchoffset, noautoupdate, hash, useold, tf2itemslinks, installzip]
       path:
         description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
         required: false
@@ -136,6 +136,25 @@ jobs:
               else
                 say "WRITE FAILED or the copy on the server differs"
               fi
+              ;;
+            tf2itemslinks)
+              # prints the download links found on the TF2Items builds page
+              curl -sS -L "https://builds.limetech.io/?p=tf2items" 2>&1 | grep -o -i 'href="[^"]*tf2items[^"]*"' | sed 's/href=//' | head -n 40 > "$RUNNER_TEMP/one"
+              [ -s "$RUNNER_TEMP/one" ] && say "$(cat "$RUNNER_TEMP/one")" || say "no links found on the page (or the page could not be reached)"
+              ;;
+            installzip)
+              # downloads the zip/tar.gz at the URL in "path", lists what is inside, and uploads addons/sourcemod/{extensions,gamedata,scripting/include} files
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              D="$RUNNER_TEMP/iz"; mkdir -p "$D/x"
+              curl -sS -L -o "$D/pkg" "$SPATH" || say "download failed"
+              say "downloaded $(stat -c %s "$D/pkg") bytes"
+              (cd "$D/x" && { unzip -q -o ../pkg || tar -xzf ../pkg; }) 2>&1 | head -n 3 >> "$R"
+              find "$D/x" -type f | sed "s|$D/x/||" | head -n 40 > "$D/list"
+              say "$(cat "$D/list")"
+              for f in $(grep -E '(^|/)(extensions|gamedata)/' "$D/list"); do
+                rel="tf/${f#*addons/}"; [ "${f#addons/}" = "$f" ] && rel="tf/addons/sourcemod/$f"
+                if sftp --ftp-create-dirs -T "$D/x/$f" "$base/$rel"; then say "UPLOADED /$rel"; else say "FAILED /$rel"; fi
+              done
               ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
