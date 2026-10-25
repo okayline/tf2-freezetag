@@ -9,11 +9,15 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "logs, command or restart"
+        description: "logs, command, restart, list or show"
         required: true
         default: logs
         type: choice
-        options: [logs, command, restart]
+        options: [logs, command, restart, list, show]
+      path:
+        description: "Server path for list (a folder) or show (a file), for example tf/addons/sourcemod/extensions"
+        required: false
+        default: ""
       command:
         description: "Console command (only for action = command)"
         required: false
@@ -25,6 +29,7 @@ jobs:
     env:
       ACTION: ${{ inputs.action }}
       COMMAND: ${{ inputs.command }}
+      SPATH: ${{ inputs.path }}
       SFTP_HOST: ${{ secrets.SFTP_HOST }}
       SFTP_USER: ${{ secrets.SFTP_USER }}
       SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
@@ -48,6 +53,21 @@ jobs:
                 body=$(python3 -c 'import json,os;print(json.dumps({"command":os.environ["COMMAND"]}))')
                 say "COMMAND \"$COMMAND\"  panel answered HTTP $(panel command "$body")"
               fi ;;
+            list)
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              sftp --list-only "$base/${SPATH%/}/" 2>&1 | tr -d '\r' | sort | head -n 80 > "$RUNNER_TEMP/one"
+              m=$(tail -c 3600 "$RUNNER_TEMP/one" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+              echo "::notice title=Files in /$SPATH::$m"
+              exit 0 ;;
+            show)
+              # prints the size of a file and the lines around GiveNamedItem / offset (or the first lines if there are none)
+              base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
+              sftp "$base/$SPATH" 2>&1 | tr -d '\r' > "$RUNNER_TEMP/full"
+              { echo "$(wc -c < "$RUNNER_TEMP/full") bytes, $(wc -l < "$RUNNER_TEMP/full") lines"
+                if grep -q -i 'GiveNamedItem' "$RUNNER_TEMP/full"; then grep -n -i -B3 -A10 'GiveNamedItem' "$RUNNER_TEMP/full" | cut -c1-150; else head -n 30 "$RUNNER_TEMP/full" | cut -c1-150; fi; } > "$RUNNER_TEMP/one"
+              m=$(head -c 3600 "$RUNNER_TEMP/one" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
+              echo "::notice title=/$SPATH::$m"
+              exit 0 ;;
             restart)
               say "RESTART  panel answered HTTP $(panel power '{"signal":"restart"}')" ;;
             logs)
