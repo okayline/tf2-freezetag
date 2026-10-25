@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## No random crits, no damage spread
+**Sun Oct 25, 2026 · 3:11 AM HST** (47eaa33)
+- **Added:** `tf_weapon_criticals 0` and `tf_damage_disablespread 1` in `tf/cfg/88x31.cfg`.
+- **Removed:** nothing. Not added: `tf_weapon_criticals_melee`, because its name was not confirmed.
+
 ## Bots join when the server is empty
 **Sun Oct 25, 2026 · 3:06 AM HST** (f0ab6c8)
 - **Changed:** `tf/cfg/88x31.cfg` line 11, `tf_bot_join_after_player` from 1 to 0. Removed: the rule that bots stay out until a real player joins. Added: nothing else; the quota stays 12 in fill mode, so bots fill the server to 12 players and leave one by one as real players join.
