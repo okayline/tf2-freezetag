@@ -7,6 +7,12 @@
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
 - **Changed:** nothing else. Not tested yet.
 
+## Three community snow maps added
+**Sun Oct 25, 2026 · 10:30 AM HST**
+- **Added:** the community snow maps `koth_coldline_b2p`, `koth_winterstorm_b3a` and `cp_coldlands_rc3` (sent by Ryan), stored packed in `tf/maps/` (`*.bsp.bz2`, about 79 MB together), in `mapcycle.txt` and in the welcome window map list (`motd.txt`, `motd_text.txt`). The map pool is now 17 maps. They use the existing `koth_` and `cp_` profiles.
+- **Changed:** `deploy.yml` now sends every `tf/maps/*.bsp.bz2` file to the server and unpacks it there (only when the packed file is newer than the unpacked map).
+- **Removed:** nothing. Not tested yet. Players without a map download it from the server when they join, which can be slow for these big maps.
+
 ## Round limit back to 10
 **Sun Oct 25, 2026 · 10:20 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, the round limit per map (`maxrounds`) is back to 10 in every profile (it was 30 for a short while). The plugin also uses this number as the win limit. Applies from the next map change.

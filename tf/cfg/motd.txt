@@ -17,5 +17,8 @@
 <li>koth_highpass</li>
 <li>koth_overcast_final</li>
 <li>koth_krampus</li>
+<li>koth_coldline_b2p</li>
+<li>koth_winterstorm_b3a</li>
+<li>cp_coldlands_rc3</li>
 </ul>
 </body></html>

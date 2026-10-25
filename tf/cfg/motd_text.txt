@@ -15,3 +15,6 @@ koth_winter_ridge
 koth_highpass
 koth_overcast_final
 koth_krampus
+koth_coldline_b2p
+koth_winterstorm_b3a
+cp_coldlands_rc3
