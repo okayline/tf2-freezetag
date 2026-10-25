@@ -7,6 +7,8 @@ name: VPS tools (manual only)
 #   logs     prints the last lines of the server's screen/journal output and the newest SourceMod error log
 #   command  sends one console command to the running server (goes in the "command" box)
 #   install-package  apt-get installs one package (name in the box; letters, digits, . + - : only)
+#   l4d-setup        installs Left 4 Dead 1 next to TF2 (service "l4d", port 27016). Takes a few minutes.
+#   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
 #   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
 #   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
@@ -21,7 +23,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -60,6 +62,12 @@ jobs:
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9][a-z0-9.+:-]{0,60}$'; then
                 vps "DEBIAN_FRONTEND=noninteractive apt-get install -y $COMMAND" 2>&1 | tail -n 15 >> "$R"
               else echo "Give one package name (lowercase letters, digits, . + - :)." >> "$R"; fi ;;
+            l4d-setup)
+              scp $SSHO vps/setup-l4d.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d.sh" >> "$R" 2>&1 \
+                && vps "bash /root/setup-l4d.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+            l4d-start|l4d-stop|l4d-restart) vps "systemctl ${ACTION#l4d-} l4d; sleep 2; systemctl is-active l4d" >> "$R" 2>&1 ;;
+            l4d-console)
+              vps 'sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; sleep 1; tail -n 40 /home/tf2/l4d-console.txt; echo "-- processes:"; pgrep -a srcds | grep left4dead | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
             console-view)
               vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
             show-file)
