@@ -1,4 +1,6 @@
 cp_gravelpit_snowy
 cp_frostwatch
 cp_snowplow
+cp_coldfront
 koth_snowtower
+koth_winter_ridge

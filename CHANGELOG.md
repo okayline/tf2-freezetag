@@ -7,6 +7,11 @@
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
 - **Changed:** nothing else. Not tested yet.
 
+## Two more snow maps
+**Sun Oct 25, 2026 · 10:20 AM HST**
+- **Added:** `cp_coldfront` and `koth_winter_ridge` in `mapcycle.txt` and in the map list of the welcome window (`motd.txt`, `motd_text.txt`). The pool is now 6 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `cp_coldfront`, `koth_snowtower`, `koth_winter_ridge`. They use the existing `cp_` and `koth_` profiles.
+- **Removed:** nothing (capture the flag and payload maps were already out). Not tested yet.
+
 ## Maps last longer
 **Sun Oct 25, 2026 · 10:10 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, the round limit per map (`maxrounds`) went from 10 to 30 for every profile, so a map no longer ends after 10 short rounds. The plugin also uses this number as the win limit. The new limit applies from the next map change.
