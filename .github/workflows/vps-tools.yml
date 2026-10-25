@@ -111,7 +111,7 @@ jobs:
             generate-navs)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
                 scp $SSHO vps/generate-navs.sh "$VPS_USER@$VPS_HOST:/root/generate-navs.sh" >> "$R" 2>&1 \
-                  && vps "systemctl reset-failed navgen 2>/dev/null; systemd-run --unit navgen --collect /bin/bash /root/generate-navs.sh $COMMAND" 2>&1 | tail -n 5 >> "$R"
+                  && vps "systemctl stop navgen 2>/dev/null; systemctl reset-failed navgen 2>/dev/null; systemd-run --unit navgen --collect /bin/bash /root/generate-navs.sh $COMMAND" 2>&1 | tail -n 5 >> "$R"
               else echo "Give map names like koth_snowtower cp_frostwatch (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
             list-dir)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
