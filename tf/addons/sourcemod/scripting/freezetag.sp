@@ -3471,6 +3471,10 @@ public Action:OnPlayerRunCmd( client, &buttons, &Impulse, Float:Vel[3], Float:An
 	if (g_bFrozen[client])
 	{
 		buttons &= ~(IN_JUMP|IN_ATTACK|IN_ATTACK2);                                      // Prevent jumping and attacking
+		Vel[0] = 0.0;                                                                    // No walking: zero the move input on every tick
+		Vel[1] = 0.0;
+		Vel[2] = 0.0;
+		return Plugin_Changed;
 	}
 
         return Plugin_Continue;

@@ -1,8 +1,11 @@
 name: Deploy to TF2 server
 
-# Sends the server files over SFTP, checks each one arrived byte for byte (by downloading it back
-# and comparing), then tells the server to reload. Runs when a push to main changes one of the
-# files below (or this file), or by hand from the Actions tab.
+# What this does when you push to main:
+#  1. If a .sp (source) file changed, it compiles the plugin first. If nothing .sp changed, this step is skipped,
+#     so ordinary setting changes stay quick. The compiled .smx is saved back into the repo
+#     (commit message ends with [skip ci]). If compiling fails, nothing is sent to the server.
+#  2. Sends the server files over SFTP and checks each one arrived byte for byte (downloads it back and compares).
+#  3. Tells the server to reload the plugins and re-read 88x31.cfg.
 # Needs repo secrets: SFTP_HOST, SFTP_USER, SFTP_PASSWORD (WinterNode panel > server > Settings > SFTP Details)
 # and, for the reload commands, PTERO_URL, PTERO_SERVER_ID, PTERO_API_KEY.
 # The result of every run is printed as ONE note on the run page (so nothing gets cut off).
@@ -10,6 +13,8 @@ on:
   push:
     branches: [main]
     paths:
+      - tf/addons/sourcemod/scripting/freezetag.sp
+      - tf/addons/sourcemod/scripting/88x31_settings.sp
       - tf/addons/sourcemod/plugins/freezetag.smx
       - tf/addons/sourcemod/extensions/tf2items.ext.2.ep2v.so
       - tf/addons/sourcemod/extensions/tf2items.autoload
@@ -29,23 +34,88 @@ on:
       - .github/workflows/deploy.yml
   workflow_dispatch:
 
+permissions:
+  contents: write   # only so the compile step can save the built .smx back to the repo
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SFTP_HOST: ${{ secrets.SFTP_HOST }}
-      SFTP_USER: ${{ secrets.SFTP_USER }}
-      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
-      PTERO_URL: ${{ secrets.PTERO_URL }}
-      PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
-      PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compile, only if a .sp file changed
+        id: compile
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          R="$RUNNER_TEMP/result.txt"; : > "$R"
+          echo "ok=1" >> "$GITHUB_OUTPUT"
+          changed=""
+          if [ "$EVENT" = "push" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            changed=$(git diff --name-only "$BEFORE" "$AFTER" -- 'tf/addons/sourcemod/scripting/*.sp')
+          fi
+          if [ -z "$changed" ]; then
+            echo "COMPILE skipped (no .sp file changed)" >> "$R"
+            exit 0
+          fi
+
+          fail() { echo "COMPILE FAILED  $*" >> "$R"; echo "ok=0" > "$GITHUB_OUTPUT"; exit 1; }
+
+          # Get the SourceMod compiler straight from alliedmods.net (no third-party action)
+          W="$RUNNER_TEMP/sm"; mkdir -p "$W"
+          base="https://sm.alliedmods.net/smdrop/1.12"
+          name=$(curl -fsSL "$base/sourcemod-latest-linux") || fail "could not read the latest SourceMod name from $base"
+          curl -fsSL "$base/$name" -o "$W/sm.tar.gz" || fail "could not download $base/$name"
+          tar -xzf "$W/sm.tar.gz" -C "$W" || fail "could not unpack $name"
+          SC="$W/addons/sourcemod/scripting"
+          if [ -x "$SC/spcomp64" ]; then SPCOMP="$SC/spcomp64"; else SPCOMP="$SC/spcomp"; fi
+          [ -x "$SPCOMP" ] || fail "no compiler (spcomp) found in $name"
+
+          # freezetag.sp needs tf2items.inc, which SourceMod does not ship; the repo keeps the one that matches the server's extension (TF2Items 1.6.4)
+          cp tf/addons/sourcemod/scripting/include/tf2items.inc "$SC/include/tf2items.inc" || fail "tf2items.inc is missing from the repo"
+
+          note="COMPILE with $name"
+          for sp in $changed; do
+            out="${sp#tf/addons/sourcemod/scripting/}"; out="${out%.sp}"
+            if ( cd tf/addons/sourcemod/scripting && "$SPCOMP" "$(basename "$sp")" -i "$SC/include" -o "../plugins/$out.smx" ) > "$RUNNER_TEMP/spcomp.txt" 2>&1; then
+              note="$note
+          OK      $sp -> tf/addons/sourcemod/plugins/$out.smx ($(stat -c %s "tf/addons/sourcemod/plugins/$out.smx") bytes)"
+            else
+              note="$note
+          FAILED  $sp: $(tail -n 8 "$RUNNER_TEMP/spcomp.txt" | tr '\n' ' ' | cut -c1-600)"
+              echo "$note" >> "$R"; echo "ok=0" > "$GITHUB_OUTPUT"; exit 1
+            fi
+          done
+          echo "$note" | sed 's/^ *//' >> "$R"
+
+          # Save the built plugin(s) back into the repo. [skip ci] stops this commit from starting another run.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tf/addons/sourcemod/plugins/*.smx
+          if git diff --cached --quiet; then
+            echo "SAVE nothing to save (built plugin identical to the one in the repo)" >> "$R"
+          else
+            git commit -q -m "Build plugins from changed .sp files [skip ci]"
+            if git push -q origin HEAD:main 2>"$RUNNER_TEMP/pusherr"; then
+              echo "SAVE built plugin(s) committed back to main" >> "$R"
+            else
+              echo "SAVE FAILED (the plugin is still sent to the server below): $(tr '\n' ' ' < "$RUNNER_TEMP/pusherr" | cut -c1-200)" >> "$R"
+            fi
+          fi
 
       - name: Send the files and check them
         id: send
+        if: steps.compile.outputs.ok == '1'
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         run: |
-          R="$RUNNER_TEMP/result.txt"; : > "$R"
+          R="$RUNNER_TEMP/result.txt"
           say() { echo "$*" >> "$R"; }
           ok=1
           for f in \
@@ -85,6 +155,10 @@ jobs:
 
       - name: Reload the plugins and apply settings
         if: steps.send.outputs.ok == '1'
+        env:
+          PTERO_URL: ${{ secrets.PTERO_URL }}
+          PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+          PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
         run: |
           R="$RUNNER_TEMP/result.txt"
           # refresh = load new plugins and reload changed ones; then apply 88x31.cfg now.
@@ -103,9 +177,9 @@ jobs:
         if: always()
         run: |
           R="$RUNNER_TEMP/result.txt"
-          [ -s "$R" ] || echo "Nothing was sent (the run stopped before the first file)." > "$R"
+          [ -s "$R" ] || echo "Nothing was done (the run stopped before the first step finished)." > "$R"
           msg=$(sed ':a;N;$!ba;s/\n/%0A/g' "$R")
-          if [ "${{ steps.send.outputs.ok }}" = "1" ]; then
+          if [ "${{ steps.compile.outputs.ok }}" = "1" ] && [ "${{ steps.send.outputs.ok }}" = "1" ]; then
             echo "::notice title=Deploy result::$msg"
           else
             echo "::error title=Deploy problem::$msg"
