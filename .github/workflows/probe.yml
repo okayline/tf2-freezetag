@@ -1,0 +1,66 @@
+name: Probe TF2 server file upload
+
+# One-time test. Runs when this file is pushed, or by hand from the Actions tab.
+# Changes nothing real: it only reads the plugins folder, then writes a few scratch
+# files (88x31_probe_*.bin) in /tf and deletes them again. Results are printed as annotations.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/probe.yml
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      PTERO_URL: ${{ secrets.PTERO_URL }}
+      PTERO_SERVER_ID: ${{ secrets.PTERO_SERVER_ID }}
+      PTERO_API_KEY: ${{ secrets.PTERO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe the panel
+        run: |
+          API="$PTERO_URL/api/client/servers/$PTERO_SERVER_ID"
+          H=(-H "Authorization: Bearer $PTERO_API_KEY" -H "Accept: application/json")
+          enc() { jq -rn --arg s "$1" '$s|@uri'; }
+          note() { echo "::notice::$*"; }
+
+          # Size of a file in a server folder, from the panel's file list ("none" if not found).
+          server_size() { # folder name
+            curl -sS "$API/files/list?directory=$(enc "$1")" "${H[@]}" 2>/dev/null \
+              | jq -r --arg n "$2" '[.data[]? | select(.attributes.name==$n) | .attributes.size][0] // "none"' 2>/dev/null \
+              || echo "none"
+          }
+
+          # 1. Read-only: what the plugins folder holds now, next to what the repo holds.
+          raw=$(curl -sS "$API/files/list?directory=%2Ftf%2Faddons%2Fsourcemod%2Fplugins" "${H[@]}" 2>&1 || true)
+          note "LIST plugins folder (first 300 chars of reply): $(echo "$raw" | tr '\n' ' ' | cut -c1-300)"
+          for n in freezetag.smx 88x31_settings.smx; do
+            note "SIZE $n: server=$(server_size /tf/addons/sourcemod/plugins "$n") repo=$(stat -c %s tf/addons/sourcemod/plugins/$n)"
+          done
+
+          # 2. Scratch writes of the real freezetag.smx with three different Content-Types.
+          F=tf/addons/sourcemod/plugins/freezetag.smx
+          local_size=$(stat -c %s "$F")
+          write_test() { # scratch name, content type ("" = curl's default)
+            p=$(enc "/tf/$1")
+            ct=(); [ -n "$2" ] && ct=(-H "Content-Type: $2")
+            curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/files/write?file=$p&path=$p" "${H[@]}" "${ct[@]}" --data-binary @"$F" 2>&1 || true
+          }
+          code1=$(write_test 88x31_probe_m1.bin application/octet-stream)
+          code2=$(write_test 88x31_probe_m2.bin text/plain)
+          code3=$(write_test 88x31_probe_m3.bin "")
+          for pair in "m1 octet-stream $code1" "m2 text/plain $code2" "m3 curl-default $code3"; do
+            set -- $pair
+            got=$(server_size /tf "88x31_probe_$1.bin")
+            if [ "$got" = "$local_size" ]; then v="SAME SIZE"; else v="DIFFERENT"; fi
+            note "WRITE $2: HTTP $3, server size $got, repo size $local_size -> $v"
+          done
+
+          # 3. Clean up the scratch files.
+          r=$(curl -sS -w ' HTTP %{http_code}' -X POST "$API/files/delete" "${H[@]}" -H "Content-Type: application/json" \
+            -d '{"root":"/tf","files":["88x31_probe_m1.bin","88x31_probe_m2.bin","88x31_probe_m3.bin"]}' 2>&1 || true)
+          note "DELETE scratch files: $(echo "$r" | tr '\n' ' ' | cut -c1-200)"
+          for m in m1 m2 m3; do note "LEFTOVER $m: $(server_size /tf 88x31_probe_$m.bin)"; done
