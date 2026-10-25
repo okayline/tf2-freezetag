@@ -1,0 +1,147 @@
+"Phrases"
+{
+	"cmd_notenabled"
+	{
+		"en"	"Freeze Tag is not enabled at this time."
+	}
+	"cmd_fromspec"
+	{
+		"en"	"Uninstalling steam may solve your problems :D"
+	}
+	
+	"cmd_notfrozen"
+	{
+		"en"	"You must be frozen to mark yourself as stuck."
+	}
+	
+	"stuck_feedback_use"
+	{
+		"en"	"You are now flagged as stuck, you will revive frozen in spawn with reduced health."
+	}
+	
+	"stuck_feedback_flagged"
+	{
+		"en"	"You are already flagged as stuck."
+	}
+	
+	"stuck_feedback_cd"
+	{
+		"en"	"Sorry, you have already used your unstuck cooldown for this round."
+	}
+	
+	"cmd_reloadcfg"
+	{
+		"en"	"The Freezetag Configuration File Has Been Reloaded."
+	}
+
+	"feedback_joinpenalty"
+	{
+		"en"	"You have been penalized for joining a game in progress."
+	}
+
+	"feedback_welcomemsg"
+	{
+		"en"	"Stand near a frozen teammate to revive them. /freezetag to view rules and help."
+	}
+
+	"hud_frozen"
+	{
+		"en"	"Frozen"
+	}
+
+	"victory_red"
+	{
+		"en"	"Red wins!"
+	}
+	
+	"victory_blu"
+	{
+		"en"	"Blue wins!"
+	}
+
+
+	"winreason_time"
+	{
+		"en"	"Timelimit Hit:"
+	}
+
+	"winreason_tie"
+	{
+		"en"	"Timelimit Hit: Tie!"
+	}
+
+	"winreason_elimination"
+	{
+		"en"	"Elimination:"
+	}
+
+	"winreason_stalemate"
+	{
+		"en"	"Elimination: Stalemate!"
+	}
+	
+	"winreason_unknown"
+	{
+		"en"	"Round End!"
+	}
+
+	"wincompare_frozen"
+	{
+		"en"	"frozen vs."
+	}
+
+	"win_frozen"
+	{
+		"en"	"frozen"
+	}
+	
+	"feedback_frozen"
+	{
+		"en"	"You are now frozen."
+	}
+
+	"feedback_unfrozen"
+	{
+		"en"	"You are now unfrozen."
+	}
+
+	"feedback_collide_respawn"
+	{
+		"en"	"You became stuck in a frozen player and have been respawned."
+	}
+	
+	"feedback_stuck_saved"
+	{
+		"en"	"A teammate has saved you from being stuck."
+	}
+
+	"feedback_suicide_activeround"
+	{
+		"en"	"You may not suicide when frozen."
+	}
+	
+	"feedback_joinclass_suicide_activeround"
+	{
+		"en"	"You may not change class when frozen."
+	}
+
+	"feedback_joinclass_activeround"
+	{
+		"en"	"Your class selection will be applied next round."
+	}
+	
+	"feedback_joinclass_currentround"
+	{
+		"en"	"Your class selection will be applied next time you are unfrozen."
+	}
+	
+	"feedback_joinclass_warn_activeround"
+	{
+		"en"	"Warning, attempting to queue a class during an active round may kill you."
+	}
+	
+	"feedback_jointeam_activeround"
+	{
+		"en"	"You may not change teams during an active round."
+	}
+}

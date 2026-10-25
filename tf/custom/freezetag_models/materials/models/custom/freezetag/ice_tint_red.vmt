@@ -1,0 +1,31 @@
+"Refract"
+{
+ 	"Refract_DX60"
+	{
+		"$fallbackmaterial" "models/props_combine/stasisshield_sheet_dx7"
+	}
+
+	"$model" 1
+//        "$nocull" "0"
+        "$additive" "1"
+
+	"$nowritez" 1
+	"$bluramount" .5
+ 	"$refractamount" ".5"
+ 	"$dudvmap" "Dev\tfwater_normal"
+	"$normalmap" "water\tfwater001_normal"
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[.1 .1 .1]"
+	"$refracttint" "{255 77 81}"
+	"$refracttinttexture" "particle\smokesprites0001"
+
+	"Proxies"
+	{
+		"TextureScroll"
+		{
+			"texturescrollvar" "$bumptransform"
+			"texturescrollrate" .08
+			"texturescrollangle" 90
+		}
+	}
+}
