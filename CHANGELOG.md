@@ -7,6 +7,11 @@
 - **Added:** `88x31_settings` is now version 1.1 with two admin commands. `sm_next` (or `!next` in chat) changes to the next map in `mapcycle.txt` after a 3 second warning; `sm_random` (or `!random`) picks a random map from the cycle, never the one already being played. Both need the change-map admin right, which the full admins have.
 - **Changed:** nothing else. Not tested yet (the new plugin is compiled by the deploy, so check that it built).
 
+## Two maps where bots stood still removed
+**Sun Oct 25, 2026 · 11:05 AM HST**
+- **Removed:** `cp_steel` and `cp_mountainlab` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the bots did nothing on them (they have no bot navigation file). The pool is now 12 maps. Takes effect when the map cycle is next read.
+- **Changed:** nothing else. Not tested yet.
+
 ## Freezing everyone no longer wins the round
 **Sun Oct 25, 2026 · 10:45 AM HST**
 - **Changed:** in `freezetag_maps.cfg`, `eliminations` is now 0 in every profile (it was 1 in most), so freezing a whole team no longer ends the round. Rounds end by capturing points / the king of the hill timer, and frozen players still go back to spawn after 30 seconds. Applies from the next map change.
