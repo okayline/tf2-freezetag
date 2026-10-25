@@ -7,6 +7,11 @@
 - **Removed:** `pl_snowycoast` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the payload map did not work. The pool is now 4 maps: `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `koth_snowtower`. Takes effect when the map cycle is next read.
 - **Changed:** nothing else. Not tested yet.
 
+## Round limit back to 10
+**Sun Oct 25, 2026 · 10:20 AM HST**
+- **Changed:** in `freezetag_maps.cfg`, the round limit per map (`maxrounds`) is back to 10 in every profile (it was 30 for a short while). The plugin also uses this number as the win limit. Applies from the next map change.
+- **Removed:** nothing. Not tested yet.
+
 ## More snowy control point and king of the hill maps
 **Sun Oct 25, 2026 · 10:25 AM HST**
 - **Added:** 8 maps that are already installed on the server, in `mapcycle.txt` and the welcome window (`motd.txt`, `motd_text.txt`): `cp_yukon_final`, `cp_vanguard`, `cp_mountainlab`, `cp_steel`, `cp_process_final`, `koth_highpass`, `koth_overcast_final`, `koth_krampus`. The pool is now 14 maps. They use the existing `cp_` and `koth_` profiles.
