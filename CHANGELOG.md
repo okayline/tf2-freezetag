@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## Frozen players can't walk; the deploy compiles again
-**Sun Oct 25, 2026 · 4:39 AM HST** (commit pending)
+**Sun Oct 25, 2026 · 4:39 AM HST** (771f195)
 - **Changed:** in `OnPlayerRunCmd` in `freezetag.sp`, frozen players now have their move input zeroed on every tick (before, only jumping and attacking were blocked and their speed was set every 0.2 s). The game could change their speed in between, so they could walk.
 - **Added:** the compile step is back in `.github/workflows/deploy.yml` (a changed `.sp` is compiled with SourceMod 1.12 first; a failed compile sends nothing); `tf/addons/sourcemod/scripting/include/tf2items.inc` from TF2Items 1.6.4, the version that matches the server's extension.
 - **Removed:** nothing. Not tested yet.
