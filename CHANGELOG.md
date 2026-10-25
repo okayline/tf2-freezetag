@@ -2,6 +2,17 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Fewer bots, for the shared VPS
+**Sun Oct 25, 2026 · 9:46 AM HST**
+- **Changed:** `tf_bot_quota` in `tf/cfg/88x31.cfg` is 6 (was 12), so the server keeps 6 players total and uses less of the VPS's single CPU core (other game servers may run next to it).
+- **Removed:** nothing. Takes effect on the next map change or `exec 88x31.cfg`. Not tested yet.
+
+## Server moved to our own VPS
+**Sun Oct 25, 2026 · 9:30 AM HST**
+- **Changed:** the server runs on our own VPS (1 core, 4 GB RAM, 50 GB disk) instead of WinterNode. `deploy.yml` sends files over SSH (rsync) and reloads plugins through the server console. Secrets are now `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`.
+- **Added:** `vps/setup.sh` (installs TF2, Metamod, SourceMod and a `tf2` service) and `vps-tools.yml` (manual: start, stop, restart, status, logs, console command, install a package, show a file or folder, open a port, system check).
+- **Removed:** `server-tools.yml` (WinterNode only) and the WinterNode secrets. TF2 install and first start not finished yet.
+
 ## Welcome screen is now the server's MOTD
 **Sun Oct 25, 2026 · 5:45 AM HST**
 - **Added:** `tf/cfg/motd.txt` and `tf/cfg/motd_text.txt`: the window TF2 shows when you join says "Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!", a blank line, "Freeze Tag mod with a snowy map pool:" and the 5 maps. Both files are in the deploy. The map list is typed in, so it must be updated when `mapcycle.txt` changes.
