@@ -89,13 +89,23 @@ def flush(webhook, lines):
 
 
 def tell_server(rcon_port, cfg, log_port):
+    """Each command on its own: the server may not echo an answer for a command with no output."""
+    failed = []
+    pw = None
     try:
         pw = status.read_password(cfg)
-        if pw:
-            status.rcon(rcon_port, pw, "log on")
-            status.rcon(rcon_port, pw, "logaddress_add 127.0.0.1:%d" % log_port)
-    except Exception:
-        pass
+    except OSError:
+        failed.append("read server.cfg")
+    if not pw:
+        return failed or ["no rcon_password"]
+    for cmd in ("log on", "logaddress_add 127.0.0.1:%d" % log_port):
+        try:
+            status.rcon(rcon_port, pw, cmd)
+        except socket.timeout:
+            pass                                    # sent; the server just gave no reply to read
+        except Exception as e:
+            failed.append("%s: %s" % (cmd.split()[0], type(e).__name__))
+    return failed
 
 
 def main():
@@ -106,11 +116,15 @@ def main():
     sock.settimeout(1)
     buf, first, last_tell, last_report = [], 0, 0, time.time()
     got = posted = unmatched = 0
+    told_failed = False
     print("%s feed: listening on 127.0.0.1:%d" % (name, log_port), flush=True)
     while True:
         now = time.time()
         if now - last_tell > 60:
-            tell_server(rcon_port, cfg, log_port)
+            failed = tell_server(rcon_port, cfg, log_port)
+            if failed and not told_failed:
+                print("%s feed: could not tell the server to send logs (%s)" % (name, ", ".join(failed)), flush=True)
+            told_failed = bool(failed)
             last_tell = now
         try:
             data, _ = sock.recvfrom(4096)

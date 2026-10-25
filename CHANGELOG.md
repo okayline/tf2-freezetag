@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## TF2 feed: no log lines were arriving
+**Sun Oct 25, 2026 · 2:05 PM HST**
+- **Found:** the feed ran but received 0 log lines in 5 minutes (journal: "last 5 min: 0 log lines"). Likely cause, not confirmed: `discord-feed.py` ran `log on` and `logaddress_add` in one block, so if the server gave no reply to `log on`, the timeout skipped `logaddress_add`.
+- **Changed:** each of the two commands now runs on its own, a timeout with no reply is no longer treated as a failure, and a real failure is printed once to the journal (command name and error type only).
+- **Removed:** the single combined block.
+- **Tested here:** against the fake server only (both commands still arrive). Not tested on the real server.
+
 ## Live TF2 feed to Discord: chat, kills, joins
 **Sun Oct 25, 2026 · 1:55 PM HST**
 - **Added:** `vps/discord-feed.py` (Python standard library only) listens for the TF2 server's own log lines on 127.0.0.1 and posts them in batches every few seconds to a separate Discord channel: chat (all and team), kills with the weapon, joins and leaves, suicides, round wins and map changes. `vps/discord-feed-setup.sh` runs it as an always-on service; `vps-tools.yml` gets `discord-feed-install` and `discord-feed-check`. Every minute the script tells the server over RCON to turn logging on and send it there, so a restart can't silently stop it and `server.cfg` doesn't change.
