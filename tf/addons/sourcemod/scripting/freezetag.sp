@@ -2653,6 +2653,7 @@ unfreezeClient(client, other, bool:automatic=false, bool:sound=true, bool:partic
         SetEntPropFloat(client, Prop_Send, "m_flInvisChangeCompleteTime", 0.0);   // Reset cloak timer so they stay visible
 
         SetEntProp(client, Prop_Send, "m_CollisionGroup", 5);                // Normal player Solidity
+        SetEntityMoveType(client, MOVETYPE_WALK);                            // Let them move again
 
 	if (sound)
 	{
@@ -3474,6 +3475,7 @@ public Action:OnPlayerRunCmd( client, &buttons, &Impulse, Float:Vel[3], Float:An
 		Vel[0] = 0.0;                                                                    // No walking: zero the move input on every tick
 		Vel[1] = 0.0;
 		Vel[2] = 0.0;
+		SetEntityMoveType(client, (GetEntityFlags(client) & FL_ONGROUND) ? MOVETYPE_NONE : MOVETYPE_WALK);   // On the ground the game holds them still (no snap-back); in the air gravity still works
 		return Plugin_Changed;
 	}
 
