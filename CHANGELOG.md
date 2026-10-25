@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## sp-discordrelay installer: picked the 64-bit ripext by mistake
+**Sun Oct 25, 2026 · 2:30 PM HST**
+- **Found:** the first run of `relay-install` copied `extensions/x64/rip.ext.so` (64-bit) to the server, but the TF2 server here is 32-bit. SourceMod would not load it, and the relay plugin needs it. The server was not restarted, so nothing has loaded it yet.
+- **Changed:** the installer now skips the `x64` folder and stops, changing nothing, unless both extensions are 32-bit builds. Running it again replaces the wrong file with the 32-bit one.
+- **Removed:** nothing.
+- **Not tested:** the rerun has not happened yet; whether the 32-bit ripext is in that package is not checked.
+
 ## Trying sp-discordrelay for chat in both directions
 **Sun Oct 25, 2026 · 2:20 PM HST**
 - **Added:** `vps/install-discordrelay.sh` and the `relay-install` action. It downloads [sp-discordrelay](https://github.com/log-ical/sp-discordrelay) (log-ical) and the three things it needs (ripext, SteamWorks, discord-api) into a staging folder on the VPS, and only if every piece is found copies them into the TF2 server's `addons/sourcemod`. It does not restart the server or change any settings. The webhook link and the bot token get typed into `discordrelay.cfg` on the VPS by the owner, never into the repo.

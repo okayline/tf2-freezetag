@@ -56,11 +56,15 @@ DAPI=$(find discord -name 'discord_api.smx' | head -1)
 echo "  discordrelay.smx: from log-ical/sp-discordrelay"
 curl -fsSL https://raw.githubusercontent.com/log-ical/sp-discordrelay/master/plugins/discordrelay.smx -o discordrelay.smx
 
-RIPEXT=$(find ripext -name '*.ext.so' | head -1)
-STWEXT=$(find steamworks -name 'SteamWorks.ext.so' | head -1)
+RIPEXT=$(find ripext -name '*.ext.so' ! -path '*/x64/*' | head -1)
+STWEXT=$(find steamworks -name 'SteamWorks.ext.so' ! -path '*/x64/*' | head -1)
 [ -n "$RIPEXT" ] || { echo "STOP: no .ext.so inside the ripext package. Nothing changed."; exit 1; }
 [ -n "$STWEXT" ] || { echo "STOP: no SteamWorks.ext.so inside the SteamWorks package. Nothing changed."; exit 1; }
-file "$RIPEXT" "$STWEXT" 2>/dev/null | sed 's/, BuildID.*//' || true
+# the TF2 server here is 32-bit (srcds_linux), so both extensions must be 32-bit too
+for x in "$RIPEXT" "$STWEXT"; do
+  file "$x" | grep -q '32-bit' || { echo "STOP: $x is not a 32-bit build. Nothing changed."; exit 1; }
+done
+echo "  32-bit builds: $RIPEXT, $STWEXT"
 
 echo "== installing =="
 EXT=$T/addons/sourcemod/extensions; PLG=$T/addons/sourcemod/plugins
