@@ -64,7 +64,8 @@ jobs:
               base="sftp://$SFTP_HOST:${SFTP_PORT:-2022}"
               sftp "$base/$SPATH" 2>&1 | tr -d '\r' > "$RUNNER_TEMP/full"
               { echo "$(wc -c < "$RUNNER_TEMP/full") bytes, $(wc -l < "$RUNNER_TEMP/full") lines"
-                if grep -q -i 'GiveNamedItem' "$RUNNER_TEMP/full"; then grep -n -i -B3 -A10 'GiveNamedItem' "$RUNNER_TEMP/full" | cut -c1-150; else head -n 30 "$RUNNER_TEMP/full" | cut -c1-150; fi; } > "$RUNNER_TEMP/one"
+                if grep -q -i 'AutoUpdate' "$RUNNER_TEMP/full"; then grep -n -i -B6 -A2 'AutoUpdate' "$RUNNER_TEMP/full" | cut -c1-150
+                elif grep -q -i 'GiveNamedItem' "$RUNNER_TEMP/full"; then grep -n -i -B3 -A10 'GiveNamedItem' "$RUNNER_TEMP/full" | cut -c1-150; else head -n 30 "$RUNNER_TEMP/full" | cut -c1-150; fi; } > "$RUNNER_TEMP/one"
               m=$(head -c 3600 "$RUNNER_TEMP/one" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/%0A/g')
               echo "::notice title=/$SPATH::$m"
               exit 0 ;;
