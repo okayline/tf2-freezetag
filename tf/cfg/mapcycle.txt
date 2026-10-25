@@ -4,8 +4,6 @@ cp_snowplow
 cp_coldfront
 cp_yukon_final
 cp_vanguard
-cp_mountainlab
-cp_steel
 cp_process_final
 koth_snowtower
 koth_winter_ridge

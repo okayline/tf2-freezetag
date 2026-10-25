@@ -9,8 +9,6 @@
 <li>cp_coldfront</li>
 <li>cp_yukon_final</li>
 <li>cp_vanguard</li>
-<li>cp_mountainlab</li>
-<li>cp_steel</li>
 <li>cp_process_final</li>
 <li>koth_snowtower</li>
 <li>koth_winter_ridge</li>
