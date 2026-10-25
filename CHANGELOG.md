@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Frozen players no longer run in place
+**Sun Oct 25, 2026 · 9:59 AM HST**
+- **Changed:** in `freezetag.sp`, a frozen player's walking keys (forward, back, left, right) are now ignored, and while standing on the ground their velocity is set to zero every tick. Before, the leftover tiny velocity looked like full-speed running because their max speed is 1.
+- **Removed:** nothing. Not tested yet (the build runs when merged).
+
 ## Server moved to our own VPS
 **Sun Oct 25, 2026 · 9:30 AM HST**
 - **Changed:** the server runs on our own VPS (1 core, 4 GB RAM, 50 GB disk) instead of WinterNode. `deploy.yml` sends files over SSH (rsync) and reloads plugins through the server console. Secrets are now `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`.

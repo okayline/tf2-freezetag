@@ -3462,11 +3462,20 @@ public Action:OnPlayerRunCmd( client, &buttons, &Impulse, Float:Vel[3], Float:An
 {
 	if (g_bFrozen[client])
 	{
-		buttons &= ~(IN_JUMP|IN_ATTACK|IN_ATTACK2);                                      // Prevent jumping and attacking
+		buttons &= ~(IN_JUMP|IN_ATTACK|IN_ATTACK2|IN_FORWARD|IN_BACK|IN_MOVELEFT|IN_MOVERIGHT);   // Prevent jumping, attacking and walking input (so they do not run in place)
 		Vel[0] = 0.0;                                                                    // No walking: zero the move input on every tick
 		Vel[1] = 0.0;
 		Vel[2] = 0.0;
-		SetEntityMoveType(client, (GetEntityFlags(client) & FL_ONGROUND) ? MOVETYPE_NONE : MOVETYPE_WALK);   // On the ground the game holds them still (no snap-back); in the air gravity still works
+		if (GetEntityFlags(client) & FL_ONGROUND)
+		{
+			SetEntityMoveType(client, MOVETYPE_NONE);                                // On the ground the game holds them still (no snap-back)
+			new Float:stop[3] = {0.0, 0.0, 0.0};
+			TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, stop);                  // Zero velocity: with max speed 1.0, any tiny velocity looks like full-speed running
+		}
+		else
+		{
+			SetEntityMoveType(client, MOVETYPE_WALK);                                // In the air gravity still works
+		}
 		return Plugin_Changed;
 	}
 
