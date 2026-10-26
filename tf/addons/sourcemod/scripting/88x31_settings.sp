@@ -3,6 +3,8 @@
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 
+ConVar g_tactical;   // tactical mode on/off (see ApplyMode)
+
 public Plugin myinfo =
 {
 	name = "88x31 Settings",
@@ -73,7 +75,6 @@ public void OnConfigsExecuted()
 
 // ---- Tactical mode: arena maps, one life, first to 7 rounds, Freeze Tag off ----
 // The mode is kept in sm_88x31_tactical, which lasts across map changes (a server restart goes back to Freeze Tag).
-ConVar g_tactical;
 
 void ApplyMode()
 {
