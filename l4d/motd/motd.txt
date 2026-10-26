@@ -7,7 +7,7 @@ p{margin:0 0 9px}b{color:#ffb3b3}
 <h2>~*~88x31~*~ L4D cLaSSiC</h2>
 <div class="box">
 <p>Welcome, Survivor!</p>
-<p><b>No Mercy</b> &rarr; <b>Blood Harvest</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b></p>
+<p><b>No Mercy</b> &rarr; <b>Crash Course</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b> &rarr; <b>Blood Harvest</b> &rarr; <b>The Sacrifice</b></p>
 <p>Reverse friendly fire is <b>ON</b></p>
 <p>Have fun!!</p>
 </div></body></html>
