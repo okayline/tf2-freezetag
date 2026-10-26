@@ -42,7 +42,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -161,9 +161,11 @@ jobs:
               vps "f=\$(ls -t /home/tf2/l4d/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//; s/^L //' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4d-feed-status-channel)
               vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
+            l4d-log-kinds)
+              vps "cat \$(ls -t /home/tf2/l4d/left4dead/logs/L*.log | head -6) | cut -c26- | sed -E 's/\"[^\"]*\"/Q/g; s/\\([^)]*\\)/P/g; s/[0-9.-]+/N/g' | sort | uniq -c | sort -rn | head -70; echo ---; cat \$(ls -t /home/tf2/l4d/left4dead/logs/L*.log | head -6) | grep -v -e 'killed \"infected' -e 'picked up' -e rcon | grep -E 'triggered|Tank|Witch|revive|heal|incap|pounce|choke|vomit|Survivor' | cut -c26-200 | sed -E 's/<setpos[^>]*>//g' | tail -n 40" 2>&1 | tail -c 6000 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
-          m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')
+          m=$(tail -c 7000 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')
           echo "::notice title=VPS $ACTION::$m"
