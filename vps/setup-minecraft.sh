@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installs a Minecraft Java server (Paper) with Geyser + Floodgate so Bedrock players can join too.
-# Service "mc", Java port 25565/tcp, Bedrock port 19132/udp. Memory capped so TF2/L4D stay smooth.
+# Service "mc", Java 25565/tcp, Bedrock 19132/udp (RakNet) + 19132/tcp signaling + 19133/udp (NetherNet, needed from Oct 27 2026). Memory capped so TF2/L4D stay smooth.
 # Safe to re-run: updates Paper/Geyser/Floodgate jars, keeps the world and settings. Does NOT start/restart it.
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
@@ -69,7 +69,7 @@ After=network-online.target
 [Service]
 User=$U
 WorkingDirectory=$D
-ExecStart=/usr/bin/screen -DmS mc /usr/bin/java -Xms512M -Xmx1536M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -jar paper.jar --nogui
+ExecStart=/usr/bin/screen -DmS mc /usr/bin/java -Xms512M -Xmx1536M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -DgeyserTransport=both -DgeyserWebrtcPort=19133 -jar paper.jar --nogui
 ExecStop=/usr/bin/screen -S mc -X stuff "stop\$(printf '\\r')"
 TimeoutStopSec=60
 KillSignal=SIGCONT
@@ -82,5 +82,5 @@ Nice=5
 WantedBy=multi-user.target
 UNIT
 systemctl daemon-reload; systemctl enable mc >/dev/null 2>&1
-if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow 25565/tcp >/dev/null; ufw allow 19132/udp >/dev/null; echo "ports opened"; fi
+if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow 25565/tcp >/dev/null; ufw allow 19132/udp >/dev/null; ufw allow 19132/tcp >/dev/null; ufw allow 19133/udp >/dev/null; echo "ports opened"; fi
 echo "Done. Start with: systemctl start mc"
