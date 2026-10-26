@@ -32,7 +32,7 @@ RULES = [
     ("joined", re.compile(P + r' entered the game')),
     ("left", re.compile(P + r' disconnected')),
     ("ff", re.compile(r'^(\S[^"<>]{0,40}) attacked (\S[^"<>]{0,40})$')),
-    ("map", re.compile(r'(?:Started|Loading) map "([^"]*)"')),
+    ("map", re.compile(r'Started map "([^"]*)"')),
     ("incap", re.compile(r'\(INCAP\) ' + P + r' is incapacitated')),
     ("pounce", re.compile(r'^Hunter pounced on ([^,]{1,40}),')),
     ("tongue", re.compile(r'Tongue grab starting\.\s+Smoker:' + P + r'\.\s+Victim:' + P)),
@@ -166,6 +166,8 @@ def format_line(raw):
             return "\U0001F6A9 %s captured %s" % (esc(g[0], 16), esc(g[1].lstrip("#"), 40))
         if kind == "score":
             return "\U0001F3C1 %s scored %s (%s players)" % (esc(g[0], 16), esc(g[1], 10), esc(g[2], 4))
+        if kind == "map" and GAME == "tf2":
+            return None                           # the relay already posts map changes
         if kind == "map":
             return "\U0001F5FA️ Map: `%s`" % esc(g[0], 48).replace("\\", "")
     return None
