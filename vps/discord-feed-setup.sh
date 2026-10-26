@@ -22,7 +22,7 @@ After=network.target
 
 [Service]
 User=tf2
-ExecStart=/usr/bin/python3 $D/discord-feed-l4d.py "88x31 Freeze Tag (TF2)" /home/tf2/server/tf/logs $D/tf2-feed.url
+ExecStart=/usr/bin/python3 $D/discord-feed-l4d.py "88x31 Freeze Tag (TF2)" /home/tf2/server/tf/logs $D/tf2-feed.url tf2
 Restart=always
 RestartSec=10
 

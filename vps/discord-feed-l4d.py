@@ -23,6 +23,8 @@ spec.loader.exec_module(status)
 # A player in the log: "Name<...><...>..." ; the name is everything before the first <
 P = r'"([^"<]*)((?:<[^>]*>)*)"'
 RULES = [
+    ("tf_trig", re.compile(P + r' triggered "(domination|revenge|chargedeployed|captureblocked|killedobject|medic_death)"(?: against ' + P + r')?(.*)$')),
+    ("role", re.compile(P + r' changed role to "([^"]*)"')),
     ("say_team", re.compile(P + r' say_team "(.*)"')),
     ("say", re.compile(P + r' say "(.*)"')),
     ("kill", re.compile(r'(?:\(DEATH\))?' + P + r' killed ' + P + r' with "([^"]*)"')),
@@ -54,6 +56,7 @@ def esc(text, n):
     return re.sub(r"([\\*_`~|>@#\[\]()])", r"\\\1", text.replace("\n", " "))[:n]
 
 
+GAME = "l4d"
 BOT_NAMES = {"Bill", "Francis", "Louis", "Zoey"}
 
 
@@ -70,6 +73,26 @@ def format_line(raw):
         if not m:
             continue
         g = m.groups()
+        if kind == "tf_trig":
+            who, wtags, ev, other, otags, rest = g
+            if is_bot(wtags):
+                return None
+            if ev == "domination":
+                return "\U0001F608 **%s** is DOMINATING %s" % (esc(who, 32), esc(other or "", 32))
+            if ev == "revenge":
+                return "\U0001F525 **%s** got REVENGE on %s" % (esc(who, 32), esc(other or "", 32))
+            if ev == "chargedeployed":
+                return "\u26a1 %s popped an ÜberCharge" % esc(who, 32)
+            if ev == "captureblocked":
+                return "\U0001F6E1 %s blocked a capture" % esc(who, 32)
+            if ev == "killedobject":
+                o = re.search(r'\(object "OBJ_([A-Z]+)"', rest)
+                return "\U0001F4A5 %s destroyed a %s" % (esc(who, 32), (o.group(1).lower() if o else "building"))
+            return None
+        if kind == "role":
+            return None if is_bot(g[1]) else "\U0001F504 %s switched to %s" % (esc(g[0], 32), esc(g[2].capitalize(), 16))
+        if kind in ("say", "say_team") and GAME == "tf2":
+            return None                           # the chat relay already posts TF2 chat
         if kind in ("say", "say_team"):
             tag = " *(team)*" if kind == "say_team" else ""
             return "\U0001F4AC **%s**%s: %s" % (esc(g[0], 32), tag, esc(g[2], 250))
@@ -79,6 +102,14 @@ def format_line(raw):
                 return None                       # common infected: skip, there are hundreds
             if "<Survivor>" in vtags and is_bot(vtags):
                 return None                       # a bot survivor died: skip
+            if GAME == "tf2":
+                if is_bot(ktags) and is_bot(vtags):
+                    return None                   # bot vs bot: skip
+                cm = re.search(r'\(customkill "([^"]*)"\)', text)
+                extra = {"headshot": " \U0001F3AF headshot", "backstab": " \U0001F5E1 backstab"}.get(cm.group(1), "") if cm else ""
+                if killer == victim:
+                    return "\U0001F480 %s killed themselves" % esc(victim, 32)
+                return "\u2620\ufe0f %s killed %s (%s)%s" % (esc(killer, 32), esc(victim, 32), esc(weapon.replace("tf_projectile_", ""), 24), extra)
             if is_bot(ktags) and not ("<Survivor>" in vtags):
                 return None                       # bots killing things: skip
             if "<Survivor>" in vtags:
@@ -168,7 +199,9 @@ def newest(log_dir):
 
 
 def main():
+    global GAME
     name, log_dir, webhook_file = sys.argv[1], sys.argv[2], sys.argv[3]
+    GAME = sys.argv[4] if len(sys.argv) > 4 else "l4d"
     webhook = open(webhook_file).read().strip()
     path, fh, pending = None, None, ""
     buf, first, last_report = [], 0, time.time()
