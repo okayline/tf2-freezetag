@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: server browser shows /4
+**Sun Oct 25, 2026 · 8:25 PM HST**
+- **Changed:** `vps/l4d-install-reserve.sh` now sets `sv_visiblemaxplayers 4` live and saves it in `server.cfg`, so the server browser shows 4 slots. The real limit stays `sv_maxplayers 5`, with the 5th slot for admins.
+- **Removed:** the "/5" shown in the server browser.
+- **Not tested:** not run yet. When 4 are on, the browser shows it as full; admins may need to join through Favorites, a friend, or the console.
+
 ## Minecraft: ViaBackwards (older game versions can join)
 **Sun Oct 25, 2026 · 7:51 PM HST**
 - **Added:** ViaVersion 5.12.2-SNAPSHOT and ViaBackwards 5.12.2-SNAPSHOT, installed with `mc-plugin-install`. ViaBackwards lets players on older Minecraft versions join; it needs ViaVersion to work. Both are development builds (the newest Modrinth has for 26.3).
