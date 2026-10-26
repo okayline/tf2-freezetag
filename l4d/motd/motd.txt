@@ -1,0 +1,14 @@
+<html><head><style>
+body{margin:0;padding:24px 30px;background:#1a1416;color:#eee;font-family:Verdana,Arial,sans-serif;font-size:15px}
+h2{margin:0 0 14px;color:#ff6b6b;font-size:20px;text-align:center}
+.box{background:#2a2023;border:2px solid #6b3a3a;border-radius:10px;padding:12px 20px}
+p{margin:0 0 9px}b{color:#ffb3b3}
+</style></head><body>
+<h2>~*~88x31~*~ L4D cLaSSiC</h2>
+<div class="box">
+<p>Welcome, survivor! Classic co-op, all four original campaigns in rotation:</p>
+<p><b>No Mercy</b> &rarr; <b>Blood Harvest</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b></p>
+<p>Friendly fire bounces back at the shooter, so watch your aim.</p>
+<p>Type <b>!afk</b> to take a break and <b>!back</b> to return.</p>
+<p>Be nice, have fun, don't leave your team behind.</p>
+</div></body></html>
