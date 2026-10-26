@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Freeze Tag: HUD text lower on the left edge
+**Sun Oct 25, 2026 · 10:27 PM HST**
+- **Changed:** the frozen-count/clock text now starts 66% down the screen (a third of the way up from the bottom), still on the left edge.
+- **Removed:** the 33% (upper third) position.
+- **Not tested:** not seen in game yet.
+
 ## Freeze Tag: count-up round clock on the HUD
 **Sun Oct 25, 2026 · 10:23 PM HST**
 - **Added:** when a map has no round time limit (all maps in the current rotation), the HUD shows how long the round has been going (mm:ss) under the frozen counts. The clock starts when the round starts. No rules change.
