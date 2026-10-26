@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Snowplow taken out of the pool
+**Sun Oct 25, 2026 · 3:15 PM HST**
+- **Removed:** `cp_snowplow` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), at the owner's request. The pool is now 9 maps. It takes effect when the map next changes. `cp_snowplow` was the map the server was on at the time, and it stays loaded until then.
+- **Changed:** nothing else. Not tested yet.
+
 ## Welcome window: title on two lines
 **Sun Oct 25, 2026 · 3:10 PM HST**
 - **Changed:** in `tf/cfg/motd.txt` the title is now two lines: "~*~88x31 cLuB~*~" on the first, and "FrEEze tAg SeRveR:  ICEY COLD Edition!" on the second, in bold at 30 px (the first line is 19 px; it was 23 px). The words and capital letters are the same.
