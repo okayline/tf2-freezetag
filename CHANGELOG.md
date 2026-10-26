@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Minecraft: import an old world (mc-import)
+**Sun Oct 25, 2026 · 6:54 PM HST**
+- **Added:** the `mc-import` action. It checks `/root/world2.zip` is complete, stops Minecraft, renames `world` to `world-old`, unzips the zip's world (the folder with `level.dat`) into `/home/tf2/mc/world`, gives it to the `tf2` user and starts Minecraft. It stops without changing anything if the zip is missing or broken, `unzip` is missing, or `world-old` already exists.
+- **Removed:** nothing. The old world is kept as `world-old`, and the zip stays in `/root`.
+- **Not tested:** not run yet.
+
 ## Feed: joins show first
 **Sun Oct 25, 2026 · 6:49 PM HST**
 - **Changed:** in `vps/discord-feed-l4d.py` (`flush`), "joined" lines now go to the top of each Discord batch. The L4D log writes "entered the game" after a new player's first pickups, so the join showed below them. Used by both the L4D and TF2 feeds.
