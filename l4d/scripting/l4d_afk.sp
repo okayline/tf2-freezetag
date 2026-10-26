@@ -24,8 +24,15 @@ public Action CmdBack(int client, int args)
 {
     if (client <= 0 || !IsClientInGame(client)) return Plugin_Handled;
     if (GetClientTeam(client) != 1) { ReplyToCommand(client, "[88x31] You're already playing."); return Plugin_Handled; }
-    // take over a survivor bot: the game's own join command handles picking one
-    FakeClientCommand(client, "jointeam 2");
+    // take over a survivor bot right away (sb_takecontrol is a cheat command, so lift the flag for this one call)
+    int flags = GetCommandFlags("sb_takecontrol");
+    if (flags != INVALID_FCVAR_FLAGS) {
+        SetCommandFlags("sb_takecontrol", flags & ~FCVAR_CHEAT);
+        FakeClientCommand(client, "sb_takecontrol");
+        SetCommandFlags("sb_takecontrol", flags);
+    }
+    if (GetClientTeam(client) == 1)
+        FakeClientCommand(client, "jointeam 2");   // fallback: idle on a bot, click to take over
     PrintToChatAll("\x04[88x31]\x01 %N is back.", client);
     return Plugin_Handled;
 }
