@@ -26,6 +26,7 @@ name: VPS tools (manual only)
 #   discord-feed-install  uploads vps/discord-feed.py and discord-feed-setup.sh and starts the live TF2 feed (chat, kills, joins, round wins) once /home/tf2/discord/tf2-feed.url exists on the VPS
 #   discord-feed-check    shows whether the feed is running and its last log lines (counts only, no chat text)
 #   relay-install    downloads and installs sp-discordrelay with its three requirements (ripext, SteamWorks, discord-api). Stops without changing anything if a download is missing. Does not restart the server or touch settings.
+#   relay-install-l4d  the same install for the Left 4 Dead 1 server (its own addons/sourcemod folder). No restart, no settings.
 #   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
@@ -36,7 +37,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -143,6 +144,9 @@ jobs:
             relay-install)
               scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
                 && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
+            relay-install-l4d)
+              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
+                && vps "bash /root/install-discordrelay.sh /home/tf2/l4d/left4dead" 2>&1 | tail -c 2800 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
           m=$(tail -c 3600 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')

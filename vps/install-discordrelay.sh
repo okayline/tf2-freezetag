@@ -4,14 +4,14 @@
 #   discord-api (plugin, Cruze03/sourcemod-discord).
 # Everything is downloaded and checked in /root/relay-stage first. If any piece is missing the script stops
 # and changes nothing on the game server. It does NOT restart the server and does NOT touch any settings.
-# Run as root. Re-running is safe.
+# Run as root. Re-running is safe. Optional argument: the game folder (default: the TF2 server's tf folder).
 #
-# After the server restarts once, the plugin writes /home/tf2/server/tf/cfg/sourcemod/discordrelay.cfg.
+# After the server restarts once, the plugin writes <game folder>/cfg/sourcemod/discordrelay.cfg.
 # The webhook link (and later the bot token) are typed in there by the server owner, never stored in the repo.
 set -euo pipefail
 
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
-T=/home/tf2/server/tf
+T=${1:-/home/tf2/server/tf}   # the game folder; the L4D1 server is /home/tf2/l4d/left4dead
 S=/root/relay-stage
 rm -rf "$S"; mkdir -p "$S"; cd "$S"
 

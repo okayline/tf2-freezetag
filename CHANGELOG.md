@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Same chat relay for the L4D1 server
+**Sun Oct 25, 2026 · 2:35 PM HST**
+- **Added:** `install-discordrelay.sh` takes an optional game folder (default is still the TF2 server), and the `relay-install-l4d` action runs it on `/home/tf2/l4d/left4dead`. The L4D1 server already has SourceMod. The relay plugin, SteamWorks, ripext, SMJansson and discord-api are installed into it the same way; no restart and no settings.
+- **Removed:** nothing.
+- **Not tested:** whether these extensions and the relay plugin load on L4D1 at all is not checked. The TF2 version of this install is confirmed working for chat, joins and leaves (seen in Discord by the owner).
+
 ## SMJansson download: file names don't say "linux"
 **Sun Oct 25, 2026 · 2:45 PM HST**
 - **Found:** the run stopped, changing nothing, as designed: the SMJansson release's files are named `sm-ext-SMJansson-ubuntu-24.04-sm-1.12-dev.tar.gz` and `...-sm-master.tar.gz` (plus two Windows ones), so the installer's "linux" search found none.
