@@ -43,7 +43,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -181,6 +181,9 @@ jobs:
             l4d-reserve-install)
               scp $SSHO l4d/scripting/l4d_reserve.sp vps/l4d-install-reserve.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/l4d-install-reserve.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+            l4d-command)
+              C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
+              vps "sudo -u tf2 screen -S l4d -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; tail -n 15 /home/tf2/l4d-console.txt" 2>&1 | tail -c 2500 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
           esac
