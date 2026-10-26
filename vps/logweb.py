@@ -148,4 +148,13 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     HASH_FILE = sys.argv[2]
+    # optional HTTPS on 443 with a self-signed cert (Cloudflare "Full" mode connects there)
+    if len(sys.argv) > 4 and os.path.exists(sys.argv[3]):
+        import ssl
+        import threading
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.load_cert_chain(sys.argv[3], sys.argv[4])
+        tls = ThreadingHTTPServer(("0.0.0.0", 443), H)
+        tls.socket = ctx.wrap_socket(tls.socket, server_side=True)
+        threading.Thread(target=tls.serve_forever, daemon=True).start()
     ThreadingHTTPServer(("0.0.0.0", int(sys.argv[1])), H).serve_forever()
