@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Freeze Tag: frozen-count text moved to the left edge
+**Sun Oct 25, 2026 · 10:09 PM HST**
+- **Changed:** in `freezetag.sp`, the "RED Frozen / BLU Frozen / time" text moved from 18% across, 2% down to the left edge (1% across), a third of the way down (33%), so it no longer sits under the team portraits of custom HUDs.
+- **Removed:** the old top-of-screen position.
+- **Not tested:** not seen in game yet; where it lands depends on each player's HUD.
+
 ## Caddy takes ports 80/443 for both web pages
 **Sun Oct 25, 2026 · 10:02 PM HST**
 - **Changed:** the first `map-https` run failed because the log page already used port 443. Now Caddy is the only thing on 80/443: `map.88x31.app` goes to BlueMap (real certificate), `logs.88x31.app` to the log page (self-signed, as before, for Cloudflare "Full" mode), and the bare IP on port 80 to the log page. `map-https` re-installs the log page first.
