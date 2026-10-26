@@ -31,7 +31,22 @@ RULES = [
     ("left", re.compile(P + r' disconnected')),
     ("ff", re.compile(r'^(\S[^"<>]{0,40}) attacked (\S[^"<>]{0,40})$')),
     ("map", re.compile(r'(?:Started|Loading) map "([^"]*)"')),
+    ("incap", re.compile(r'\(INCAP\) ' + P + r' is incapacitated')),
+    ("pounce", re.compile(r'^Hunter pounced on ([^,]{1,40}),')),
+    ("tongue", re.compile(r'Tongue grab starting\.\s+Smoker:' + P + r'\.\s+Victim:' + P)),
+    ("revive", re.compile(P + r' (revived|healed|rescued|defibrillated) ' + P)),
+    ("item", re.compile(r'^(\S[^<>"]{0,40}) picked up item weapon_(pipe_bomb|molotov|first_aid_kit|pain_pills|autoshotgun|rifle|hunting_rifle|gascan|propanetank)\b')),
+    ("spawn", re.compile(r'^(\S+) spawned as a (TANK|WITCH|HUNTER|GAS|EXPLODING|SMOKER|BOOMER)\b')),
+    ("witch", re.compile(r'Witch')),
+    ("trigger", re.compile(r'World triggered "([^"]*)"')),
+    ("score", re.compile(r'Team "([^"]*)" scored "([^"]*)" with "([^"]*)" players')),
 ]
+ITEM = {"pipe_bomb": "a pipe bomb", "molotov": "a molotov", "first_aid_kit": "a medkit", "pain_pills": "pills",
+        "autoshotgun": "an auto shotgun", "rifle": "an assault rifle", "hunting_rifle": "a hunting rifle",
+        "gascan": "a gas can", "propanetank": "a propane tank"}
+SPECIAL = {"TANK": "\U0001F6A8 **A TANK has spawned!**", "WITCH": "\U0001F469 A Witch is nearby",
+           "HUNTER": "\U0001F43E A Hunter spawned", "GAS": "\U0001F445 A Smoker spawned", "SMOKER": "\U0001F445 A Smoker spawned",
+           "EXPLODING": "\U0001F92E A Boomer spawned", "BOOMER": "\U0001F92E A Boomer spawned"}
 
 
 def esc(text, n):
@@ -64,7 +79,9 @@ def format_line(raw):
                 return None
             if "<Survivor>" in vtags:
                 return "\U0001F480 **%s** was killed by %s (%s)" % (esc(victim, 32), esc(killer, 32), esc(weapon, 24))
-            return "\U0001F9DF %s killed a %s (%s)" % (esc(killer, 32), esc(victim, 32), esc(weapon, 24))
+            hs = " \U0001F3AF headshot" if text.endswith("(headshot)") else ""
+            big = "**" if victim in ("Tank", "Witch") else ""
+            return "\U0001F9DF %s killed a %s%s%s (%s)%s" % (esc(killer, 32), big, esc(victim, 32), big, esc(weapon, 24), hs)
         if kind == "suicide":
             return "\U0001F480 %s died" % esc(g[0], 32)
         if kind == "joined":
@@ -73,6 +90,31 @@ def format_line(raw):
             return None if is_bot(g[1]) else "➖ **%s** left" % esc(g[0], 32)
         if kind == "ff":
             return "\U0001F52B %s shot teammate %s" % (esc(g[0], 32), esc(g[1], 32))
+        if kind == "incap":
+            return None if "<Survivor>" not in g[1] else "\U0001FA78 **%s** is down!" % esc(g[0], 32)
+        if kind == "pounce":
+            return "\U0001F43E Hunter pounced on %s" % esc(g[0], 32)
+        if kind == "tongue":
+            return "\U0001F445 Smoker grabbed %s" % esc(g[2], 32)
+        if kind == "revive":
+            return "\u2764\ufe0f %s %s %s" % (esc(g[0], 32), g[2], esc(g[3], 32))
+        if kind == "item":
+            return "\U0001F392 %s picked up %s" % (esc(g[0], 32), ITEM[g[1]])
+        if kind == "spawn":
+            return SPECIAL[g[1]]
+        if kind == "witch":
+            return None
+        if kind == "trigger":
+            ev = g[0]
+            if ev.lower() in ("round_start", "round_end", "finale_start", "finale_vehicle_ready", "finale_win", "game_over", "mission_lost"):
+                nice = {"round_start": "\U0001F7E2 Round started", "round_end": "\U0001F534 Round over",
+                        "finale_start": "\U0001F525 **FINALE started!**", "finale_vehicle_ready": "\U0001F681 Rescue is here!",
+                        "finale_win": "\U0001F3C6 **Survivors escaped!**", "game_over": "\u2620\ufe0f Game over",
+                        "mission_lost": "\u2620\ufe0f **Everyone died**"}
+                return nice[ev.lower()]
+            return "\u2699\ufe0f %s" % esc(ev, 40)
+        if kind == "score":
+            return "\U0001F3C1 %s scored %s (%s players)" % (esc(g[0], 16), esc(g[1], 10), esc(g[2], 4))
         if kind == "map":
             return "\U0001F5FA️ Map: `%s`" % esc(g[0], 48).replace("\\", "")
     return None
