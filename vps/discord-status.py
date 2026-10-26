@@ -12,6 +12,7 @@ Usage: discord-status.py NAME PORT SERVER_CFG WEBHOOK_FILE MESSAGE_FILE
 Python standard library only."""
 import datetime
 import json
+import os
 import re
 import socket
 import struct
@@ -152,6 +153,29 @@ def post(webhook, message_file, payload):
     return code
 
 
+def record(path, name, state, info=None):
+    """Append one line to the player log, only when the server's state changed since its last line.
+    Counts and map only: no player names, no IPs. The log lives next to the message files on the VPS."""
+    now = "%s|%s|%s" % (name, state, "" if not info else "%s|%s|%s" % (info["map"], info["humans"], info["bots"]))
+    try:
+        last = None
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if (" | %s | " % name) in line:
+                    last = line.rstrip("\n").split(" | ", 2)[2]
+    except OSError:
+        last = None
+    if state == "online":
+        body = "online | map=%s humans=%s bots=%s" % (info["map"], info["humans"], info["bots"])
+    else:
+        body = state
+    if last == body:
+        return
+    stamp = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-10))).strftime("%Y-%m-%d %H:%M:%S HST")
+    with open(path, "a", encoding="utf-8") as f:
+        f.write("%s | %s | %s\n" % (stamp, name, body))
+
+
 def main():
     name, port, cfg, webhook_file, message_file = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5]
     try:
@@ -173,6 +197,10 @@ def main():
         note = "(rcon login refused)"
     except (OSError, ConnectionError) as e:
         note = "(%s)" % type(e).__name__
+    try:
+        record(os.path.join(os.path.dirname(os.path.abspath(message_file)), "players.log"), name, state, info)
+    except Exception:
+        pass                                  # the log must never stop the Discord card
     code = post(webhook, message_file, build(name, state, info, note))
     print("%s: %s%s, discord answered %d" % (name, state, " " + note if note else "", code))
     return 0 if 200 <= code < 300 else 1

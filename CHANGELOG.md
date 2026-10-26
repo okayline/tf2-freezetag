@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Player count log on the VPS
+**Sun Oct 25, 2026 · 2:40 PM HST**
+- **Added:** the status script (`discord-status.py`), which already runs every minute, now also appends a line to `/home/tf2/discord/players.log` on the VPS whenever a server's state changes: online with the map and the number of humans and bots, or offline. Lines are stamped in HST. It logs only changes, so the file stays small, and it never writes player names or IP addresses. If writing the log fails, the Discord card still posts.
+- **Why:** to see how many players are on over time, for example whether they come in pairs.
+- **Removed:** nothing. No size limit or cleanup was added to the log.
+- **Tested here:** a check with made-up states: repeated identical states write one line, a change writes a new line, each server is tracked separately. Not tested on the VPS.
+
 ## L4D1 status card: show player names
 **Sun Oct 25, 2026 · 2:34 PM HST**
 - **Found:** the L4D card showed "Players: 2, 0 bots (4 max)" with no names, while the TF2 card lists them. Likely cause, not confirmed: L4D1's `status` rows may have a second number before the name, which the name pattern in `discord-status.py` didn't allow.
