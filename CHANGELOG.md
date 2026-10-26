@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Feed: joins show first
+**Sun Oct 25, 2026 · 6:49 PM HST**
+- **Changed:** in `vps/discord-feed-l4d.py` (`flush`), "joined" lines now go to the top of each Discord batch. The L4D log writes "entered the game" after a new player's first pickups, so the join showed below them. Used by both the L4D and TF2 feeds.
+- **Removed:** the old order, where a join stayed wherever the log put it in the batch.
+- **Not tested:** only a syntax check and a quick test of the reordering line.
+
 ## Move the L4D add-ons out (l4d-addons-off)
 **Sun Oct 25, 2026 · 3:38 PM HST**
 - **Added:** the `l4d-addons-off` action moves `rip.ext.so`, `SteamWorks.ext.so`, `smjansson.ext.so` and `discord_api.smx` out of the L4D server's `addons/sourcemod` folders into `/home/tf2/l4d/off/`. Nothing is deleted, and it does not restart the server.

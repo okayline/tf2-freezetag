@@ -206,6 +206,8 @@ def flush(webhook, lines):
             seen[l] = 1
             out.append(l)
     out = [l + (" ×%d" % seen[l] if seen[l] > 1 else "") for l in out]
+    # joins first: the game logs "entered the game" after the new player's first pickups
+    out = [l for l in out if l.startswith("➕")] + [l for l in out if not l.startswith("➕")]
     extra = len(out) - 40
     out = out[:40] + (["… and %d more" % extra] if extra > 0 else [])
     payload = {"content": "\n".join(out)[:1900], "allowed_mentions": {"parse": []}}
