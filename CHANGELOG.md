@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## VPS tools: disk-usage
+**Sun Oct 25, 2026 · 11:03 PM HST**
+- **Added:** the read-only `disk-usage` action (folder sizes under /home/tf2, the TF2 server's biggest folders, free space).
+- **Removed:** nothing.
+
 ## Tactical mode switch (arena, first to 7)
 **Sun Oct 25, 2026 · 11:02 PM HST**
 - **Added:** "Tactical mode" in 88x31 Tools (`88x31_settings.sp` 1.5, also `sm_tactical`). On: Freeze Tag off, `mp_winlimit 7` (first to 7 rounds), no arena queue, and a random map from the new `tf/cfg/mapcycle_tactical.txt` (10 arena maps). Off: Freeze Tag on, normal map cycle. The mode is set again after every map load; a server restart goes back to Freeze Tag. `deploy.yml` now also sends `mapcycle_tactical.txt`.

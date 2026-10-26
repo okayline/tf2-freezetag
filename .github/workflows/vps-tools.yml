@@ -38,6 +38,7 @@ name: VPS tools (manual only)
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
 #   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
+#   disk-usage       shows how big each folder under /home/tf2 is (and the TF2 server's biggest folders), plus free space
 #   map-https        installs Caddy (apt) and puts vps/Caddyfile in place on ports 80/443: https://map.88x31.app (BlueMap) and logs.88x31.app (log page)
 #   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
 #   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
@@ -53,7 +54,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -261,6 +262,7 @@ jobs:
                 chown -R tf2:tf2 \$B; grep -n '^accept-download\|^render-thread-count' \$B/core.conf; tail -n 1 \$B/maps/world.conf
                 sudo -u tf2 screen -S mc -X stuff \"bluemap reload\$(printf '\\r')\"; sleep 25
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8" 2>&1 | tail -c 2000 >> "$R"; fi ;;
+            disk-usage) vps 'du -sh /home/tf2/* 2>/dev/null | sort -h; echo "-- TF2 server:"; du -sh /home/tf2/server/* /home/tf2/server/tf/* 2>/dev/null | sort -h | tail -n 12; df -h / | tail -1' 2>&1 | tail -c 2500 >> "$R" ;;
             map-https)
               scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
