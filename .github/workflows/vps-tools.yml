@@ -37,6 +37,7 @@ name: VPS tools (manual only)
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
+#   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
 #   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
 #   mc-import-cleanup  deletes /root/world2.zip after a finished import (only if /home/tf2/mc/world exists)
 #   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
@@ -50,7 +51,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -238,6 +239,15 @@ jobs:
                 echo \"BlueMap \${U%% *}\"; curl -fsSL -o \$P/BlueMap.jar.new \"\${U#* }\" && mv \$P/BlueMap.jar.new \$P/BlueMap.jar || { echo 'download failed'; exit 0; }
                 chown tf2:tf2 \$P/BlueMap.jar; systemctl restart mc; sleep 50
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8; grep -n 'accept-download' \$P/BlueMap/core.conf 2>/dev/null" 2>&1 | tail -c 2000 >> "$R" ;;
+            mc-plugin-install)
+              S=$(printf '%s' "$COMMAND" | tr -cd 'a-z0-9_-')
+              if [ -z "$S" ]; then echo "Put the plugin's Modrinth name in the box." >> "$R"; else
+              vps "P=/home/tf2/mc/plugins
+                U=\$(curl -fsS -A '88x31-mc-setup (ryan)' 'https://api.modrinth.com/v2/project/$S/version?loaders=%5B%22paper%22%5D&game_versions=%5B%2226.3%22%5D' | python3 -c 'import json,sys;v=json.load(sys.stdin)[0];print(v[\"version_number\"],v[\"files\"][0][\"url\"])')
+                [ -n \"\$U\" ] || { echo 'no Paper build of $S for 26.3 on Modrinth, nothing changed'; exit 0; }
+                echo \"$S \${U%% *}\"; curl -fsSL -o \$P/$S.jar.new \"\${U#* }\" && mv \$P/$S.jar.new \$P/$S.jar || { echo 'download failed'; exit 0; }
+                chown tf2:tf2 \$P/$S.jar; systemctl restart mc; sleep 50
+                grep -i '$S' /home/tf2/mc/logs/latest.log | tail -n 6" 2>&1 | tail -c 2000 >> "$R"; fi ;;
             mc-import)
               vps 'Z=/root/world2.zip; D=/home/tf2/mc; T=$D/import-tmp
                 [ -f $Z ] || { echo "no $Z"; exit 0; }
