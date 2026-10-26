@@ -216,6 +216,17 @@ def newest(log_dir):
     return max(files, key=os.path.getmtime) if files else None
 
 
+HUMANS = set()
+JL = re.compile(P + r' (entered the game|disconnected)')
+
+
+def track(line):
+    """Keep the set of humans on the server (TF2 only), from join/leave log lines."""
+    m = JL.search(line)
+    if m and not is_bot(m.group(2)):
+        (HUMANS.add if m.group(3) == "entered the game" else HUMANS.discard)(m.group(1))
+
+
 def main():
     global GAME
     name, log_dir, webhook_file = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -232,7 +243,10 @@ def main():
                 fh.close()
             fh = open(cur, encoding="utf-8", errors="replace")
             if path is None:
-                fh.seek(0, os.SEEK_END)          # first start: only new lines
+                for old in fh:                   # first start: learn who is on, then only new lines
+                    track(old)
+            else:
+                HUMANS.clear()                   # new map log: players enter again
             path, pending = cur, ""
         part = fh.readline() if fh else ""
         pending += part
@@ -242,7 +256,10 @@ def main():
         if line:
             got += 1
             try:
+                track(line)
                 out = format_line(line)
+                if GAME == "tf2" and not HUMANS and "disconnected" not in line:
+                    out = None                    # only bots playing: stay quiet
             except Exception:
                 out = None
             if out:
