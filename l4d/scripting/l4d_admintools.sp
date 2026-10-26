@@ -128,8 +128,8 @@ bool DoAction(int c, const char[] k)
 }
 
 // ---- co-op / versus ----
-// server.cfg runs on every map load and sets the co-op limits (sv_maxplayers 5, browser /4), so in versus
-// they are put back to 8 each time a map starts.
+// This plugin owns the player limits (they are not in server.cfg): co-op 5 players, browser /4, 4 public slots;
+// versus 8 / 8 / 8. They are set when configs run and checked again every 10 seconds.
 static const char CAMPS[][] = {"hospital", "garage", "smalltown", "airport", "farm", "river"};
 static const char COOP_START[][] = {"l4d_hospital01_apartment", "l4d_garage01_alleys", "l4d_smalltown01_caves",
                                     "l4d_airport01_greenhouse", "l4d_farm01_hilltop", "l4d_river01_docks"};
@@ -152,7 +152,19 @@ void SetLimits(bool versus)
 
 public void OnConfigsExecuted()
 {
-    if (IsVersus()) SetLimits(true);
+    SetLimits(IsVersus());
+}
+
+public void OnMapStart()
+{
+    CreateTimer(10.0, CheckLimits, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action CheckLimits(Handle t)
+{
+    ConVar vis = FindConVar("sv_visiblemaxplayers");
+    if (vis != null && vis.IntValue != (IsVersus() ? 8 : 4)) SetLimits(IsVersus());
+    return Plugin_Continue;
 }
 
 void SwitchMode(bool versus)
