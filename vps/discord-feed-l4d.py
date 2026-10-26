@@ -38,6 +38,7 @@ RULES = [
     ("item", re.compile(r'^(\S[^<>"]{0,40}) picked up item weapon_(pipe_bomb|molotov|first_aid_kit|pain_pills|autoshotgun|rifle|hunting_rifle|gascan|propanetank)\b')),
     ("spawn", re.compile(r'^(\S+) spawned as a (TANK|WITCH|HUNTER|GAS|EXPLODING|SMOKER|BOOMER)\b')),
     ("witch", re.compile(r'Witch')),
+    ("cap", re.compile(r'Team "([^"]*)" triggered "pointcaptured" \(cp "\d+"\) \(cpname "([^"]*)"\)')),
     ("trigger", re.compile(r'World triggered "([^"]*)"')),
     ("score", re.compile(r'Team "([^"]*)" scored "([^"]*)" with "([^"]*)" players')),
 ]
@@ -81,6 +82,8 @@ def format_line(raw):
                 return "\U0001F480 **%s** was killed by %s (%s)" % (esc(victim, 32), esc(killer, 32), esc(weapon, 24))
             hs = " \U0001F3AF headshot" if text.endswith("(headshot)") else ""
             big = "**" if victim in ("Tank", "Witch") else ""
+            if "<Infected>" not in vtags:          # TF2 and other games: player vs player
+                return "\u2620\ufe0f %s killed %s (%s)%s" % (esc(killer, 32), esc(victim, 32), esc(weapon, 24), hs)
             return "\U0001F9DF %s killed a %s%s%s (%s)%s" % (esc(killer, 32), big, esc(victim, 32), big, esc(weapon, 24), hs)
         if kind == "suicide":
             return "\U0001F480 %s died" % esc(g[0], 32)
@@ -106,6 +109,12 @@ def format_line(raw):
             return None
         if kind == "trigger":
             ev = g[0]
+            w = re.search(r'\(winner "([^"]*)"\)', text)
+            if ev == "Round_Win" and w:
+                return "\U0001F3C1 **%s wins the round!**" % esc(w.group(1), 16)
+            if ev in ("Round_Start", "Round_Setup_Begin", "Round_Setup_End", "Round_Overtime", "Round_Length",
+                      "Mini_Round_Selected", "Mini_Round_Start", "Mini_Round_End", "Mini_Round_Win", "Mini_Round_Length"):
+                return None if ev != "Round_Start" else "\U0001F7E2 Round started"
             if ev.lower() in ("round_start", "round_end", "finale_start", "finale_vehicle_ready", "finale_win", "game_over", "mission_lost"):
                 nice = {"round_start": "\U0001F7E2 Round started", "round_end": "\U0001F534 Round over",
                         "finale_start": "\U0001F525 **FINALE started!**", "finale_vehicle_ready": "\U0001F681 Rescue is here!",
@@ -113,6 +122,8 @@ def format_line(raw):
                         "mission_lost": "\u2620\ufe0f **Everyone died**"}
                 return nice[ev.lower()]
             return "\u2699\ufe0f %s" % esc(ev, 40)
+        if kind == "cap":
+            return "\U0001F6A9 %s captured %s" % (esc(g[0], 16), esc(g[1].lstrip("#"), 40))
         if kind == "score":
             return "\U0001F3C1 %s scored %s (%s players)" % (esc(g[0], 16), esc(g[1], 10), esc(g[2], 4))
         if kind == "map":
