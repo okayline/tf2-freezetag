@@ -17,6 +17,7 @@ public void OnPluginStart()
 {
     RegAdminCmd("sm_tools", CmdTools, ADMFLAG_GENERIC, "Open the 88x31 tools menu");
     HookEvent("player_spawn", OnSpawn);
+    SetLimits(IsVersus());                       // also on a reload in the middle of a map
     TopMenu t;
     if (LibraryExists("adminmenu") && ((t = GetAdminTopMenu()) != null))
         OnAdminMenuReady(t);

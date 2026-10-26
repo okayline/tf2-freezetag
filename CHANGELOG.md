@@ -4,7 +4,7 @@
 
 ## L4D: player limits move from server.cfg into the admin tools plugin
 **Sun Oct 25, 2026 · 9:44 PM HST**
-- **Changed:** `l4d_admintools.sp` now sets the player limits for both modes (co-op 5 players, browser /4; versus 8, /8) when configs run, and re-checks every 10 seconds. After switching to versus, the browser still showed /4 because `server.cfg` put the co-op values back on the map load.
+- **Changed:** `l4d_admintools.sp` now sets the player limits for both modes (co-op 5 players, browser /4; versus 8, /8) when configs run and when the plugin loads, and re-checks every 10 seconds (timers pause while the empty server hibernates). After switching to versus, the browser still showed /4 because `server.cfg` put the co-op values back on the map load.
 - **Removed:** `sv_maxplayers 5` and `sv_visiblemaxplayers 4` from the L4D `server.cfg` (the reserve install script now deletes them instead of adding them).
 - **Not tested:** only on the empty, hibernating server.
 
