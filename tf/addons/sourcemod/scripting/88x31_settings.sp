@@ -163,7 +163,7 @@ public Action Cmd_Random(int client, int args)
 
 // ---- Big heads (head size only; gravity and everything else unchanged) ----
 // TF2 sets each player's head size every tick, so it is put back right after, while big heads are on.
-bool g_bigHeads;
+bool g_bigHeads = true;     // on by default; the admin menu can turn it off until the plugin reloads
 const float BIG_HEAD = 3.0;
 
 public void OnClientPutInServer(int client)

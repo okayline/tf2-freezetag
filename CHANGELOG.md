@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Big heads on by default
+**Sun Oct 25, 2026 · 10:41 PM HST**
+- **Changed:** big heads start ON when the 88x31 Settings plugin loads (server start or update). The admin menu can still turn them off.
+- **Removed:** normal-size heads as the default.
+- **Not tested:** not seen after a restart yet.
+
 ## Freeze Tag: HUD text above the chat box
 **Sun Oct 25, 2026 · 10:39 PM HST**
 - **Changed:** the frozen-count/clock text starts at 45% down, so it is above the chat box when chat is open.
