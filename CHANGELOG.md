@@ -72,6 +72,11 @@
 - **Added:** `88x31_settings` is now version 1.1 with two admin commands. `sm_next` (or `!next` in chat) changes to the next map in `mapcycle.txt` after a 3 second warning; `sm_random` (or `!random`) picks a random map from the cycle, never the one already being played. Both need the change-map admin right, which the full admins have.
 - **Changed:** nothing else. Not tested yet (the new plugin is compiled by the deploy, so check that it built).
 
+## Bot navigation files built for the pool maps
+**Sun Oct 25, 2026 · 11:55 AM HST**
+- **Added:** bot navigation (`.nav`) files, generated on the server, for `koth_snowtower`, `cp_gravelpit_snowy`, `cp_frostwatch`, `cp_snowplow`, `cp_coldfront`, `cp_yukon_final`, `koth_winter_ridge`, `koth_highpass`, `koth_overcast_final` and `koth_krampus`, so bots can move on them. `cp_vanguard` and `cp_process_final` already had one in the game files. The files live only on the server (in `tf/maps/`), not in this repo. They were built with the manual `generate-navs` server tool.
+- **Changed:** nothing else. Not tested yet.
+
 ## Two maps where bots stood still removed
 **Sun Oct 25, 2026 · 11:05 AM HST**
 - **Removed:** `cp_steel` and `cp_mountainlab` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), because the bots did nothing on them (they have no bot navigation file). The pool is now 12 maps. Takes effect when the map cycle is next read.
