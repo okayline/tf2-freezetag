@@ -29,7 +29,7 @@ char g_next[64];
 
 public void OnPluginStart()
 {
-    g_delay = CreateConVar("l4d_rotate_delay", "1.0", "Seconds after the rescue leaves before changing campaign", _, true, 1.0, true, 60.0);
+    g_delay = CreateConVar("l4d_rotate_delay", "3.0", "Seconds after the rescue leaves before changing campaign", _, true, 1.0, true, 60.0);
     HookEvent("finale_vehicle_leaving", OnRescue, EventHookMode_PostNoCopy);
     HookEvent("finale_win", OnRescue, EventHookMode_PostNoCopy);
     RegAdminCmd("sm_nextcampaign", CmdNext, ADMFLAG_CHANGEMAP, "Go to the next campaign now");
