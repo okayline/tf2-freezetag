@@ -171,7 +171,7 @@ jobs:
               scp $SSHO vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/logweb-setup.sh '$H'" 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-rotate-install)
-              scp $SSHO l4d/scripting/l4d_campaign_rotate.sp vps/l4d-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+              scp $SSHO l4d/scripting/l4d_campaign_rotate.sp l4d/scripting/l4d_afk.sp vps/l4d-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/l4d-install-rotate.sh" 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
