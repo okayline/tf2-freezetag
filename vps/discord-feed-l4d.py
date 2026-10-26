@@ -57,6 +57,7 @@ def esc(text, n):
 
 
 GAME = "l4d"
+LAST_SPAWN = {}
 BOT_NAMES = {"Bill", "Francis", "Louis", "Zoey"}
 
 
@@ -98,6 +99,13 @@ def format_line(raw):
             return "\U0001F4AC **%s**%s: %s" % (esc(g[0], 32), tag, esc(g[2], 250))
         if kind == "kill":
             killer, ktags, victim, vtags, weapon = g
+            killer = re.sub(r"^\(\d+\)", "", killer)
+            victim = re.sub(r"^\(\d+\)", "", victim)
+            world = not re.search(r"<\d+>", ktags) and "<Survivor>" not in ktags
+            if world and "<Survivor>" not in vtags:
+                return None                       # the map itself (trigger_hurt etc.) killed an infected
+            if world and "<Survivor>" in vtags and not is_bot(vtags):
+                return "\U0001F480 **%s** died (fell or hazard)" % esc(victim, 32)
             if victim == "infected":
                 return None                       # common infected: skip, there are hundreds
             if "<Survivor>" in vtags and is_bot(vtags):
@@ -120,6 +128,8 @@ def format_line(raw):
                 return "\u2620\ufe0f %s killed %s (%s)%s" % (esc(killer, 32), esc(victim, 32), esc(weapon, 24), hs)
             return "\U0001F9DF %s killed a %s%s%s (%s)%s" % (esc(killer, 32), big, esc(victim, 32), big, esc(weapon, 24), hs)
         if kind == "suicide":
+            if "<Survivor>" not in g[1] or is_bot(g[1]):
+                return None                       # infected (Tank passing control etc.) or bot: skip
             return "\U0001F480 %s died" % esc(g[0], 32)
         if kind == "joined":
             return None if is_bot(g[1]) else "➕ **%s** joined" % esc(g[0], 32)
@@ -144,6 +154,10 @@ def format_line(raw):
         if kind == "item":
             return "\U0001F392 %s picked up %s" % (esc(g[0], 32), ITEM[g[1]])
         if kind == "spawn":
+            now = time.time()
+            if now - LAST_SPAWN.get(g[1], 0) < 30:
+                return None                       # same special again within 30s (Tank control passing): skip
+            LAST_SPAWN[g[1]] = now
             return SPECIAL[g[1]]
         if kind == "witch":
             return None
@@ -165,6 +179,8 @@ def format_line(raw):
         if kind == "cap":
             return "\U0001F6A9 %s captured %s" % (esc(g[0], 16), esc(g[1].lstrip("#"), 40))
         if kind == "score":
+            if g[1] == "0":
+                return None
             return "\U0001F3C1 %s scored %s (%s players)" % (esc(g[0], 16), esc(g[1], 10), esc(g[2], 4))
         if kind == "map" and GAME == "tf2":
             return None                           # the relay already posts map changes
