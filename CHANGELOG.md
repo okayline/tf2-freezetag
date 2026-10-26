@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BlueMap: choose the number of render threads
+**Sun Oct 25, 2026 · 8:38 PM HST**
+- **Changed:** `mc-bluemap-render` takes an optional 4th number, the render thread count (default 1). Set to 2 while TF2 and L4D are stopped.
+- **Removed:** the fixed 1-thread setting.
+- **Not tested:** not run yet.
+
 ## Minecraft: BlueMap first render (mc-bluemap-render)
 **Sun Oct 25, 2026 · 8:32 PM HST**
 - **Added:** the `mc-bluemap-render` action. It accepts BlueMap's resource download in `core.conf`, sets 1 render thread, and adds a render area to each map (a square around X Z; the Nether uses the same spot divided by 8), then reloads BlueMap. Running it again replaces the area.

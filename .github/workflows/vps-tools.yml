@@ -37,7 +37,7 @@ name: VPS tools (manual only)
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
-#   mc-bluemap-render  turns BlueMap on (accepts its download, 1 render thread) and limits all maps to a square around a spot (box: X Z RADIUS, like -330 73 1000; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
+#   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
 #   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
 #   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
 #   mc-import-cleanup  deletes /root/world2.zip after a finished import (only if /home/tf2/mc/world exists)
@@ -251,9 +251,9 @@ jobs:
                 grep -i '$S' /home/tf2/mc/logs/latest.log | tail -n 6" 2>&1 | tail -c 2000 >> "$R"; fi ;;
             mc-bluemap-render)
               set -- $(printf '%s' "$COMMAND" | tr -cd '0-9 -')
-              if [ $# -ne 3 ]; then echo "Give X Z RADIUS, like -330 73 1000." >> "$R"; else
-              vps "B=/home/tf2/mc/plugins/BlueMap; X=$1; Z=$2; R=$3
-                sed -i 's/^accept-download:.*/accept-download: true/; s/^render-thread-count:.*/render-thread-count: 1/' \$B/core.conf
+              if [ $# -lt 3 ]; then echo "Give X Z RADIUS [THREADS], like -330 73 1000 or -330 73 1000 2." >> "$R"; else
+              vps "B=/home/tf2/mc/plugins/BlueMap; X=$1; Z=$2; R=$3; N=${4:-1}
+                sed -i 's/^accept-download:.*/accept-download: true/; s/^render-thread-count:.*/render-thread-count: \$N/' \$B/core.conf
                 mask() { f=\$B/maps/\$1.conf; [ -f \$f ] || return; sed -i '/^# 88x31 render area/,\$d' \$f
                   printf '# 88x31 render area (mc-bluemap-render)\nrender-mask: [ { min-x: %d, max-x: %d, min-z: %d, max-z: %d } ]\n' \$((\$2-\$4)) \$((\$2+\$4)) \$((\$3-\$4)) \$((\$3+\$4)) >> \$f; }
                 mask world \$X \$Z \$R; mask world_the_end \$X \$Z \$R; mask world_the_nether \$((\$X/8)) \$((\$Z/8)) \$((\$R/8))
