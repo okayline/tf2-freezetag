@@ -47,6 +47,7 @@ enforce-whitelist=true
 online-mode=true
 spawn-protection=0
 sync-chunk-writes=false
+pause-when-empty-seconds=-1
 network-compression-threshold=256
 P
 fi

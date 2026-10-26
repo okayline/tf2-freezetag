@@ -45,7 +45,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -195,6 +195,11 @@ jobs:
             mc-command)
               C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .:-')
               vps "sudo -u tf2 screen -S mc -X stuff \"$C\$(printf '\\r')\"; sleep 2; tail -n 12 /home/tf2/mc/logs/latest.log" 2>&1 | tail -c 2500 >> "$R" ;;
+            mc-set)   # box: key=value for server.properties (applies on next mc restart)
+              if printf '%s' "$COMMAND" | grep -Eq '^[a-z.-]{2,50}=[A-Za-z0-9_.-]{0,40}$'; then
+                k=${COMMAND%%=*}
+                vps "f=/home/tf2/mc/server.properties; if grep -q '^$k=' \$f; then sed -i 's|^$k=.*|$COMMAND|' \$f; else echo '$COMMAND' >> \$f; fi; grep '^$k=' \$f; echo players:; sudo -u tf2 screen -S mc -X stuff \"list\$(printf '\\r')\"; sleep 1; tail -n 2 /home/tf2/mc/logs/latest.log" 2>&1 | tail -c 1500 >> "$R"
+              else echo "Give key=value." >> "$R"; fi ;;
             mc-log) vps 'tail -n 60 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 3500 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
