@@ -28,7 +28,7 @@ name: VPS tools (manual only)
 #   relay-install    downloads and installs sp-discordrelay with its three requirements (ripext, SteamWorks, discord-api). Stops without changing anything if a download is missing. Does not restart the server or touch settings.
 #   relay-install-l4d  the same install for the Left 4 Dead 1 server (its own addons/sourcemod folder). No restart, no settings.
 #   l4d-addons-off   moves the L4D server's SteamWorks, ripext, SMJansson extensions and discord_api plugin into /home/tf2/l4d/off (nothing is deleted). No restart.
-#   l4d-rename       sets the L4D server name to ~*~88x31~*~ L4D cLaSSiC live (console) and in the service file, so it survives restarts. Does NOT restart.
+#   l4d-rename       sets the L4D server name to ~*~88x31~*~ L4D cLaSSiC live (console), in the service file and in server.cfg (the service file alone loses the part after the first space), so it survives restarts. Does NOT restart.
 #   l4d-log-on       turns on the L4D game log live (joins, leaves, chat, kills, friendly fire) and saves it in server.cfg. Does NOT restart.
 #   l4d-log          shows the last 80 lines of the newest L4D game log (optional filter word in the box)
 #   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
@@ -164,7 +164,7 @@ jobs:
               scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
                 && vps "bash /root/install-discordrelay.sh /home/tf2/l4d/left4dead" 2>&1 | tail -c 2800 >> "$R" ;;
             l4d-rename)
-              vps 'N="~*~88x31~*~ L4D cLaSSiC"; sudo -u tf2 screen -S l4d -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s|\+hostname .*\$|+hostname \"$N\"|" /etc/systemd/system/l4d.service; systemctl daemon-reload; grep -n ExecStart /etc/systemd/system/l4d.service | cut -c1-260; sleep 1; sudo -u tf2 screen -S l4d -X stuff "status$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; grep -m1 hostname /home/tf2/l4d-console.txt | tail -n 2' 2>&1 | tail -c 1500 >> "$R" ;;
+              vps 'N="~*~88x31~*~ L4D cLaSSiC"; sudo -u tf2 screen -S l4d -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s|\+hostname .*\$|+hostname \"$N\"|" /etc/systemd/system/l4d.service; systemctl daemon-reload; C=/home/tf2/l4d/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; grep -n ExecStart /etc/systemd/system/l4d.service | cut -c1-260; sleep 1; sudo -u tf2 screen -S l4d -X stuff "status$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; grep -m1 hostname /home/tf2/l4d-console.txt | tail -n 2' 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-log-on)
               vps 'C=/home/tf2/l4d/left4dead/cfg/server.cfg; touch $C; for l in "log on" "sv_logfile 1" "sv_log_onefile 0" "sv_logecho 0"; do grep -qxF "$l" $C || echo "$l" >> $C; done; chown tf2:tf2 $C; sudo -u tf2 screen -S l4d -X stuff "sv_logfile 1;sv_logecho 0;log on$(printf "\r")"; sleep 3; ls -lt /home/tf2/l4d/left4dead/logs | head -4' 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-log)

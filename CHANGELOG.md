@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: server name survives restarts
+**Sun Oct 25, 2026 · 9:22 PM HST**
+- **Fixed:** after a restart the L4D server was named just `~*~88x31~*~`: the name in the service file gets cut at the first space on its way to the server. `l4d-rename` now also writes the full name into `server.cfg`, which the server reads on every map load.
+- **Removed:** any older `hostname` line in the L4D `server.cfg` (replaced by the new one).
+- **Not tested:** not seen after a restart yet.
+
 ## L4D: 15 seconds after the rescue before the next campaign
 **Sun Oct 25, 2026 · 9:19 PM HST**
 - **Changed:** `l4d_rotate_delay` default in `l4d_campaign_rotate.sp`, and the value `l4d-install-rotate.sh` sets, from 5 to 15 seconds, so players can enjoy the escape before the next campaign loads.
