@@ -225,7 +225,7 @@ jobs:
               fi ;;
             mc-discord-format)
               vps 'M=/home/tf2/mc/plugins/DiscordSRV/messages.yml; echo before:; grep -n "^DiscordToMinecraftChatMessageFormat" $M
-                sed -i "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%\&r » %message%\"|" $M
+                sed -i -e "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%<reset>%reply% » %message%\"|" -e "s|^DiscordToMinecraftChatMessageFormatNoRole:.*|DiscordToMinecraftChatMessageFormatNoRole: \"%name%%reply% » %message%\"|" $M
                 echo after:; grep -n "^DiscordToMinecraftChatMessageFormat" $M
                 sudo -u tf2 screen -S mc -X stuff "discord reload$(printf "\r")"; sleep 4; tail -n 4 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
             mc-import)

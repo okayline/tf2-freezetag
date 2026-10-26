@@ -4,8 +4,8 @@
 
 ## Minecraft: plainer Discord messages in game (mc-discord-format)
 **Sun Oct 25, 2026 · 7:15 PM HST**
-- **Changed:** the new `mc-discord-format` action sets DiscordSRV's `DiscordToMinecraftChatMessageFormat` to the sender's name in their top Discord role color, then » and the message, and reloads DiscordSRV.
-- **Removed:** the `[Discord | role]` tag in front of Discord messages in Minecraft chat.
+- **Changed:** the new `mc-discord-format` action sets DiscordSRV's `DiscordToMinecraftChatMessageFormat` to the sender's name in their top Discord role color, then » and the message, and reloads DiscordSRV. People with no Discord role get the plain name.
+- **Removed:** the `[Discord | role]` and `[Discord]` tags in front of Discord messages in Minecraft chat.
 - **Not tested:** not run yet.
 
 ## Minecraft: Discord chat bridge (mc-discord-install)
