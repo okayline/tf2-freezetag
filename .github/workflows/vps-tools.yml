@@ -253,7 +253,7 @@ jobs:
               set -- $(printf '%s' "$COMMAND" | tr -cd '0-9 -')
               if [ $# -lt 3 ]; then echo "Give X Z RADIUS [THREADS], like -330 73 1000 or -330 73 1000 2." >> "$R"; else
               vps "B=/home/tf2/mc/plugins/BlueMap; X=$1; Z=$2; R=$3; N=${4:-1}
-                sed -i 's/^accept-download:.*/accept-download: true/; s/^render-thread-count:.*/render-thread-count: \$N/' \$B/core.conf
+                sed -i -e 's/^accept-download:.*/accept-download: true/' -e \"s/^render-thread-count:.*/render-thread-count: \$N/\" \$B/core.conf
                 mask() { f=\$B/maps/\$1.conf; [ -f \$f ] || return; sed -i '/^# 88x31 render area/,\$d' \$f
                   printf '# 88x31 render area (mc-bluemap-render)\nrender-mask: [ { min-x: %d, max-x: %d, min-z: %d, max-z: %d } ]\n' \$((\$2-\$4)) \$((\$2+\$4)) \$((\$3-\$4)) \$((\$3+\$4)) >> \$f; }
                 mask world \$X \$Z \$R; mask world_the_end \$X \$Z \$R; mask world_the_nether \$((\$X/8)) \$((\$Z/8)) \$((\$R/8))
