@@ -234,8 +234,8 @@ def main():
                     first = time.time()
                 buf.append(out)
         else:
-            time.sleep(0.5)
-        if buf and (time.time() - first >= 4 or len(buf) >= 60):
+            time.sleep(0.2)
+        if buf and (time.time() - first >= 2 or len(buf) >= 60):
             code = flush(webhook, buf)
             posted += len(buf)
             if not 200 <= code < 300:
