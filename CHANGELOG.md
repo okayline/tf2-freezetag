@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome window: lighter background
+**Sun Oct 25, 2026 · 3:16 PM HST**
+- **Changed:** in `tf/cfg/motd.txt` the page background went from `#45406a` to `#564f80`, and the box from `#585280` to `#6a6398` with a lighter border (`#a79bd0` to `#b8acde`), at the owner's request. The pinks are a little deeper: the title `#ffb0dd` to `#ffa0d6`, the pink map lines `#ffa3d3` to `#ff93cb`, the closing line `#ffaede` to `#ffa0d6`. Other text colors are unchanged.
+- **Removed:** the three darker background shades and the three lighter pinks above.
+- **Tested here:** a browser preview only; not seen in the game. Shows after the next map change.
+
 ## Snowplow taken out of the pool
 **Sun Oct 25, 2026 · 3:15 PM HST**
 - **Removed:** `cp_snowplow` from `mapcycle.txt` and from the map list in the welcome window (`motd.txt`, `motd_text.txt`), at the owner's request. The pool is now 9 maps. It takes effect when the map next changes. `cp_snowplow` was the map the server was on at the time, and it stays loaded until then.
