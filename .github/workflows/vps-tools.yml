@@ -141,7 +141,7 @@ jobs:
             discord-check)
               vps 'systemctl is-active discord-status.timer; systemctl list-timers discord-status.timer --no-pager | head -3; journalctl -u discord-status.service -n 6 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
             discord-feed-install)
-              scp $SSHO vps/discord-feed.py "$VPS_USER@$VPS_HOST:/root/discord-feed.py" >> "$R" 2>&1 \
+              scp $SSHO vps/discord-feed.py vps/discord-feed-l4d.py "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
                 && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
             discord-feed-check)

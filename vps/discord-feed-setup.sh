@@ -13,6 +13,7 @@ set -euo pipefail
 D=/home/tf2/discord
 [ -f "$D/discord-status.py" ] || { echo "Run discord-install first."; exit 1; }
 install -o tf2 -g tf2 -m 755 /root/discord-feed.py "$D/discord-feed.py"
+[ -f /root/discord-feed-l4d.py ] && install -o tf2 -g tf2 -m 755 /root/discord-feed-l4d.py "$D/discord-feed-l4d.py"
 
 cat > /etc/systemd/system/discord-feed-tf2.service <<EOF
 [Unit]
@@ -47,7 +48,7 @@ After=network.target
 
 [Service]
 User=tf2
-ExecStart=/usr/bin/python3 $D/discord-feed.py "~*~88x31~*~ L4D cLaSSiC" 27016 /home/tf2/l4d/left4dead/cfg/server.cfg $D/l4d-feed.url 27116
+ExecStart=/usr/bin/python3 $D/discord-feed-l4d.py "~*~88x31~*~ L4D cLaSSiC" /home/tf2/l4d/left4dead/logs $D/l4d-feed.url
 Restart=always
 RestartSec=10
 
