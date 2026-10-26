@@ -171,7 +171,7 @@ jobs:
               scp $SSHO vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/logweb-setup.sh '$H'" 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-rotate-install)
-              scp $SSHO l4d/scripting/l4d_campaign_rotate.sp l4d/scripting/l4d_afk.sp vps/l4d-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+              scp $SSHO l4d/scripting/l4d_campaign_rotate.sp l4d/scripting/l4d_afk.sp l4d/scripting/l4d_admintools.sp vps/l4d-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/l4d-install-rotate.sh" 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-toolz-find)
               for r in lakwsh/l4dtoolz ivailosp/l4dtoolz Accelerator74/l4dtoolz; do echo "== $r"; curl -s "https://api.github.com/repos/$r/releases?per_page=4" | grep -E '"(tag_name|browser_download_url)"' | head -12; done >> "$R" 2>&1 ;;
