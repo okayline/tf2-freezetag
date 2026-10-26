@@ -4,7 +4,7 @@
 
 ## L4D feed: end-of-chapter stats in Discord
 **Sun Oct 25, 2026 · 7:30 PM HST**
-- **Added:** `vps/discord-feed-l4d.py` now counts, for each human player, special and common infected killed, headshots, Tanks/Witches killed, teammates helped (revived/healed/rescued), friendly fire, times downed, deaths, items picked up, and time on the server. When the game logs a round end, finale win or mission lost, it posts one "Chapter stats" message (top 10 players) and starts counting again. TF2 is unchanged.
+- **Added:** `vps/discord-feed-l4d.py` now counts, for each human player, special and common infected killed, headshots, Tanks/Witches killed, teammates helped (revived/healed/rescued), friendly fire, times downed, deaths, items picked up, and time on the server. When the map changes, or the game logs a round end, finale win or mission lost, it posts one "Chapter stats" message (top 10 players) and starts counting again. TF2 is unchanged.
 - **Removed:** nothing.
 - **Not tested:** only a check on sample log lines. Not seen at a real chapter end; score from the server list is not in the game log, so it is not included.
 

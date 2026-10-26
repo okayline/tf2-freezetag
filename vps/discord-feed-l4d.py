@@ -321,6 +321,11 @@ def main():
                     track(old)
             else:
                 HUMANS.clear()                   # new map log: players enter again
+                stats = summary("Chapter stats") if GAME == "l4d" else None
+                if stats:                        # the chapter ended (new map): post its stats
+                    if not buf:
+                        first = time.time()
+                    buf.append(stats)
             path, pending = cur, ""
         part = fh.readline() if fh else ""
         pending += part
