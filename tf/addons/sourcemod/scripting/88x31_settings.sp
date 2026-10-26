@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "88x31 Settings",
 	author = "okayline",
 	description = "Runs cfg/88x31.cfg after all other config files; admin commands sm_next and sm_random change the map; 88x31 Tools in the admin menu",
-	version = "1.4",
+	version = "1.5",
 	url = "https://github.com/okayline/tf2-freezetag"
 };
 
@@ -18,6 +18,8 @@ public void OnPluginStart()
 	RegAdminCmd("sm_random", Cmd_Random, ADMFLAG_CHANGEMAP, "Go to a random map from the map cycle");
 	RegAdminCmd("sm_restartround", Cmd_RestartRound, ADMFLAG_CHANGEMAP, "Start a new round");
 	RegAdminCmd("sm_bigheads", Cmd_BigHeads, ADMFLAG_CHANGEMAP, "Big heads for everyone on/off");
+	RegAdminCmd("sm_tactical", Cmd_Tactical, ADMFLAG_CHANGEMAP, "Tactical mode (arena, first to 7) on/off");
+	g_tactical = CreateConVar("sm_88x31_tactical", "0", "1 = tactical mode (arena maps, one life, first to 7), 0 = Freeze Tag", _, true, 0.0, true, 1.0);
 	HookEvent("teamplay_round_win", OnRoundWin);
 	HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i)) SDKHook(i, SDKHook_PostThinkPost, HeadThink);
@@ -37,6 +39,7 @@ public void OnAdminMenuReady(Handle h)
 	TopMenuObject cat = t.AddCategory("88x31 Tools", ToolsCategory, "sm_restartround", ADMFLAG_CHANGEMAP);
 	t.AddItem("88x31_restartround", RestartItem, cat, "sm_restartround", ADMFLAG_CHANGEMAP);
 	t.AddItem("88x31_bigheads", BigHeadsItem, cat, "sm_bigheads", ADMFLAG_CHANGEMAP);
+	t.AddItem("88x31_tactical", TacticalItem, cat, "sm_tactical", ADMFLAG_CHANGEMAP);
 }
 
 public void ToolsCategory(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
@@ -65,15 +68,61 @@ void RestartRound()
 public void OnConfigsExecuted()
 {
 	ServerCommand("exec 88x31.cfg");
+	ApplyMode();
+}
+
+// ---- Tactical mode: arena maps, one life, first to 7 rounds, Freeze Tag off ----
+// The mode is kept in sm_88x31_tactical, which lasts across map changes (a server restart goes back to Freeze Tag).
+ConVar g_tactical;
+
+void ApplyMode()
+{
+	if (g_tactical.BoolValue)
+		ServerCommand("sm_freezetag_enabled 0; mp_winlimit 7; tf_arena_use_queue 0; mapcyclefile mapcycle_tactical.txt");
+	else
+		ServerCommand("sm_freezetag_enabled 1; mp_winlimit 0; mapcyclefile mapcycle.txt");
+}
+
+public void TacticalItem(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
+{
+	if (a == TopMenuAction_DisplayOption) Format(buf, len, g_tactical.BoolValue ? "Tactical mode: ON (back to Freeze Tag)" : "Tactical mode: OFF (turn on)");
+	else if (a == TopMenuAction_SelectOption) SwitchMode(c, !g_tactical.BoolValue);
+}
+
+public Action Cmd_Tactical(int client, int args)
+{
+	SwitchMode(client, !g_tactical.BoolValue);
+	return Plugin_Handled;
+}
+
+void SwitchMode(int client, bool tactical)
+{
+	ArrayList maps = ReadCycle(tactical ? "mapcycle_tactical.txt" : "mapcycle.txt");
+	if (maps.Length == 0)
+	{
+		if (client > 0) PrintToChat(client, "\x04[88x31]\x01 No maps found for that mode.");
+		delete maps;
+		return;
+	}
+	char pick[PLATFORM_MAX_PATH];
+	maps.GetString(GetRandomInt(0, maps.Length - 1), pick, sizeof(pick));
+	delete maps;
+	g_tactical.SetBool(tactical);
+	PrintToChatAll("\x04[88x31]\x01 %s", tactical ? "TACTICAL MODE: one life, first to 7 rounds!" : "Back to Freeze Tag!");
+	GoToMap(client, pick);
 }
 
 // Reads the maps in cfg/mapcycle.txt (one per line) that exist on the server.
-ArrayList ReadCycle()
+ArrayList ReadCycle(const char[] only = "")
 {
 	ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	char file[PLATFORM_MAX_PATH], path[PLATFORM_MAX_PATH], line[PLATFORM_MAX_PATH];
 	ConVar cycle = FindConVar("mapcyclefile");
-	if (cycle != null)
+	if (only[0] != '\0')
+	{
+		strcopy(file, sizeof(file), only);
+	}
+	else if (cycle != null)
 	{
 		cycle.GetString(file, sizeof(file));
 	}

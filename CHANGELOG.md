@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Tactical mode switch (arena, first to 7)
+**Sun Oct 25, 2026 · 11:02 PM HST**
+- **Added:** "Tactical mode" in 88x31 Tools (`88x31_settings.sp` 1.5, also `sm_tactical`). On: Freeze Tag off, `mp_winlimit 7` (first to 7 rounds), no arena queue, and a random map from the new `tf/cfg/mapcycle_tactical.txt` (10 arena maps). Off: Freeze Tag on, normal map cycle. The mode is set again after every map load; a server restart goes back to Freeze Tag. `deploy.yml` now also sends `mapcycle_tactical.txt`.
+- **Removed:** nothing.
+- **Not tested:** not switched yet. Side swap at half time and a score HUD are not done yet (step 2).
+
 ## Losing team gets big heads after a round
 **Sun Oct 25, 2026 · 10:48 PM HST**
 - **Added:** `88x31_settings.sp` 1.4: when a round is won, everyone on the losing team gets big heads until the next round starts. Nothing happens on a stalemate. Works alongside the "Big heads" admin switch.
