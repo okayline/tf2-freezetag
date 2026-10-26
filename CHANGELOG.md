@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Move the L4D add-ons out (l4d-addons-off)
+**Sun Oct 25, 2026 · 3:38 PM HST**
+- **Added:** the `l4d-addons-off` action moves `rip.ext.so`, `SteamWorks.ext.so`, `smjansson.ext.so` and `discord_api.smx` out of the L4D server's `addons/sourcemod` folders into `/home/tf2/l4d/off/`. Nothing is deleted, and it does not restart the server.
+- **Why:** players' games crash when the L4D campaign changes or when joining, and a server `segfault` showed on the VPS. These add-ons were put there for the chat relay, which never ran on L4D. The cause of the crashes is not confirmed.
+- **Removed:** nothing is removed from the repo.
+- **Not tested:** not run yet.
+
 ## Welcome window: lighter background
 **Sun Oct 25, 2026 · 3:16 PM HST**
 - **Changed:** in `tf/cfg/motd.txt` the page background went from `#45406a` to `#564f80`, and the box from `#585280` to `#6a6398` with a lighter border (`#a79bd0` to `#b8acde`), at the owner's request. The pinks are a little deeper: the title `#ffb0dd` to `#ffa0d6`, the pink map lines `#ffa3d3` to `#ff93cb`, the closing line `#ffaede` to `#ffa0d6`. Other text colors are unchanged.
