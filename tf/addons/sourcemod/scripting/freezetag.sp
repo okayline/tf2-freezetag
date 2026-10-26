@@ -2087,7 +2087,7 @@ public Action:Timer_TeamFreezeCheck(Handle:timer)                    // The basi
                 }
         }
 
-        SetHudTextParams(HUDX1, HUDY1, 1.1, 255, 255, 255, 255);
+        SetHudTextParams(HUDX1, HUDY1, 1.1, 255, 255, 255, 150);                                 // last number = see-through (255 solid, 0 invisible)
 
         for (new i=1; i<=MaxClients; i++)                                                // Print out HUD
 	{
