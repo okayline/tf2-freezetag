@@ -89,7 +89,7 @@ def parse(text):
         info["humans"] = int(m.group(1))
         info["bots"] = int(m.group(2)) if m.group(2) else None
         info["max"] = int(m.group(3))
-    for m in re.finditer(r'^#\s*\d+\s+"(.*)"\s+(\[U:\S+\]|STEAM_\S+|BOT)', text, re.M):
+    for m in re.finditer(r'^#\s*\d+(?:\s+\d+)?\s+"(.*)"\s+(\[U:\S+\]|STEAM_\S+|BOT)', text, re.M):
         if m.group(2) != "BOT":
             info["names"].append(m.group(1))
     return info

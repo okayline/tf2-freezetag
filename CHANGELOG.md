@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D1 status card: show player names
+**Sun Oct 25, 2026 · 2:34 PM HST**
+- **Found:** the L4D card showed "Players: 2, 0 bots (4 max)" with no names, while the TF2 card lists them. Likely cause, not confirmed: L4D1's `status` rows may have a second number before the name, which the name pattern in `discord-status.py` didn't allow.
+- **Changed:** the name pattern now accepts an optional second number. Nothing else changed; IP addresses are still never read and bots are still not named.
+- **Removed:** nothing.
+- **Tested here:** against two made-up status snippets (a TF2-style row and an L4D-style row with two numbers); both show the names. The real L4D1 `status` layout was not seen, so whether this fixes the real card is not checked.
+
 ## Same chat relay for the L4D1 server
 **Sun Oct 25, 2026 · 2:35 PM HST**
 - **Added:** `install-discordrelay.sh` takes an optional game folder (default is still the TF2 server), and the `relay-install-l4d` action runs it on `/home/tf2/l4d/left4dead`. The L4D1 server already has SourceMod. The relay plugin, SteamWorks, ripext, SMJansson and discord-api are installed into it the same way; no restart and no settings.
