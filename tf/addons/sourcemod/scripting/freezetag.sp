@@ -158,6 +158,7 @@ new g_rounds;                                     // Use this to track "waiting 
 new g_activeround = 0;                            // Not active = 0, preround = 1, active = 2
 
 new g_roundTimeleft;                              // Game Timer in seconds
+new Float:g_roundStarted;                         // When this round began (for the count-up clock when there is no round time limit)
 new Handle:g_hTimeleftHUD;                        // HUD synchronizer
 new Handle:g_hGametimer;                          // Keeps track of repeating game timer clock
 new Float:g_fMapStartTime;                        // Stores start time of map, to calculate time of map upon round win
@@ -1436,6 +1437,7 @@ public Action:Timer_PreRoundEnd(Handle:timer)
         }
 
         g_roundTimeleft = g_roundLength;                                                                  // Reset the round clock
+        g_roundStarted = GetGameTime();                                                                    // Count-up clock starts here
         g_hGametimer = CreateTimer(1.0, Timer_TeamFreezeCheck, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);  // Check every 1 second to update the scoreboard / HUD
 }
 
@@ -2048,7 +2050,8 @@ public Action:Timer_TeamFreezeCheck(Handle:timer)                    // The basi
 
         if (!g_roundLength)                                          // If they have no timelimit for the rounds set, don't draw the timer
         {
-                Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal);   // round number (#1, #2...) left out on purpose
+                new up = RoundToFloor(GetGameTime() - g_roundStarted);   // no time limit: show how long the round has been going
+                Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i\n%02i:%02i","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal,up/60,up%60);   // round number (#1, #2...) left out on purpose
         }
         else
         {
