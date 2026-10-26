@@ -194,6 +194,73 @@ def format_line(raw):
     return None
 
 
+# ---- end-of-chapter stats (L4D only): counted from the same log lines, posted when a chapter ends ----
+STATS = {}          # name -> counters for this chapter
+SINCE = {}          # name -> time they joined (kept across chapters, dropped when they leave)
+KEYS = [("si", "\U0001F9DF specials"), ("ci", "\U0001F480 commons"), ("hs", "\U0001F3AF headshots"),
+        ("boss", "\U0001F6A8 Tanks/Witches"), ("help", "\u2764\ufe0f helped"), ("ff", "\U0001F52B FF"),
+        ("down", "\U0001FA78 downed"), ("dead", "\u2620\ufe0f died"), ("items", "\U0001F392 items")]
+
+
+def bump(name, key):
+    if name and name not in BOT_NAMES:
+        STATS.setdefault(name, {}).setdefault(key, 0)
+        STATS[name][key] += 1
+
+
+def tally(raw):
+    text = re.sub(r"^\d\d/\d\d/\d{4} - \d\d:\d\d:\d\d: ", "", re.sub(r"^L ", "", raw.strip()))
+    m = re.search(r'(?:\(DEATH\))?' + P + r' killed ' + P + r' with "([^"]*)"', text)
+    if m:
+        killer, ktags, victim, vtags = re.sub(r"^\(\d+\)", "", m.group(1)), m.group(2), re.sub(r"^\(\d+\)", "", m.group(3)), m.group(4)
+        if "<Survivor>" in vtags and not is_bot(vtags):
+            bump(victim, "dead")
+        if "<Survivor>" in ktags and not is_bot(ktags):
+            if victim == "infected":
+                bump(killer, "ci")
+            elif "<Infected>" in vtags:
+                bump(killer, "boss" if victim in ("Tank", "Witch") else "si")
+            if "<Survivor>" not in vtags and text.endswith("(headshot)"):
+                bump(killer, "hs")
+        return
+    for rx, key, grp, tagi in ((r'\(INCAP\) ' + P + r' is incapacitated', "down", 1, 2),
+                               (P + r' (?:revived|healed|rescued|defibrillated) ' + P, "help", 1, 2)):
+        m = re.search(rx, text)
+        if m and not is_bot(m.group(tagi)):
+            bump(m.group(grp), key)
+            return
+    m = re.search(r'^(\S[^"<>]{0,40}) attacked (\S[^"<>]{0,40})$', text)
+    if m:
+        bump(m.group(1), "ff")
+        return
+    m = re.search(r'^(\S[^<>"]{0,40}) picked up item weapon_(pipe_bomb|molotov|first_aid_kit|pain_pills|autoshotgun|rifle|hunting_rifle|gascan|propanetank)\b', text)
+    if m:
+        bump(m.group(1), "items")
+        return
+    m = re.search(P + r' (entered the game|disconnected)', text)
+    if m and not is_bot(m.group(2)):
+        if m.group(3) == "entered the game":
+            SINCE.setdefault(m.group(1), time.time())
+        else:
+            SINCE.pop(m.group(1), None)
+
+
+def summary(title):
+    if not STATS:
+        return None
+    rows = sorted(STATS.items(), key=lambda kv: -(kv[1].get("si", 0) * 5 + kv[1].get("ci", 0)))
+    out = ["\U0001F4CA **%s**" % title]
+    for name, c in rows[:10]:
+        bits = ["%s %d" % (label, c[k]) for k, label in KEYS if c.get(k)]
+        t = SINCE.get(name)
+        if t:
+            mins = int((time.time() - t) // 60)
+            bits.append("\u23f1\ufe0f %dh%02dm" % (mins // 60, mins % 60) if mins >= 60 else "\u23f1\ufe0f %dm" % mins)
+        out.append("**%s**: %s" % (esc(name, 32), " · ".join(bits) or "no stats"))
+    STATS.clear()
+    return "\n".join(out)
+
+
 def flush(webhook, lines):
     if not lines:
         return 0
@@ -265,6 +332,14 @@ def main():
             try:
                 track(line)
                 out = format_line(line)
+                if GAME == "l4d":
+                    end = re.search(r'World triggered "(?i:(round_end|finale_win|mission_lost))"', line)
+                    stats = summary("Chapter stats") if end else None
+                    if stats:
+                        if not buf:
+                            first = time.time()
+                        buf.append(stats)
+                    tally(line)
                 if GAME == "tf2" and not HUMANS and "disconnected" not in line:
                     out = None                    # only bots playing: stay quiet
             except Exception:

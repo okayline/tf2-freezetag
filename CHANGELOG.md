@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D feed: end-of-chapter stats in Discord
+**Sun Oct 25, 2026 · 7:30 PM HST**
+- **Added:** `vps/discord-feed-l4d.py` now counts, for each human player, special and common infected killed, headshots, Tanks/Witches killed, teammates helped (revived/healed/rescued), friendly fire, times downed, deaths, items picked up, and time on the server. When the game logs a round end, finale win or mission lost, it posts one "Chapter stats" message (top 10 players) and starts counting again. TF2 is unchanged.
+- **Removed:** nothing.
+- **Not tested:** only a check on sample log lines. Not seen at a real chapter end; score from the server list is not in the game log, so it is not included.
+
 ## Minecraft: bold names in Discord
 **Sun Oct 25, 2026 · 7:18 PM HST**
 - **Changed:** `mc-discord-format` now also sets DiscordSRV's Minecraft-to-Discord chat format to the player's name in bold, then » and the message.
