@@ -1,7 +1,27 @@
-<html><body bgcolor="#101820" text="#e8f4ff" style="font-family:Verdana,Arial;font-size:16px">
-<h2>Welcome to ~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!</h2>
-<p>&nbsp;</p>
-<p>Freeze Tag mod with a snowy map pool:</p>
+<html>
+<head>
+<style>
+body { margin:0; padding:26px 34px; background:#3a3d6e; color:#f1e9ff; font-family:Verdana,Arial,sans-serif; font-size:16px; }
+h2 { margin:0 0 14px 0; text-align:center; font-size:23px; line-height:1.35; color:#ffb0dd; }
+.deco { text-align:center; color:#b9b4ee; font-size:18px; letter-spacing:6px; margin:0 0 10px 0; }
+.box { background:#4c4f86; border:2px solid #8f93d6; border-radius:14px; padding:14px 22px; margin:0 auto; max-width:620px; }
+p { margin:0 0 10px 0; text-align:center; color:#d9d3ff; }
+table { width:100%; border-collapse:collapse; }
+td { vertical-align:top; width:50%; padding:0 6px; }
+ul { margin:0; padding-left:20px; }
+li { margin:4px 0; color:#c6f2ee; }
+li:nth-child(odd) { color:#ffa3d3; }
+.fun { text-align:center; margin:16px 0 4px 0; font-size:15px; color:#ffaede; }
+</style>
+</head>
+<body>
+<p class="deco">* . ~ * . ~ * . ~ *</p>
+<h2>~*~88x31 cLuB~*~ FrEEze tAg SeRveR:&nbsp; ICEY COLD Edition!</h2>
+<div class="box">
+<p><b>Freeze Tag</b> mod with a <b>snowy</b> map pool:</p>
+<table>
+<tr>
+<td>
 <ul>
 <li>cp_gravelpit_snowy</li>
 <li>cp_snowplow</li>
@@ -9,9 +29,20 @@
 <li>cp_yukon_final</li>
 <li>cp_vanguard</li>
 <li>cp_process_final</li>
+</ul>
+</td>
+<td>
+<ul>
 <li>koth_snowtower</li>
 <li>koth_winter_ridge</li>
 <li>koth_highpass</li>
 <li>koth_overcast_final</li>
 </ul>
-</body></html>
+</td>
+</tr>
+</table>
+</div>
+<p class="fun">Have fun, Stay Frosty</p>
+<p class="deco">* . ~ * . ~ * . ~ *</p>
+</body>
+</html>

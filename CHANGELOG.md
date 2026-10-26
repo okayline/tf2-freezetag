@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome window (MOTD) redesigned
+**Sun Oct 25, 2026 · 2:50 PM HST**
+- **Changed:** `tf/cfg/motd.txt` is now dark but soft: a dusky lavender-blue background (lighter than the first dark draft), a rounded lilac box, a medium-bright pink title, the 10 maps in two columns (CP and KOTH) alternating medium-bright pink and mint, a smaller line under the box reading "Have fun, Stay Frosty", and simple `* . ~` sparkles top and bottom, using only inline styles. The wording is the old wording, except the title no longer starts with "Welcome to": it now reads "~*~88x31 cLuB~*~ FrEEze tAg SeRveR:  ICEY COLD Edition!". The "Freeze Tag mod with a snowy map pool:" line has the same words, with "Freeze Tag" and "snowy" in bold.
+- **Removed:** the words "Welcome to" at the start of the title, the old bare list and the plain `<h2>` look. An earlier draft of this change added a line about the 10-second freeze, and that line is left out. `motd_text.txt` (the plain-text version) is unchanged.
+- **Tested here:** rendered in a normal browser only (preview image). TF2's built-in browser may draw it slightly differently; not checked in the game. Takes effect when the file reaches the server and a player reconnects.
+
 ## Player count log on the VPS
 **Sun Oct 25, 2026 · 2:40 PM HST**
 - **Added:** the status script (`discord-status.py`), which already runs every minute, now also appends a line to `/home/tf2/discord/players.log` on the VPS whenever a server's state changes: online with the map and the number of humans and bots, or offline. Lines are stamped in HST. It logs only changes, so the file stays small, and it never writes player names or IP addresses. If writing the log fails, the Discord card still posts.
