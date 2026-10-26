@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Map web page over HTTPS: https://map.88x31.app (map-https)
+**Sun Oct 25, 2026 · 9:58 PM HST**
+- **Added:** Caddy (from Debian's packages) as a new dependency on the VPS, with `vps/Caddyfile`, and the `map-https` action that installs and starts it. Caddy gets a free certificate for `map.88x31.app` by itself and passes visitors to BlueMap on port 8100. `.app` names only open over HTTPS, so the plain-HTTP map could not use the name.
+- **Removed:** nothing. `http://<server IP>:8100` still works, and the log page keeps port 80 (Caddy's plain-HTTP side is on 8081).
+- **Not tested:** not run yet.
+
 ## L4D: map list reloads by itself after install
 **Sun Oct 25, 2026 · 9:49 PM HST**
 - **Changed:** `l4d-install-rotate.sh` also reloads SourceMod's Basic Commands plugin, which is what reads the admin "Change map" list. Before, a new list only showed after a manual reload or a map change.

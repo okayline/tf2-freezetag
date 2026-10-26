@@ -1,0 +1,11 @@
+# HTTPS for the BlueMap web map (map.88x31.app -> BlueMap on port 8100).
+# Port 80 belongs to the log page, so Caddy keeps its plain-HTTP side on 8081 and gets its
+# certificate over port 443 (TLS-ALPN challenge).
+{
+	http_port 8081
+	auto_https disable_redirects
+}
+
+map.88x31.app {
+	reverse_proxy 127.0.0.1:8100
+}
