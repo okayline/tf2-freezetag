@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome window: title on two lines
+**Sun Oct 25, 2026 · 3:10 PM HST**
+- **Changed:** in `tf/cfg/motd.txt` the title is now two lines: "~*~88x31 cLuB~*~" on the first, and "FrEEze tAg SeRveR:  ICEY COLD Edition!" on the second, in bold at 30 px (the first line is 19 px; it was 23 px). The words and capital letters are the same.
+- **Changed (same entry):** the "Freeze Tag mod with a snowy map pool:" line is bigger (19 px, was 16 px), and one empty line under the title is gone (the empty paragraph added earlier; the gap under the title is now a 20 px margin).
+- **Removed:** the single-line title and the empty paragraph under it.
+- **Tested here:** a browser preview only; not seen in the game. Shows after the next map change.
+
 ## Welcome window: colors balanced for TF2's own look
 **Sun Oct 25, 2026 · 3:00 PM HST**
 - **Changed:** after the owner saw the welcome window in TF2 ("the colors look a little off within the TF2 colors"), `tf/cfg/motd.txt` moved from a cool blue-lavender to a softer, slightly warmer dusky plum (background, box, border and text tints), and the content sits lower, with 84 px of top padding, so it isn't crammed into the top of the board. An empty line was added under the title. The wording and the pinks are the same. This is my reading of "off": the owner did not say which colors.

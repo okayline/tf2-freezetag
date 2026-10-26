@@ -2,7 +2,9 @@
 <head>
 <style>
 body { margin:0; padding:84px 34px 26px 34px; background:#45406a; color:#f6ecff; font-family:Verdana,Arial,sans-serif; font-size:16px; }
-h2 { margin:0 0 14px 0; text-align:center; font-size:23px; line-height:1.35; color:#ffb0dd; }
+h2 { margin:0 0 20px 0; text-align:center; font-size:19px; line-height:1.35; color:#ffb0dd; }
+.lead { font-size:19px; margin-bottom:12px; }
+.big { font-size:30px; font-weight:bold; }
 .deco { text-align:center; color:#c4b8e8; font-size:18px; letter-spacing:6px; margin:0 0 10px 0; }
 .box { background:#585280; border:2px solid #a79bd0; border-radius:14px; padding:14px 22px; margin:0 auto; max-width:620px; }
 p { margin:0 0 10px 0; text-align:center; color:#ece3ff; }
@@ -16,10 +18,9 @@ li:nth-child(odd) { color:#ffa3d3; }
 </head>
 <body>
 <p class="deco">* . ~ * . ~ * . ~ *</p>
-<h2>~*~88x31 cLuB~*~ FrEEze tAg SeRveR:&nbsp; ICEY COLD Edition!</h2>
-<p>&nbsp;</p>
+<h2>~*~88x31 cLuB~*~<br><span class="big">FrEEze tAg SeRveR:&nbsp; ICEY COLD Edition!</span></h2>
 <div class="box">
-<p><b>Freeze Tag</b> mod with a <b>snowy</b> map pool:</p>
+<p class="lead"><b>Freeze Tag</b> mod with a <b>snowy</b> map pool:</p>
 <table>
 <tr>
 <td>
