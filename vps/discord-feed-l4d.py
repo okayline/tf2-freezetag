@@ -154,7 +154,7 @@ def flush(webhook, lines):
 
 
 def newest(log_dir):
-    files = glob.glob(os.path.join(log_dir, "L*.log"))
+    files = glob.glob(os.path.join(log_dir, "[Ll]*.log"))
     return max(files, key=os.path.getmtime) if files else None
 
 
