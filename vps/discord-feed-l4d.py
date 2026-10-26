@@ -54,6 +54,9 @@ def esc(text, n):
     return re.sub(r"([\\*_`~|>@#\[\]()])", r"\\\1", text.replace("\n", " "))[:n]
 
 
+BOT_NAMES = {"Bill", "Francis", "Louis", "Zoey"}
+
+
 def is_bot(tags):
     return "<BOT>" in tags
 
@@ -74,10 +77,10 @@ def format_line(raw):
             killer, ktags, victim, vtags, weapon = g
             if victim == "infected":
                 return None                       # common infected: skip, there are hundreds
-            if is_bot(ktags) and is_bot(vtags):
-                if "<Survivor>" in vtags:
-                    return "\U0001F480 %s died (%s)" % (esc(victim, 32), esc(killer, 32))
-                return None
+            if "<Survivor>" in vtags and is_bot(vtags):
+                return None                       # a bot survivor died: skip
+            if is_bot(ktags) and not ("<Survivor>" in vtags):
+                return None                       # bots killing things: skip
             if "<Survivor>" in vtags:
                 return "\U0001F480 **%s** was killed by %s (%s)" % (esc(victim, 32), esc(killer, 32), esc(weapon, 24))
             hs = " \U0001F3AF headshot" if text.endswith("(headshot)") else ""
@@ -94,7 +97,13 @@ def format_line(raw):
         if kind == "ff":
             return "\U0001F52B %s shot teammate %s" % (esc(g[0], 32), esc(g[1], 32))
         if kind == "incap":
-            return None if "<Survivor>" not in g[1] else "\U0001FA78 **%s** is down!" % esc(g[0], 32)
+            return None if "<Survivor>" not in g[1] or is_bot(g[1]) else "\U0001FA78 **%s** is down!" % esc(g[0], 32)
+        if kind in ("pounce", "item") and g[0] in BOT_NAMES:
+            return None
+        if kind == "tongue" and is_bot(g[3]):
+            return None
+        if kind == "revive" and is_bot(g[1]):
+            return None
         if kind == "pounce":
             return "\U0001F43E Hunter pounced on %s" % esc(g[0], 32)
         if kind == "tongue":
