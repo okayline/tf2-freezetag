@@ -1,6 +1,6 @@
 // After a finale rescue, moves the server on to the next campaign before the credits
-// send everyone back to the main menu. No Mercy -> Crash Course -> Death Toll -> Dead Air
-// -> Blood Harvest -> The Sacrifice -> No Mercy. Campaigns not installed are skipped.
+// send everyone back to the main menu. No Mercy -> Blood Harvest -> Death Toll -> Dead Air
+// -> No Mercy (ryan's order). Any other campaign goes to No Mercy next.
 #include <sourcemod>
 
 public Plugin myinfo = {
@@ -12,15 +12,13 @@ public Plugin myinfo = {
 };
 
 static const char FINALES[][] = {
-    "l4d_hospital05_rooftop", "l4d_garage02_lots", "l4d_smalltown05_houseboat",
-    "l4d_airport05_runway", "l4d_farm05_cornfield", "l4d_river03_port"
+    "l4d_hospital05_rooftop", "l4d_farm05_cornfield", "l4d_smalltown05_houseboat", "l4d_airport05_runway"
 };
 static const char STARTS[][] = {
-    "l4d_hospital01_apartment", "l4d_garage01_alleys", "l4d_smalltown01_caves",
-    "l4d_airport01_greenhouse", "l4d_farm01_hilltop", "l4d_river01_docks"
+    "l4d_hospital01_apartment", "l4d_farm01_hilltop", "l4d_smalltown01_caves", "l4d_airport01_greenhouse"
 };
 static const char NAMES[][] = {
-    "No Mercy", "Crash Course", "Death Toll", "Dead Air", "Blood Harvest", "The Sacrifice"
+    "No Mercy", "Blood Harvest", "Death Toll", "Dead Air"
 };
 
 ConVar g_delay;
