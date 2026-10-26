@@ -1,11 +1,13 @@
 #include <sourcemod>
+#undef REQUIRE_PLUGIN
+#include <adminmenu>
 
 public Plugin myinfo =
 {
 	name = "88x31 Settings",
 	author = "okayline",
-	description = "Runs cfg/88x31.cfg after all other config files; admin commands sm_next and sm_random change the map",
-	version = "1.1",
+	description = "Runs cfg/88x31.cfg after all other config files; admin commands sm_next and sm_random change the map; 88x31 Tools in the admin menu",
+	version = "1.2",
 	url = "https://github.com/okayline/tf2-freezetag"
 };
 
@@ -13,6 +15,45 @@ public void OnPluginStart()
 {
 	RegAdminCmd("sm_next", Cmd_Next, ADMFLAG_CHANGEMAP, "Go to the next map in the map cycle");
 	RegAdminCmd("sm_random", Cmd_Random, ADMFLAG_CHANGEMAP, "Go to a random map from the map cycle");
+	RegAdminCmd("sm_restartround", Cmd_RestartRound, ADMFLAG_CHANGEMAP, "Start a new round");
+	TopMenu t;
+	if (LibraryExists("adminmenu") && ((t = GetAdminTopMenu()) != null))
+		OnAdminMenuReady(t);
+}
+
+// ---- "88x31 Tools" in the !admin menu ----
+TopMenu g_top;
+
+public void OnAdminMenuReady(Handle h)
+{
+	TopMenu t = TopMenu.FromHandle(h);
+	if (t == g_top) return;
+	g_top = t;
+	TopMenuObject cat = t.AddCategory("88x31 Tools", ToolsCategory, "sm_restartround", ADMFLAG_CHANGEMAP);
+	t.AddItem("88x31_restartround", RestartItem, cat, "sm_restartround", ADMFLAG_CHANGEMAP);
+}
+
+public void ToolsCategory(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
+{
+	if (a == TopMenuAction_DisplayTitle || a == TopMenuAction_DisplayOption) Format(buf, len, "88x31 Tools");
+}
+
+public void RestartItem(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
+{
+	if (a == TopMenuAction_DisplayOption) Format(buf, len, "Restart round");
+	else if (a == TopMenuAction_SelectOption) RestartRound();
+}
+
+public Action Cmd_RestartRound(int client, int args)
+{
+	RestartRound();
+	return Plugin_Handled;
+}
+
+void RestartRound()
+{
+	PrintToChatAll("\x04[88x31]\x01 New round!");
+	ServerCommand("mp_restartround 1");
 }
 
 public void OnConfigsExecuted()

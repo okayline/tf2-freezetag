@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Admin menu: 88x31 Tools with "Restart round"
+**Sun Oct 25, 2026 · 10:31 PM HST**
+- **Added:** `88x31_settings.sp` 1.2 puts an "88x31 Tools" section in the `!admin` menu with "Restart round" (also the command `sm_restartround`). It says "New round!" in chat and runs `mp_restartround 1`.
+- **Removed:** nothing.
+- **Not tested:** not seen in the in-game menu yet.
+
 ## Freeze Tag: HUD text lower on the left edge
 **Sun Oct 25, 2026 · 10:27 PM HST**
 - **Changed:** the frozen-count/clock text now starts 66% down the screen (a third of the way up from the bottom), still on the left edge.
