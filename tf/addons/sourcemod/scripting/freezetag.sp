@@ -56,7 +56,7 @@
 #define STALEMATE     0
 
 #define HUDX1         0.01            // FREEZE X Position for HUD (left edge, clear of custom HUD portraits)
-#define HUDY1         0.59            // FREEZE Y Position for HUD (lower left; the clock line ends up about 2/3 down)
+#define HUDY1         0.55            // FREEZE Y Position for HUD (lower left; the clock line ends up about 2/3 down)
 
 #define PLAYERXY      60              // Distance to move players from origin of other players along the X/Y axis  49
 #define PLAYERZ       50              // Height to raise on second iteration set
