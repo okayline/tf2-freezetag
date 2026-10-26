@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Minecraft: ViaBackwards (older game versions can join)
+**Sun Oct 25, 2026 · 7:51 PM HST**
+- **Added:** ViaVersion 5.12.2-SNAPSHOT and ViaBackwards 5.12.2-SNAPSHOT, installed with `mc-plugin-install`. ViaBackwards lets players on older Minecraft versions join; it needs ViaVersion to work. Both are development builds (the newest Modrinth has for 26.3).
+- **Removed:** nothing.
+- **Not tested:** both loaded at startup; nobody has joined from an older version yet.
+
 ## Minecraft: CoreProtect (mc-plugin-install)
 **Sun Oct 25, 2026 · 7:46 PM HST**
 - **Added:** the `mc-plugin-install` action, which installs one Paper plugin from Modrinth by name (only a build for 26.3) and restarts Minecraft. Used it to add CoreProtect, which logs block changes so griefing can be looked up and rolled back.
