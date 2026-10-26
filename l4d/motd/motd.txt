@@ -9,4 +9,5 @@ p{margin:0 0 9px}b{color:#ffb3b3}
 <p>Welcome, Survivor!</p>
 <p><b>No Mercy</b> &rarr; <b>Blood Harvest</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b></p>
 <p>Reverse friendly fire is <b>ON</b></p>
+<p>Have fun!!</p>
 </div></body></html>
