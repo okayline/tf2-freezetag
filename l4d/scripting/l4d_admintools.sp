@@ -5,9 +5,12 @@
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 
-public Plugin myinfo = { name = "88x31 admin tools", author = "88x31", description = "Fun admin menu", version = "1.0", url = "" };
+public Plugin myinfo = { name = "88x31 admin tools", author = "88x31", description = "Fun admin menu", version = "1.1", url = "" };
 
 TopMenu g_top;
+static const char KEYS[][] = {"next", "god", "spawn", "give", "heal", "tp", "restart"};
+static const char LABELS[][] = {"Next campaign", "God mode on/off", "Spawn a special...", "Give me an item...",
+                                "Heal everyone", "Teleport a player to me...", "Restart this chapter"};
 bool g_god[MAXPLAYERS + 1];
 
 public void OnPluginStart()
@@ -33,7 +36,11 @@ public void OnAdminMenuReady(Handle h)
     if (t == g_top) return;
     g_top = t;
     TopMenuObject cat = t.AddCategory("88x31 Tools", CatHandler, "sm_tools", ADMFLAG_GENERIC);
-    t.AddItem("88x31_open", ItemHandler, cat, "sm_tools", ADMFLAG_GENERIC);
+    char name[32];
+    for (int i = 0; i < sizeof(KEYS); i++) {
+        Format(name, sizeof(name), "88x31_%s", KEYS[i]);
+        t.AddItem(name, ItemHandler, cat, "sm_tools", ADMFLAG_GENERIC);
+    }
 }
 
 public void CatHandler(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
@@ -43,8 +50,19 @@ public void CatHandler(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[
 
 public void ItemHandler(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char[] buf, int len)
 {
-    if (a == TopMenuAction_DisplayOption) Format(buf, len, "Open tools");
-    else if (a == TopMenuAction_SelectOption) MainMenu(c);
+    char full[32];
+    t.GetObjName(o, full, sizeof(full));
+    char k[16];
+    strcopy(k, sizeof(k), full[6]);
+    int i = 0;
+    while (i < sizeof(KEYS) - 1 && !StrEqual(KEYS[i], k)) i++;
+    if (a == TopMenuAction_DisplayOption) {
+        if (StrEqual(k, "god")) Format(buf, len, g_god[c] ? "God mode: ON (turn off)" : "God mode: OFF (turn on)");
+        else Format(buf, len, "%s", LABELS[i]);
+    }
+    else if (a == TopMenuAction_SelectOption) {
+        if (!DoAction(c, k)) t.Display(c, TopMenuPosition_LastCategory);
+    }
 }
 
 public Action CmdTools(int c, int args)
@@ -73,29 +91,37 @@ public int MainH(Menu m, MenuAction a, int c, int p)
     if (a != MenuAction_Select) return 0;
     char k[16];
     m.GetItem(p, k, sizeof(k));
-    if (StrEqual(k, "next")) { ServerCommand("sm_nextcampaign"); return 0; }
+    if (!DoAction(c, k)) MainMenu(c);
+    return 0;
+}
+
+// returns true if it opened another menu (or changed map), false to reopen the previous menu
+bool DoAction(int c, const char[] k)
+{
+    if (StrEqual(k, "next")) { ServerCommand("sm_nextcampaign"); return true; }
     if (StrEqual(k, "god")) {
         g_god[c] = !g_god[c];
         if (IsPlayerAlive(c)) SetEntProp(c, Prop_Data, "m_takedamage", g_god[c] ? 0 : 2, 1);
         PrintToChat(c, "\x04[88x31]\x01 God mode %s", g_god[c] ? "ON" : "OFF");
-        MainMenu(c);
+        return false;
     }
-    else if (StrEqual(k, "spawn")) SpawnMenu(c);
-    else if (StrEqual(k, "give")) GiveMenu(c);
-    else if (StrEqual(k, "heal")) {
+    if (StrEqual(k, "spawn")) { SpawnMenu(c); return true; }
+    if (StrEqual(k, "give")) { GiveMenu(c); return true; }
+    if (StrEqual(k, "heal")) {
         for (int i = 1; i <= MaxClients; i++)
             if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i)) Cheat(i, "give", "health");
         PrintToChatAll("\x04[88x31]\x01 Everyone was healed!");
-        MainMenu(c);
+        return false;
     }
-    else if (StrEqual(k, "tp")) TpMenu(c);
-    else if (StrEqual(k, "restart")) {
+    if (StrEqual(k, "tp")) { TpMenu(c); return true; }
+    if (StrEqual(k, "restart")) {
         char map[64];
         GetCurrentMap(map, sizeof(map));
         PrintToChatAll("\x04[88x31]\x01 Restarting this chapter...");
         ServerCommand("changelevel %s", map);
+        return true;
     }
-    return 0;
+    return false;
 }
 
 void SpawnMenu(int c)
