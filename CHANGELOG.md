@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Freeze Tag: HUD text above the chat box
+**Sun Oct 25, 2026 · 10:39 PM HST**
+- **Changed:** the frozen-count/clock text starts at 45% down, so it is above the chat box when chat is open.
+- **Removed:** the 55% position, which overlapped the open chat box.
+- **Not tested:** not seen in game yet.
+
 ## Freeze Tag: HUD text a little higher
 **Sun Oct 25, 2026 · 10:37 PM HST**
 - **Changed:** the frozen-count/clock text starts at 55% down.
