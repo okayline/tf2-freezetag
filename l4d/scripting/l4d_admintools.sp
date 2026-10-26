@@ -1,16 +1,16 @@
 // "88x31 Tools" in the !admin menu (also !tools): next campaign, god mode, spawn specials,
-// give items, heal everyone, teleport a player to you, restart the chapter.
+// give items, heal everyone, teleport a player to you, restart the chapter, switch co-op/versus.
 #include <sourcemod>
 #include <sdktools>
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 
-public Plugin myinfo = { name = "88x31 admin tools", author = "88x31", description = "Fun admin menu", version = "1.1", url = "" };
+public Plugin myinfo = { name = "88x31 admin tools", author = "88x31", description = "Fun admin menu", version = "1.2", url = "" };
 
 TopMenu g_top;
-static const char KEYS[][] = {"next", "god", "spawn", "give", "heal", "tp", "restart"};
+static const char KEYS[][] = {"next", "god", "spawn", "give", "heal", "tp", "restart", "mode"};
 static const char LABELS[][] = {"Next campaign", "God mode on/off", "Spawn a special...", "Give me an item...",
-                                "Heal everyone", "Teleport a player to me...", "Restart this chapter"};
+                                "Heal everyone", "Teleport a player to me...", "Restart this chapter", "Switch co-op/versus"};
 bool g_god[MAXPLAYERS + 1];
 
 public void OnPluginStart()
@@ -58,6 +58,7 @@ public void ItemHandler(TopMenu t, TopMenuAction a, TopMenuObject o, int c, char
     while (i < sizeof(KEYS) - 1 && !StrEqual(KEYS[i], k)) i++;
     if (a == TopMenuAction_DisplayOption) {
         if (StrEqual(k, "god")) Format(buf, len, g_god[c] ? "God mode: ON (turn off)" : "God mode: OFF (turn on)");
+        else if (StrEqual(k, "mode")) Format(buf, len, IsVersus() ? "Switch to Co-op" : "Switch to Versus");
         else Format(buf, len, "%s", LABELS[i]);
     }
     else if (a == TopMenuAction_SelectOption) {
@@ -82,6 +83,7 @@ void MainMenu(int c)
     m.AddItem("heal", "Heal everyone");
     m.AddItem("tp", "Teleport a player to me...");
     m.AddItem("restart", "Restart this chapter");
+    m.AddItem("mode", IsVersus() ? "Switch to Co-op" : "Switch to Versus");
     m.Display(c, MENU_TIME_FOREVER);
 }
 
@@ -121,7 +123,53 @@ bool DoAction(int c, const char[] k)
         ServerCommand("changelevel %s", map);
         return true;
     }
+    if (StrEqual(k, "mode")) { SwitchMode(!IsVersus()); return true; }
     return false;
+}
+
+// ---- co-op / versus ----
+// server.cfg runs on every map load and sets the co-op limits (sv_maxplayers 5, browser /4), so in versus
+// they are put back to 8 each time a map starts.
+static const char CAMPS[][] = {"hospital", "garage", "smalltown", "airport", "farm", "river"};
+static const char COOP_START[][] = {"l4d_hospital01_apartment", "l4d_garage01_alleys", "l4d_smalltown01_caves",
+                                    "l4d_airport01_greenhouse", "l4d_farm01_hilltop", "l4d_river01_docks"};
+static const char VS_START[][] = {"l4d_vs_hospital01_apartment", "l4d_vs_garage01_alleys", "l4d_vs_smalltown01_caves",
+                                  "l4d_vs_airport01_greenhouse", "l4d_vs_farm01_hilltop", "l4d_vs_river01_docks"};
+
+bool IsVersus()
+{
+    char mode[32];
+    ConVar cv = FindConVar("mp_gamemode");
+    if (cv == null) return false;
+    cv.GetString(mode, sizeof(mode));
+    return StrEqual(mode, "versus", false);
+}
+
+void SetLimits(bool versus)
+{
+    ServerCommand("sv_maxplayers %d; sv_visiblemaxplayers %d; l4d_public_slots %d", versus ? 8 : 5, versus ? 8 : 4, versus ? 8 : 4);
+}
+
+public void OnConfigsExecuted()
+{
+    if (IsVersus()) SetLimits(true);
+}
+
+void SwitchMode(bool versus)
+{
+    char map[64];
+    GetCurrentMap(map, sizeof(map));
+    int n = 0;                                    // same campaign if we can tell, otherwise No Mercy
+    for (int i = 0; i < sizeof(CAMPS); i++) if (StrContains(map, CAMPS[i], false) != -1) n = i;
+    for (int step = 0; step < sizeof(CAMPS); step++) {
+        int j = (n + step) % sizeof(CAMPS);
+        if (IsMapValid(versus ? VS_START[j] : COOP_START[j])) { n = j; break; }
+    }
+    PrintToChatAll("\x04[88x31]\x01 Switching to \x05%s\x01...", versus ? "VERSUS" : "CO-OP");
+    LogMessage("mode switch: %s, map %s", versus ? "versus" : "coop", versus ? VS_START[n] : COOP_START[n]);
+    ServerCommand("mp_gamemode %s", versus ? "versus" : "coop");
+    SetLimits(versus);
+    ServerCommand("changelevel %s", versus ? VS_START[n] : COOP_START[n]);
 }
 
 void SpawnMenu(int c)

@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: co-op / versus switch in the admin menu
+**Sun Oct 25, 2026 · 9:36 PM HST**
+- **Added:** "Switch to Versus" / "Switch to Co-op" in the 88x31 Tools admin menu (`l4d_admintools.sp` 1.2). It sets `mp_gamemode`, the player limits (versus: 8 players, browser /8, 8 public slots; co-op: 5, /4, 4) and loads the first map of the same campaign (No Mercy if it can't tell). In versus the 8-player limits are put back after every map load, since `server.cfg` sets the co-op ones.
+- **Changed:** `l4d_campaign_rotate.sp` only moves to the next campaign in co-op. In versus the first team's rescue is just half-time.
+- **Removed:** nothing.
+- **Not tested:** not switched yet. A server restart goes back to co-op. What L4D1 does after a versus campaign ends is not checked.
+
 ## L4D: server name survives restarts
 **Sun Oct 25, 2026 · 9:22 PM HST**
 - **Fixed:** after a restart the L4D server was named just `~*~88x31~*~`: the name in the service file gets cut at the first space on its way to the server. `l4d-rename` now also writes the full name into `server.cfg`, which the server reads on every map load.

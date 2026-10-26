@@ -79,6 +79,9 @@ int NextIndex()
 void Schedule(float delay)
 {
     if (g_pending) return;
+    char mode[16];
+    FindConVar("mp_gamemode").GetString(mode, sizeof(mode));
+    if (!StrEqual(mode, "coop", false)) return;   // versus: the first team's rescue is only half-time
     int n = NextIndex();
     if (n == -1) return;
     g_pending = true;
