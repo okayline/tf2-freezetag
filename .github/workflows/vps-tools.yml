@@ -32,13 +32,13 @@ name: VPS tools (manual only)
 #   l4d-log-on       turns on the L4D game log live (joins, leaves, chat, kills, friendly fire) and saves it in server.cfg. Does NOT restart.
 #   l4d-log          shows the last 80 lines of the newest L4D game log (optional filter word in the box)
 #   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
-#   logweb-install   installs the password-protected log web page on port 80 (box: salt:sha256 password hash, or empty to keep the old one)
+#   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
 #   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
 #   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
-#   map-https        installs Caddy (apt) and puts vps/Caddyfile in place: https://map.88x31.app shows the BlueMap web map (port 443, certificate automatic)
+#   map-https        installs Caddy (apt) and puts vps/Caddyfile in place on ports 80/443: https://map.88x31.app (BlueMap) and logs.88x31.app (log page)
 #   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
 #   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
 #   mc-import-cleanup  deletes /root/world2.zip after a finished import (only if /home/tf2/mc/world exists)
@@ -262,8 +262,8 @@ jobs:
                 sudo -u tf2 screen -S mc -X stuff \"bluemap reload\$(printf '\\r')\"; sleep 25
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8" 2>&1 | tail -c 2000 >> "$R"; fi ;;
             map-https)
-              scp $SSHO vps/Caddyfile "$VPS_USER@$VPS_HOST:/root/Caddyfile" >> "$R" 2>&1 \
-                && vps 'command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 30 --no-pager -o cat | grep -iE "certificate|obtain|error|listen" | tail -n 8' 2>&1 | tail -c 2500 >> "$R" ;;
+              scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
             mc-import)
               vps 'Z=/root/world2.zip; D=/home/tf2/mc; T=$D/import-tmp
                 [ -f $Z ] || { echo "no $Z"; exit 0; }

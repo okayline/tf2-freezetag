@@ -1,11 +1,17 @@
-# HTTPS for the BlueMap web map (map.88x31.app -> BlueMap on port 8100).
-# Port 80 belongs to the log page, so Caddy keeps its plain-HTTP side on 8081 and gets its
-# certificate over port 443 (TLS-ALPN challenge).
-{
-	http_port 8081
-	auto_https disable_redirects
-}
+# The VPS's web front door (ports 80 and 443), installed by the map-https action.
+#   map.88x31.app   -> BlueMap web map (port 8100), real certificate from Let's Encrypt
+#   logs.88x31.app  -> log page (127.0.0.1:8090), self-signed certificate for Cloudflare "Full" mode
+#   anything else on port 80 (the bare IP) -> log page
 
 map.88x31.app {
 	reverse_proxy 127.0.0.1:8100
+}
+
+logs.88x31.app {
+	tls internal
+	reverse_proxy 127.0.0.1:8090
+}
+
+:80 {
+	reverse_proxy 127.0.0.1:8090
 }

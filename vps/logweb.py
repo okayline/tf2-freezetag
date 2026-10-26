@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Password-protected web page that shows the TF2 and L4D game logs, newest first.
 
-Usage: logweb.py PORT PASSWORD_HASH_FILE
+Usage: logweb.py PORT PASSWORD_HASH_FILE   (listens on 127.0.0.1 only; Caddy puts it on the web)
 The hash file holds "salt:sha256hex" where sha256hex = sha256(salt + password). The real password
 never touches the server or the repo. Browser login: any user name, the password.
 IP addresses are removed before anything is shown. Python standard library only."""
@@ -148,13 +148,5 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     HASH_FILE = sys.argv[2]
-    # optional HTTPS on 443 with a self-signed cert (Cloudflare "Full" mode connects there)
-    if len(sys.argv) > 4 and os.path.exists(sys.argv[3]):
-        import ssl
-        import threading
-        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ctx.load_cert_chain(sys.argv[3], sys.argv[4])
-        tls = ThreadingHTTPServer(("0.0.0.0", 443), H)
-        tls.socket = ctx.wrap_socket(tls.socket, server_side=True)
-        threading.Thread(target=tls.serve_forever, daemon=True).start()
-    ThreadingHTTPServer(("0.0.0.0", int(sys.argv[1])), H).serve_forever()
+    # only reachable inside the server: Caddy (vps/Caddyfile) serves it on 80/443 as logs.88x31.app
+    ThreadingHTTPServer(("127.0.0.1", int(sys.argv[1])), H).serve_forever()

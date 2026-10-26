@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Caddy takes ports 80/443 for both web pages
+**Sun Oct 25, 2026 · 10:02 PM HST**
+- **Changed:** the first `map-https` run failed because the log page already used port 443. Now Caddy is the only thing on 80/443: `map.88x31.app` goes to BlueMap (real certificate), `logs.88x31.app` to the log page (self-signed, as before, for Cloudflare "Full" mode), and the bare IP on port 80 to the log page. `map-https` re-installs the log page first.
+- **Removed:** the log page's own HTTPS code and self-signed certificate files, and its ports 80/443; it now only listens inside the server on 8090.
+- **Not tested:** not run yet. `logs.88x31.app` through Cloudflare is not checked.
+
 ## Map web page over HTTPS: https://map.88x31.app (map-https)
 **Sun Oct 25, 2026 · 9:58 PM HST**
 - **Added:** Caddy (from Debian's packages) as a new dependency on the VPS, with `vps/Caddyfile`, and the `map-https` action that installs and starts it. Caddy gets a free certificate for `map.88x31.app` by itself and passes visitors to BlueMap on port 8100. `.app` names only open over HTTPS, so the plain-HTTP map could not use the name.
