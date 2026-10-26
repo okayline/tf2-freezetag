@@ -36,7 +36,7 @@ cd "$D"
 echo "eula=true" > eula.txt
 if [ ! -f server.properties ]; then
 cat > server.properties <<P
-motd=§d~*~ 88x31 ~*~ §fcLuB mInEcRaFt
+motd=\u00a7d~*~88x31 cLuB~*~\u00a7r mInEcRaFt VaNiLLa
 server-port=25565
 max-players=10
 view-distance=7
