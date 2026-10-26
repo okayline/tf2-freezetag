@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Minecraft: BlueMap first render (mc-bluemap-render)
+**Sun Oct 25, 2026 · 8:32 PM HST**
+- **Added:** the `mc-bluemap-render` action. It accepts BlueMap's resource download in `core.conf`, sets 1 render thread, and adds a render area to each map (a square around X Z; the Nether uses the same spot divided by 8), then reloads BlueMap. Running it again replaces the area.
+- **Changed:** BlueMap went from idle to rendering 1,000 blocks around -330, 73.
+- **Removed:** nothing.
+- **Not tested:** not run yet. The web page port (8100) is not opened in the firewall.
+
 ## L4D: server browser shows /4
 **Sun Oct 25, 2026 · 8:25 PM HST**
 - **Changed:** `vps/l4d-install-reserve.sh` now sets `sv_visiblemaxplayers 4` live and saves it in `server.cfg`, so the server browser shows 4 slots. The real limit stays `sv_maxplayers 5`, with the 5th slot for admins.
