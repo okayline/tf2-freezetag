@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Bot paths for the arena maps; server private for testing
+**Sun Oct 25, 2026 · 11:18 PM HST**
+- **Added:** bot navigation files (`.nav`) for the 10 Tactical mode arena maps, made with `generate-navs` (TF2 is stopped while it runs and started again after). Without them the bots stood still in spawn, so arena rounds never got going.
+- **Changed (live only, not in the repo):** `sv_password` set for testing, so the server is private until it is cleared or the server restarts (not checked whether a restart clears it). `tf_arena_use_queue 1` sent once as a test; Tactical mode sets it back to 0 on the next map.
+- **Removed:** nothing.
+- **Not tested:** bots moving on the arena maps.
+
 ## Tactical mode: arena rounds never started (fixed)
 **Sun Oct 25, 2026 · 11:09 PM HST**
 - **Fixed:** after switching to Tactical mode, the arena round never started. Freeze Tag was still on while the arena map loaded, so it changed the map for Freeze Tag (control point blocked, spawn rooms removed) and was only turned off after. The switch now turns Freeze Tag off (or on) before the map change.
@@ -172,11 +179,11 @@
 - **Removed:** nothing.
 - **Not tested:** both loaded at startup; nobody has joined from an older version yet.
 
-## Minecraft: CoreProtect (mc-plugin-install)
+## Minecraft: plugin installer (mc-plugin-install); CoreProtect not installed
 **Sun Oct 25, 2026 · 7:46 PM HST**
-- **Added:** the `mc-plugin-install` action, which installs one Paper plugin from Modrinth by name (only a build for 26.3) and restarts Minecraft. Used it to add CoreProtect, which logs block changes so griefing can be looked up and rolled back.
+- **Added:** the `mc-plugin-install` action, which installs one Paper plugin from Modrinth by name (only a build for 26.3) and restarts Minecraft.
+- **Not installed:** CoreProtect. Modrinth has no build for 26.3 (the official one goes up to 26.2), so the action stopped without changing anything. (Corrected 11:27 PM: this entry first said CoreProtect was added.)
 - **Removed:** nothing.
-- **Not tested:** not run yet.
 
 ## Minecraft: BlueMap installed, not rendering (mc-bluemap-install)
 **Sun Oct 25, 2026 · 7:42 PM HST**
