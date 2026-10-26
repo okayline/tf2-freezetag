@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Minecraft: bold names in Discord
+**Sun Oct 25, 2026 · 7:18 PM HST**
+- **Changed:** `mc-discord-format` now also sets DiscordSRV's Minecraft-to-Discord chat format to the player's name in bold, then » and the message.
+- **Removed:** the bold permission-group name in front of the player name (`**%primarygroup%**`), which showed nothing on this server.
+- **Not tested:** not run yet.
+
 ## Minecraft: plainer Discord messages in game (mc-discord-format)
 **Sun Oct 25, 2026 · 7:15 PM HST**
 - **Changed:** the new `mc-discord-format` action sets DiscordSRV's `DiscordToMinecraftChatMessageFormat` to the sender's name in their top Discord role color, then » and the message, and reloads DiscordSRV. People with no Discord role get the plain name.

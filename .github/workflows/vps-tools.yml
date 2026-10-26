@@ -36,7 +36,7 @@ name: VPS tools (manual only)
 #   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
-#   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); reloads DiscordSRV
+#   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
 #   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
 #   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
@@ -225,7 +225,7 @@ jobs:
               fi ;;
             mc-discord-format)
               vps 'M=/home/tf2/mc/plugins/DiscordSRV/messages.yml; echo before:; grep -n "^DiscordToMinecraftChatMessageFormat\|^MinecraftChatToDiscordMessageFormat" $M
-                sed -i -e "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%<reset>%reply% » %message%\"|" -e "s|^DiscordToMinecraftChatMessageFormatNoRole:.*|DiscordToMinecraftChatMessageFormatNoRole: \"%name%%reply% » %message%\"|" $M
+                sed -i -e "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%<reset>%reply% » %message%\"|" -e "s|^DiscordToMinecraftChatMessageFormatNoRole:.*|DiscordToMinecraftChatMessageFormatNoRole: \"%name%%reply% » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormat:.*|MinecraftChatToDiscordMessageFormat: \"**%displayname%** » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormatNoPrimaryGroup:.*|MinecraftChatToDiscordMessageFormatNoPrimaryGroup: \"**%displayname%** » %message%\"|" $M
                 echo after:; grep -n "^DiscordToMinecraftChatMessageFormat\|^MinecraftChatToDiscordMessageFormat" $M
                 sudo -u tf2 screen -S mc -X stuff "discord reload$(printf "\r")"; sleep 4; tail -n 4 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
             mc-import)
