@@ -6,9 +6,7 @@ p{margin:0 0 9px}b{color:#ffb3b3}
 </style></head><body>
 <h2>~*~88x31~*~ L4D cLaSSiC</h2>
 <div class="box">
-<p>Welcome, survivor! Classic co-op, all four original campaigns in rotation:</p>
+<p>Welcome, Survivor!</p>
 <p><b>No Mercy</b> &rarr; <b>Blood Harvest</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b></p>
-<p>Friendly fire bounces back at the shooter, so watch your aim.</p>
-<p>Type <b>!afk</b> to take a break and <b>!back</b> to return.</p>
-<p>Be nice, have fun, don't leave your team behind.</p>
+<p>Reverse friendly fire is <b>ON</b></p>
 </div></body></html>
