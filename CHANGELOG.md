@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: 15 seconds after the rescue before the next campaign
+**Sun Oct 25, 2026 · 9:19 PM HST**
+- **Changed:** `l4d_rotate_delay` default in `l4d_campaign_rotate.sp`, and the value `l4d-install-rotate.sh` sets, from 5 to 15 seconds, so players can enjoy the escape before the next campaign loads.
+- **Removed:** the 5-second wait.
+- **Not tested:** not seen at a real finale yet.
+
 ## BlueMap: choose the number of render threads
 **Sun Oct 25, 2026 · 8:38 PM HST**
 - **Changed:** `mc-bluemap-render` takes an optional 4th number, the render thread count (default 1). Set to 2 while TF2 and L4D are stopped.
