@@ -46,7 +46,7 @@ PY
 echo "== finding downloads =="
 RIP=$(pick ErikMinekus/sm-ripext 'linux' || true)
 STW=$(pick hexa-core-eu/SteamWorks 'linux' || true)
-SMJ=$(pick srcdslab/sm-ext-SMJansson 'linux' '1\.12' || true)
+SMJ=$(pick srcdslab/sm-ext-SMJansson 'ubuntu' 'sm-1\.12' || true)
 [ -n "$RIP" ] || { echo "STOP: no ripext Linux download found. Nothing changed."; exit 1; }
 [ -n "$STW" ] || { echo "STOP: no SteamWorks Linux download found. Nothing changed."; exit 1; }
 [ -n "$SMJ" ] || { echo "STOP: no SMJansson Linux download found. Nothing changed."; exit 1; }

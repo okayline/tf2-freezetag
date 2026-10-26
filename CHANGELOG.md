@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## SMJansson download: file names don't say "linux"
+**Sun Oct 25, 2026 · 2:45 PM HST**
+- **Found:** the run stopped, changing nothing, as designed: the SMJansson release's files are named `sm-ext-SMJansson-ubuntu-24.04-sm-1.12-dev.tar.gz` and `...-sm-master.tar.gz` (plus two Windows ones), so the installer's "linux" search found none.
+- **Changed:** the installer now looks for `ubuntu` and prefers the `sm-1.12` one. It still stops unless the build inside is 32-bit. It was built on Ubuntu 24.04 and your server runs Debian 13; whether it loads there is not checked.
+- **Removed:** nothing.
+- **Not tested:** not run yet.
+
 ## sp-discordrelay: it also needs SMJansson
 **Sun Oct 25, 2026 · 2:40 PM HST**
 - **Found:** after the restart the server log said `discord_api.smx` and `discordrelay.smx` could not load because the extension SMJansson (`smjansson.ext`) was missing. The discord-api repo's README lists it; the relay plugin's README doesn't.
