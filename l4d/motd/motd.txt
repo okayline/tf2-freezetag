@@ -1,13 +1,16 @@
 <html><head><style>
-body{margin:0;padding:24px 30px;background:#1a1416;color:#eee;font-family:Verdana,Arial,sans-serif;font-size:15px}
-h2{margin:0 0 14px;color:#ff6b6b;font-size:20px;text-align:center}
-.box{background:#2a2023;border:2px solid #6b3a3a;border-radius:10px;padding:12px 20px}
-p{margin:0 0 9px}b{color:#ffb3b3}
+body{margin:0;padding:22px 30px;background:#5a2a34;color:#fff3f5;font-family:Verdana,Arial,sans-serif;font-size:15px}
+h2{margin:0 0 6px;color:#ffc2cf;font-size:22px;text-align:center}
+.deco{text-align:center;color:#ff9fb4;font-size:16px;letter-spacing:5px;margin:0 0 12px}
+.box{background:#73384a;border:2px solid #ffb3c4;border-radius:16px;padding:14px 22px;text-align:center}
+p{margin:0 0 10px}b{color:#ffd6e0}.hi{font-size:18px;font-weight:bold;color:#ffe4ea}
+.route{color:#ffc2cf;line-height:1.6}
 </style></head><body>
 <h2>~*~88x31~*~ L4D cLaSSiC</h2>
+<div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
 <div class="box">
-<p>Welcome, Survivor!</p>
-<p><b>No Mercy</b> &rarr; <b>Crash Course</b> &rarr; <b>Death Toll</b> &rarr; <b>Dead Air</b> &rarr; <b>Blood Harvest</b> &rarr; <b>The Sacrifice</b></p>
+<p class="hi">Welcome, Survivor! &hearts;</p>
+<p class="route"><b>No Mercy</b> &rarr; <b>Crash Course</b> &rarr; <b>Death Toll</b><br>&rarr; <b>Dead Air</b> &rarr; <b>Blood Harvest</b> &rarr; <b>The Sacrifice</b></p>
 <p>Reverse friendly fire is <b>ON</b></p>
-<p>Have fun!!</p>
+<p>Have fun!! &#10047;</p>
 </div></body></html>
