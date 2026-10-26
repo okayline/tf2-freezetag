@@ -43,7 +43,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -170,6 +170,9 @@ jobs:
               H=$(printf '%s' "$COMMAND" | grep -E '^[A-Za-z0-9]{4,40}:[0-9a-f]{64}$' || true)
               scp $SSHO vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/logweb-setup.sh '$H'" 2>&1 | tail -c 1500 >> "$R" ;;
+            l4d-rotate-install)
+              scp $SSHO l4d/scripting/l4d_campaign_rotate.sp vps/l4d-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps "bash /root/l4d-install-rotate.sh" 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
           esac
