@@ -31,6 +31,7 @@ name: VPS tools (manual only)
 #   l4d-rename       sets the L4D server name to ~*~88x31~*~ L4D cLaSSiC live (console) and in the service file, so it survives restarts. Does NOT restart.
 #   l4d-log-on       turns on the L4D game log live (joins, leaves, chat, kills, friendly fire) and saves it in server.cfg. Does NOT restart.
 #   l4d-log          shows the last 80 lines of the newest L4D game log (optional filter word in the box)
+#   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
 #   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
@@ -41,7 +42,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -144,7 +145,7 @@ jobs:
                 && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
                 && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
             discord-feed-check)
-              vps 'systemctl is-active discord-feed-tf2.service; journalctl -u discord-feed-tf2.service -n 8 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
+              vps 'systemctl is-active discord-feed-tf2.service; journalctl -u discord-feed-tf2.service -n 8 --no-pager -o cat; echo -- l4d:; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 8 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
             relay-install)
               scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
                 && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
@@ -158,6 +159,8 @@ jobs:
             l4d-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
               vps "f=\$(ls -t /home/tf2/l4d/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//; s/^L //' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
+            l4d-feed-status-channel)
+              vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-addons-off)
               vps 'S=/home/tf2/l4d/left4dead/addons/sourcemod; mkdir -p /home/tf2/l4d/off; for f in extensions/rip.ext.so extensions/SteamWorks.ext.so extensions/smjansson.ext.so plugins/discord_api.smx; do if [ -e "$S/$f" ]; then mv "$S/$f" /home/tf2/l4d/off/ && echo "moved $f"; else echo "not there: $f"; fi; done; echo "-- now in /home/tf2/l4d/off:"; ls /home/tf2/l4d/off' 2>&1 | tail -c 1200 >> "$R" ;;
           esac

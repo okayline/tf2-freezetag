@@ -38,3 +38,28 @@ else
   echo "tf2-feed.url: NOT there yet (feed not started)"
 fi
 systemctl is-active discord-feed-tf2.service || true
+
+# L4D1 feed: same script, its own webhook file and log port.
+cat > /etc/systemd/system/discord-feed-l4d.service <<EOF
+[Unit]
+Description=L4D live feed to Discord (chat, kills, joins)
+After=network.target
+
+[Service]
+User=tf2
+ExecStart=/usr/bin/python3 $D/discord-feed.py "~*~88x31~*~ L4D cLaSSiC" 27016 /home/tf2/l4d/left4dead/cfg/server.cfg $D/l4d-feed.url 27116
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+if [ -s "$D/l4d-feed.url" ]; then
+  systemctl enable discord-feed-l4d.service >/dev/null 2>&1
+  systemctl restart discord-feed-l4d.service
+  echo "l4d-feed.url: found, L4D feed started"
+else
+  echo "l4d-feed.url: NOT there yet (L4D feed not started)"
+fi
+systemctl is-active discord-feed-l4d.service || true
