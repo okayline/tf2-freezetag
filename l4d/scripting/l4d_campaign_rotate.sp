@@ -7,7 +7,7 @@ public Plugin myinfo = {
     name = "88x31 campaign rotation",
     author = "88x31",
     description = "Next campaign after a finale, keeps players together",
-    version = "1.0",
+    version = "1.1",
     url = ""
 };
 
@@ -38,6 +38,16 @@ public void OnPluginStart()
 public void OnMapStart()
 {
     g_pending = false;
+    CreateTimer(3.0, LogMap, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+// L4D does not write the map name into its game log, so the Discord feed can't see map changes
+public Action LogMap(Handle t)
+{
+    char map[64];
+    GetCurrentMap(map, sizeof(map));
+    LogToGame("Started map \"%s\"", map);
+    return Plugin_Stop;
 }
 
 int NextIndex()

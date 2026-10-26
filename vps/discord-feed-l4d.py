@@ -185,6 +185,11 @@ def format_line(raw):
         if kind == "map" and GAME == "tf2":
             return None                           # the relay already posts map changes
         if kind == "map":
+            c = re.match(r"l4d_(hospital|garage|smalltown|airport|farm|river)0?(\d+)", g[0])
+            if c:
+                camp = {"hospital": "No Mercy", "garage": "Crash Course", "smalltown": "Death Toll",
+                        "airport": "Dead Air", "farm": "Blood Harvest", "river": "The Sacrifice"}[c.group(1)]
+                return "\U0001F5FA\ufe0f **%s**, chapter %s" % (camp, c.group(2))
             return "\U0001F5FA️ Map: `%s`" % esc(g[0], 48).replace("\\", "")
     return None
 
