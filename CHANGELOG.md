@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: all co-op chapters in the admin "Change map" menu
+**Sun Oct 25, 2026 · 9:47 PM HST**
+- **Added:** `l4d/configs/adminmenu_maplist.ini` with all 25 co-op chapters of the six campaigns; `l4d-rotate-install` now copies it into SourceMod's configs.
+- **Removed:** the old admin map list on the server, which only showed 4 maps.
+- **Not tested:** not seen in the in-game menu yet. Versus maps are not in the list (use the co-op/versus switch).
+
 ## L4D: player limits move from server.cfg into the admin tools plugin
 **Sun Oct 25, 2026 · 9:44 PM HST**
 - **Changed:** `l4d_admintools.sp` now sets the player limits for both modes (co-op 5 players, browser /4; versus 8, /8) when configs run and when the plugin loads, and re-checks every 10 seconds (timers pause while the empty server hibernates). After switching to versus, the browser still showed /4 because `server.cfg` put the co-op values back on the map load.

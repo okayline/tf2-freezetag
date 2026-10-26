@@ -5,6 +5,8 @@ set -euo pipefail
 SM=/home/tf2/l4d/left4dead/addons/sourcemod
 install -o tf2 -g tf2 -m 644 /root/l4d_campaign_rotate.sp $SM/scripting/l4d_campaign_rotate.sp
 [ -f /root/l4d_admintools.sp ] && install -o tf2 -g tf2 -m 644 /root/l4d_admintools.sp $SM/scripting/l4d_admintools.sp
+# admin menu "Change map" list: every co-op chapter (SourceMod reads this file for sm_map's menu)
+[ -f /root/adminmenu_maplist.ini ] && install -o tf2 -g tf2 -m 644 /root/adminmenu_maplist.ini $SM/configs/adminmenu_maplist.ini && echo "map list: $(grep -c . $SM/configs/adminmenu_maplist.ini) maps"
 [ -f /root/l4d_afk.sp ] && install -o tf2 -g tf2 -m 644 /root/l4d_afk.sp $SM/scripting/l4d_afk.sp
 sudo -u tf2 bash -c "cd $SM/scripting && ./spcomp l4d_campaign_rotate.sp -o ../plugins/l4d_campaign_rotate.smx 2>&1 | tail -n 6 && ./spcomp l4d_afk.sp -o ../plugins/l4d_afk.smx 2>&1 | grep -iE 'error|warning|Code size' && ./spcomp l4d_admintools.sp -o ../plugins/l4d_admintools.smx 2>&1 | grep -iE 'error|warning|Code size'"
 ls -la $SM/plugins/l4d_campaign_rotate.smx
