@@ -71,7 +71,7 @@ void Schedule(float delay)
     if (n == -1) return;
     g_pending = true;
     strcopy(g_next, sizeof(g_next), STARTS[n]);
-    PrintToChatAll("\x04[88x31]\x01 Rescued! Next campaign: \x05%s\x01 in %d seconds. Stay on!", NAMES[n], RoundToFloor(delay));
+    PrintToChatAll("\x04[88x31]\x01 Rescued! Next campaign: \x05%s\x01 in %d seconds.", NAMES[n], RoundToFloor(delay));
     CreateTimer(delay, DoChange, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
