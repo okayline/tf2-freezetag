@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "88x31 Settings",
 	author = "okayline",
 	description = "Runs cfg/88x31.cfg after all other config files; admin commands sm_next and sm_random change the map; 88x31 Tools in the admin menu",
-	version = "1.3",
+	version = "1.4",
 	url = "https://github.com/okayline/tf2-freezetag"
 };
 
@@ -18,6 +18,8 @@ public void OnPluginStart()
 	RegAdminCmd("sm_random", Cmd_Random, ADMFLAG_CHANGEMAP, "Go to a random map from the map cycle");
 	RegAdminCmd("sm_restartround", Cmd_RestartRound, ADMFLAG_CHANGEMAP, "Start a new round");
 	RegAdminCmd("sm_bigheads", Cmd_BigHeads, ADMFLAG_CHANGEMAP, "Big heads for everyone on/off");
+	HookEvent("teamplay_round_win", OnRoundWin);
+	HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i)) SDKHook(i, SDKHook_PostThinkPost, HeadThink);
 	TopMenu t;
 	if (LibraryExists("adminmenu") && ((t = GetAdminTopMenu()) != null))
@@ -164,6 +166,7 @@ public Action Cmd_Random(int client, int args)
 // ---- Big heads (head size only; gravity and everything else unchanged) ----
 // TF2 sets each player's head size every tick, so it is put back right after, while big heads are on.
 bool g_bigHeads;            // off by default; turned on from the admin menu
+bool g_loserHead[MAXPLAYERS + 1];   // losing team of the last round, until the next round starts
 const float BIG_HEAD = 3.0;
 
 public void OnClientPutInServer(int client)
@@ -173,7 +176,7 @@ public void OnClientPutInServer(int client)
 
 public void HeadThink(int client)
 {
-	if (g_bigHeads && IsPlayerAlive(client) && HasEntProp(client, Prop_Send, "m_flHeadScale"))
+	if ((g_bigHeads || g_loserHead[client]) && IsPlayerAlive(client) && HasEntProp(client, Prop_Send, "m_flHeadScale"))
 		SetEntPropFloat(client, Prop_Send, "m_flHeadScale", BIG_HEAD);
 }
 
@@ -196,4 +199,38 @@ void ToggleBigHeads()
 		for (int i = 1; i <= MaxClients; i++)
 			if (IsClientInGame(i) && HasEntProp(i, Prop_Send, "m_flHeadScale")) SetEntPropFloat(i, Prop_Send, "m_flHeadScale", 1.0);
 	PrintToChatAll("\x04[88x31]\x01 Big heads %s", g_bigHeads ? "ON!" : "off");
+}
+
+// ---- Losing team gets big heads at the end of a round, until the next round starts ----
+public void OnRoundWin(Event e, const char[] name, bool nb)
+{
+	int winner = e.GetInt("team");
+	if (winner != 2 && winner != 3) return;            // stalemate: nobody
+	int loser = (winner == 2) ? 3 : 2;
+	for (int i = 1; i <= MaxClients; i++)
+		g_loserHead[i] = IsClientInGame(i) && GetClientTeam(i) == loser;
+}
+
+public void OnRoundStart(Event e, const char[] name, bool nb)
+{
+	ClearLoserHeads();
+}
+
+public void OnMapStart()
+{
+	for (int i = 0; i <= MAXPLAYERS; i++) g_loserHead[i] = false;
+}
+
+void ClearLoserHeads()
+{
+	for (int i = 1; i <= MaxClients; i++) {
+		if (g_loserHead[i] && !g_bigHeads && IsClientInGame(i) && HasEntProp(i, Prop_Send, "m_flHeadScale"))
+			SetEntPropFloat(i, Prop_Send, "m_flHeadScale", 1.0);
+		g_loserHead[i] = false;
+	}
+}
+
+public void OnClientDisconnect(int client)
+{
+	g_loserHead[client] = false;
 }

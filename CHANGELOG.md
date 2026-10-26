@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Losing team gets big heads after a round
+**Sun Oct 25, 2026 · 10:48 PM HST**
+- **Added:** `88x31_settings.sp` 1.4: when a round is won, everyone on the losing team gets big heads until the next round starts. Nothing happens on a stalemate. Works alongside the "Big heads" admin switch.
+- **Removed:** nothing.
+- **Not tested:** not seen at a real round end yet. Not checked that Freeze Tag's own round wins send the normal "round won" event.
+
 ## Big heads off by default again
 **Sun Oct 25, 2026 · 10:44 PM HST**
 - **Changed:** big heads start OFF again; they are only turned on from the admin menu.
