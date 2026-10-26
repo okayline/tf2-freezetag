@@ -109,6 +109,7 @@ void SwitchMode(int client, bool tactical)
 	maps.GetString(GetRandomInt(0, maps.Length - 1), pick, sizeof(pick));
 	delete maps;
 	g_tactical.SetBool(tactical);
+	ApplyMode();   // before the map change: Freeze Tag sets up each map as it loads, so it must already be on/off
 	PrintToChatAll("\x04[88x31]\x01 %s", tactical ? "TACTICAL MODE: one life, first to 7 rounds!" : "Back to Freeze Tag!");
 	GoToMap(client, pick);
 }

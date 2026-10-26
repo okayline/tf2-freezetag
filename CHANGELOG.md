@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Tactical mode: arena rounds never started (fixed)
+**Sun Oct 25, 2026 · 11:09 PM HST**
+- **Fixed:** after switching to Tactical mode, the arena round never started. Freeze Tag was still on while the arena map loaded, so it changed the map for Freeze Tag (control point blocked, spawn rooms removed) and was only turned off after. The switch now turns Freeze Tag off (or on) before the map change.
+- **Removed:** nothing.
+- **Not tested:** fixed live by reloading the arena map; the switch itself not re-tested yet.
+
 ## VPS tools: disk-usage
 **Sun Oct 25, 2026 · 11:03 PM HST**
 - **Added:** the read-only `disk-usage` action (folder sizes under /home/tf2, the TF2 server's biggest folders, free space).
