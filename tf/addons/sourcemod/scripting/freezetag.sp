@@ -2048,14 +2048,7 @@ public Action:Timer_TeamFreezeCheck(Handle:timer)                    // The basi
 
         if (!g_roundLength)                                          // If they have no timelimit for the rounds set, don't draw the timer
         {
-                if (g_maxRounds)
-                {
-                        Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i\n#%i","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal,g_rounds-1);
-                }
-                else
-                {
-                        Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal);
-                }
+                Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal);   // round number (#1, #2...) left out on purpose
         }
         else
         {
@@ -2071,20 +2064,7 @@ public Action:Timer_TeamFreezeCheck(Handle:timer)                    // The basi
 		else
 			Format(s1,6,"%s:0%i",s1,time%60);
 
-                if (g_maxRounds)
-                {
-        		decl String:s3[6];
-        		if(g_rounds > 10)
-                		Format(s3,6,"#%i",g_rounds-1);
-        		else
-                		Format(s3,6,"  #%i",g_rounds-1);
-
-                        Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i\n%s          %s","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal,s1,s3);
-		}
-		else
-		{
-                        Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i\n%s","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal,s1);
-                }
+                Format(s2,64,"RED %t: %i/%i\nBLU %t: %i/%i\n%s","hud_frozen",g_redfrozen,g_redtotal,"hud_frozen",g_bluefrozen,g_bluetotal,s1);   // round number (#1, #2...) left out on purpose
         }
 
         SetHudTextParams(HUDX1, HUDY1, 1.1, 255, 255, 255, 150);                                 // last number = see-through (255 solid, 0 invisible)

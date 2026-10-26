@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Freeze Tag: round number taken off the HUD
+**Sun Oct 25, 2026 · 10:20 PM HST**
+- **Removed:** the round number ("#1", "#2"...) under the RED/BLU frozen counts, in both versions of the HUD text in `freezetag.sp` (with and without a round timer).
+- **Found:** the missing time is not a bug: this server has no round time limit, and Freeze Tag only draws the timer when there is one.
+- **Not tested:** not seen in game yet.
+
 ## Freeze Tag: frozen-count text is see-through
 **Sun Oct 25, 2026 · 10:15 PM HST**
 - **Changed:** in `freezetag.sp`, the frozen-count text's alpha went from 255 (solid) to 150 (about 60% visible).
