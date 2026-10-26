@@ -2,7 +2,7 @@
 // but when a non-admin joins and more than 4 humans are on, they are kicked with "server full".
 #include <sourcemod>
 
-public Plugin myinfo = { name = "88x31 reserved slot", author = "88x31", description = "5th slot for admins only", version = "1.0", url = "" };
+public Plugin myinfo = { name = "88x31 reserved slot", author = "88x31", description = "5th slot for admins only", version = "1.1", url = "" };
 
 ConVar g_public;
 
@@ -15,7 +15,12 @@ int Humans()
 {
     int n = 0;
     for (int i = 1; i <= MaxClients; i++)
-        if (IsClientConnected(i) && !IsFakeClient(i)) n++;
+    {
+        if (!IsClientConnected(i) || IsFakeClient(i)) continue;
+        // an admin sitting in spectator (idle/afk) does not take a public slot
+        if (IsClientInGame(i) && GetClientTeam(i) == 1 && GetUserAdmin(i) != INVALID_ADMIN_ID) continue;
+        n++;
+    }
     return n;
 }
 

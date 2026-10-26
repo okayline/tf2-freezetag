@@ -28,7 +28,9 @@ if [ "$H" = "0" ]; then
   con "sv_maxplayers 5;sm plugins load l4d_reserve"
   con status
   grep -iE "l4dtoolz|plugin|reserve|max\)|error" /home/tf2/l4d-console.txt | tail -n 8
-else
-  echo "players are on: installed but NOT loaded. Run this again when the server is empty."
 fi
+# reloading just this plugin is safe with players on (no restart)
+con "sm plugins reload l4d_reserve"
+con "sm plugins info l4d_reserve"
+grep -iE "version|reserve" /home/tf2/l4d-console.txt | tail -n 4
 rm -rf $T
