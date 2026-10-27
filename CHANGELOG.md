@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Bot /logs: easier to read
+**Tue Oct 27, 2026**
+- **Changed:** `/logs` shows `19:46:10 text` lines with names as "Name (Team)", looks back through the last few log files when the newest is quiet, finds TF2's log files, and hides lines nobody reads: RCON status checks, bots getting stuck on the map, the server settings list at map start, and map loading lines (NAV_MOB_ONLY, Computing Flow Distances, Preventing spawning).
+
 ## Discord control bot
 **Tue Oct 27, 2026**
 - **Added:** `vps/discord-bot.py`, `vps/discord-bot-setup.sh` and the `bot-install` and `bot-status` actions. One bot with slash commands for TF2 and the three L4D servers: `/status`, `/players`, `/map`, `/say`, `/kick` (pick from the live player list), `/start`, `/stop`, `/restart`, `/pause`, `/resume`, `/restartround`, `/scramble` (TF2), `/difficulty`, `/campaign`, `/bots` (TF2), `/logs`, `/health`, `/backup now` and `/backup status`. Only people with the **teal** role, and only in l4d-classic, l4d-vintage, l4d-vs and tf2-freezetag. Stop, restart and pause ask for a Confirm button. Its posts are italic action lines (*Name restarted cLaSSiC*), plus server went offline / back online, low memory or disk (over 90%), and the nightly backup result. Runs as user tf2 and may only run the exact `systemctl` and backup commands in its sudoers file. Needs repo secret `DISCORD_BOT_TOKEN`. No Minecraft, no rename, no add-admin, no ban.

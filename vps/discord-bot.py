@@ -109,8 +109,10 @@ def clean_log(line):
     return line.replace("`", "'")
 
 
-# log lines nobody wants to read: RCON checks, log file markers, bots getting stuck on the map
-NOISE = re.compile(r"rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b")
+# log lines nobody wants to read: RCON checks, log file markers, bots stuck on the map, server settings and map loading
+NOISE = re.compile(r'rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b'
+                   r'|server cvars (start|end)|^\S+ "[^"]+" = "[^"]*"\s*$|^L \d+/\d+/\d+ - \d+:\d+:\d+: "[^"]+" = "[^"]*"\s*$'
+                   r'|NAV_MOB_ONLY|Computing Flow Distances|Preventing spawning')
 
 
 class Bot(discord.Client):
