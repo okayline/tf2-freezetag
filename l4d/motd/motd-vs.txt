@@ -1,0 +1,17 @@
+<html><head><style>
+body{margin:0;padding:22px 30px;background:#000;color:#f3e6ec;font-family:Verdana,Arial,sans-serif;font-size:15px}
+h2{margin:0 0 6px;color:#e889b3;font-size:22px;text-align:center}
+.deco{text-align:center;color:#d9779f;font-size:16px;letter-spacing:5px;margin:0 0 12px}
+.box{background:#141013;border:2px solid #c9668f;border-radius:16px;padding:14px 22px;text-align:center}
+p{margin:0 0 10px}b{color:#f0a8c8}.hi{font-size:18px;font-weight:bold;color:#f6d4e3}
+.route{color:#e889b3;line-height:1.6}
+.board{color:#cdeee6;line-height:1.6}
+</style></head><body>
+<h2>~*~88x31~*~ L4D1 VeRsUs SeRveR</h2>
+<div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
+<div class="box">
+<p class="hi">Welcome, Survivor! &hearts;</p>
+<p class="route"><b>No Mercy</b> &rarr; <b>Blood Harvest</b> &rarr; <b>Death Toll</b><br>&rarr; <b>Dead Air</b> &rarr; <b>Crash Course</b> &rarr; <b>The Sacrifice</b></p>
+<p>Reverse friendly fire is <b>ON</b></p>
+<p>Have fun!! &#10047;</p>
+</div></body></html>
