@@ -6,6 +6,7 @@
 **Mon Oct 26, 2026 · 6:40 PM HST**
 - **Added:** `vps/l4d-leaderboard.py`, `vps/l4d-leaderboard-setup.sh` and the `l4d-leaderboard-install` action. A timer on the VPS rebuilds the L4D `motd.txt` every 5 minutes from the template `l4d/motd/motd.txt`, with the top 3 players by common infected killed in the past 5 days (box: days and how many players, like `5 3`). It reads the game logs, counts humans only (bots and special infected are not counted), counts by Steam ID so a name change does not split a score, and shows names only, never IDs or addresses.
 - **Changed:** `l4d/motd/motd.txt` has a `<!--LEADERBOARD-->` spot under the friendly-fire line. The `l4d-motd` action keeps the leaderboard working if it is installed, and removes the empty spot if it is not.
+- **Added:** the `leaderboard-ignore` action (box: a Steam ID). The ID goes in `ignore.txt` on the VPS, not in the repo, and that player is left out of the leaderboard. `STEAM_0:` and `STEAM_1:` IDs are the same account, so either form works.
 - **Removed:** nothing.
 - **Not tested:** on the VPS (checked only on made-up log lines: ranking, bots skipped, old kills skipped, name change, names with HTML). Not checked whether the game re-reads `motd.txt` for each player or only at map load, so the board can be a few minutes old.
 
