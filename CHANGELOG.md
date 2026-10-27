@@ -4,7 +4,7 @@
 
 ## Stats page: no intro line, stacked charts, color themes
 **Tue Oct 27, 2026 · 6:50 PM HST**
-- **Changed:** the two charts at the bottom ("When people play" and "Players per day") are now full width, stacked one above the other. The page colors now come from a theme table in `vps/stats.py` (bright hotpink, cyan, lime, orange, purple; hotpink is the default until one is picked). Also removed the line under the title ("The past 7 days. Updated ... Hawaii time."). The page still looks at the past 7 days and rebuilds every 5 minutes.
+- **Changed:** the two charts at the bottom ("When people play" and "Players per day") are now full width, stacked one above the other. The page colors now come from a theme table in `vps/stats.py` (pastel pink, blue, mint, peach and lavender; pastel pink is the default until one is picked). Also removed the line under the title ("The past 7 days. Updated ... Hawaii time."). The page still looks at the past 7 days and rebuilds every 5 minutes.
 
 ## Stats page: tabs
 **Tue Oct 27, 2026 · 6:35 PM HST**
