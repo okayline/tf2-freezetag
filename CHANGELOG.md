@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Second L4D server (versus), memory check, TF2 pause
+**Mon Oct 26, 2026 · 7:10 PM HST**
+- **Added:** the `l4db-setup` action (`vps/setup-l4d-b.sh`). It makes a second Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-b` with its own service `l4db` (screen `l4db`), game port 27017, name "~*~88x31~*~ L4D cLaSSiC 2", 8 players, starting in versus on `l4d_vs_hospital01_apartment`. Game files of 4 MB and up are hard links to the first server's (about 2 GB of extra disk instead of 8.5 GB); everything smaller is a real copy, and logs are not copied. The copy has the same SourceMod, plugins and admins, so `!tools` can switch it between co-op and versus. The Discord chat relay plugin and its settings are not copied.
+- **Added:** `l4db-start` (refuses if less than 900 MB of memory is free), `l4db-stop`, `l4db-restart`, `l4db-console`, `l4db-command`; `mem-use` (memory per program); `tf2-pause` (stops the tf2 service and keeps it from starting at boot, nothing deleted) and `tf2-resume`.
+- **Changed:** nothing on the first L4D server or on TF2. TF2 was not paused: measured memory is Minecraft 1,671 MB, TF2 698 MB, the first L4D server 134 MB (with two players on).
+- **Removed:** nothing.
+- **Not tested:** joining the new server from the game client or seeing it in the server browser; a full versus match; what happens after a versus finale (the campaign rotation plugin only acts in co-op, so the server may stay on the same campaign); the Discord status and live feed do not include the new server; its welcome screen is a copy of the first server's.
+
 ## Leaderboards on the welcome screens (L4D zombies, TF2 freezes)
 **Mon Oct 26, 2026 · 6:50 PM HST**
 - **Added:** `vps/leaderboard.py`, `vps/leaderboard-setup.sh` and the `l4d-leaderboard-install` and `tf2-leaderboard-install` actions (box: days and how many players, like `5 3`; empty = 5 3). A timer on the VPS rebuilds each game's `motd.txt` every 5 minutes from its template, with the top 3 players of the past 5 days: "Most Zombies Killed in the Past 5 Days" on L4D (common infected killed) and "Most Freezes in the Past 5 Days" on TF2 (Freeze Tag turns a kill into a freeze, so kills of the other team). It reads the game logs, counts humans only (bots, teamkills and L4D special infected are not counted), counts by Steam account so a name change does not split a score, and shows names only, never IDs or addresses.

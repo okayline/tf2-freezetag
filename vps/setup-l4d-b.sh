@@ -59,4 +59,4 @@ sed -E \
 systemctl daemon-reload
 systemctl enable l4db >/dev/null 2>&1
 grep -E '^(ExecStart|WorkingDirectory|MemoryMax)=' "$UNIT" | cut -c1-300
-echo "Done. Not started: run tf2-pause first (memory), then l4db-start. Game port $PORT/udp."
+echo "Done. Not started: run l4db-start (it refuses if less than 900 MB of memory is free; tf2-pause frees about 700 MB). Game port $PORT/udp."
