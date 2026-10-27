@@ -2,7 +2,7 @@
 // so the next players start at the beginning instead of in the middle of whatever the last group reached.
 // l4d_idle_minutes: minutes with no humans on the server before it goes back (default 30, 0 = off).
 // l4d_idle_map: the map to go back to (default l4d_hospital01_apartment, No Mercy chapter 1; use l4d_vs_hospital01_apartment on a versus server).
-// Works even when the server hibernates while empty: the time is checked again when the next human connects.
+// A check runs every minute; a human joining cancels the count. Nothing happens at join time.
 #include <sourcemod>
 
 public Plugin myinfo = { name = "88x31 idle reset", author = "88x31", description = "Back to the first campaign after a long empty spell", version = "1.0", url = "" };
@@ -64,7 +64,6 @@ public void OnClientDisconnect(int client)
 public void OnClientConnected(int client)
 {
     if (IsFakeClient(client)) return;
-    if (Humans(client) == 0 && IdleLongEnough()) GoBack();   // first human back after a long empty spell
     g_emptySince = 0;
 }
 

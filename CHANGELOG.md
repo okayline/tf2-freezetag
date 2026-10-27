@@ -4,7 +4,7 @@
 
 ## Idle reset (back to No Mercy when empty)
 **Tue Oct 27, 2026 · 5:35 PM HST**
-- **Added:** `l4d/scripting/l4d_idlereset.sp` and the `l4d-idlereset-install` action. After the server has had no humans on it for 30 minutes (`l4d_idle_minutes`, 0 turns it off) it goes back to `l4d_hospital01_apartment` (`l4d_idle_map`; the Versus server uses `l4d_vs_hospital01_apartment`), so the next players start at the beginning of No Mercy. A timer checks every minute, and the time is also checked when the first human connects, because an empty server may sleep and its timers stop. It does nothing if the server is already on that map. The install covers the two co-op servers by default and the Versus server with "all"; live, no restart; the settings go into each server.cfg.
+- **Added:** `l4d/scripting/l4d_idlereset.sp` and the `l4d-idlereset-install` action. After the server has had no humans on it for 30 minutes (`l4d_idle_minutes`, 0 turns it off) it goes back to `l4d_hospital01_apartment` (`l4d_idle_map`; the Versus server uses `l4d_vs_hospital01_apartment`), so the next players start at the beginning of No Mercy. A timer checks every minute; a human joining cancels the count. It does nothing at join time and does nothing if the server is already on that map. Not handled: if the empty server hibernates, its timers may stop and the reset would not happen until it wakes; this has not been tested. The install covers the two co-op servers by default and the Versus server with "all"; live, no restart; the settings go into each server.cfg.
 - **Not tested:** the plugin has not been compiled or run yet.
 
 ## Welcome screens: no scrollbar
