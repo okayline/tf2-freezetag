@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Stats page: smaller, two columns
+**Tue Oct 27, 2026 · 6:20 PM HST**
+- **Changed:** the stats page text and spacing are about 12% smaller, and the four servers sit in two columns (one column on narrow screens and phones). The "all servers together" box stays full width.
+
 ## Public stats page (stats.88x31.app)
 **Tue Oct 27, 2026 · 6:00 PM HST**
 - **Added:** `vps/stats.py`, `vps/stats-setup.sh` and the `stats-install` action. A timer rebuilds one static page every 5 minutes from the game logs of all four servers (L4D cLaSSiC, Versus, ViNtaGe Edition, TF2), plus a live look at each server over RCON (online, map, players). Per server: totals (players, hours, zombies and special infected killed, Tanks, Witches, finales, friendly fire hits, incapacitations, damage in Versus, freezes in TF2, longest stay), top-10 boards (names only), campaigns or maps played, busiest hours (Hawaii time) and players per day. Bots, Steam IDs, addresses and chat are never shown; the ignore list is honored. Caddy serves it as `stats.88x31.app` (DNS record added in Cloudflare, proxied like logs.88x31.app).

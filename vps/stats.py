@@ -294,39 +294,40 @@ def server_section(name, kind, s, state, days):
 
 CSS = """
 :root{color-scheme:dark}*{box-sizing:border-box}
-body{margin:0;background:#000;color:#f3e6ec;font:15px/1.5 Verdana,Arial,sans-serif}
-.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
-h1{margin:0;color:#e889b3;font-size:28px;text-align:center}.deco{text-align:center;color:#d9779f;letter-spacing:6px;margin:4px 0 18px}
-h2{color:#f0a8c8;font-size:22px;margin:0 0 10px}h3{color:#e889b3;font-size:15px;margin:0 0 10px}
-.sub{text-align:center;color:#a98;margin:-8px 0 20px;font-size:13px}
-.srv{background:#141013;border:2px solid #c9668f;border-radius:16px;padding:16px 18px;margin:0 0 20px}
-.badge{font-size:12px;border-radius:99px;padding:2px 10px;margin-left:8px;border:1px solid #777;color:#aaa;vertical-align:middle}
+body{margin:0;background:#000;color:#f3e6ec;font:13px/1.5 Verdana,Arial,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:16px 14px 35px}
+h1{margin:0;color:#e889b3;font-size:25px;text-align:center}.deco{text-align:center;color:#d9779f;letter-spacing:5px;margin:4px 0 16px}
+h2{color:#f0a8c8;font-size:19px;margin:0 0 9px}h3{color:#e889b3;font-size:13px;margin:0 0 9px}
+.sub{text-align:center;color:#a98;margin:-8px 0 18px;font-size:11px}
+.srv{background:#141013;border:2px solid #c9668f;border-radius:14px;padding:14px 16px;margin:0 0 18px}
+.badge{font-size:11px;border-radius:87px;padding:2px 9px;margin-left:7px;border:1px solid #777;color:#aaa;vertical-align:middle}
 .badge.on{border-color:#4be09b;color:#4be09b}.badge.off{border-color:#e85d75;color:#e85d75}
-.now{color:#cdeee6;margin:-4px 0 12px}code{color:#f6d4e3}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 14px}
-.tile{background:#0b080a;border:1px solid #3a2330;border-radius:12px;padding:10px 12px}
-.tile b{display:block;font-size:22px;color:#f6d4e3}.tile span{color:#c9a0b4;font-size:13px}.tile small{display:block;color:#8a6a7a;font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:0 0 12px}
-.card{background:#0b080a;border:1px solid #3a2330;border-radius:12px;padding:12px 14px;min-width:0}
-.rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:8px;align-items:center;padding:3px 6px;margin:2px 0;border-radius:6px;overflow:hidden}
+.now{color:#cdeee6;margin:-4px 0 11px}code{color:#f6d4e3}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px;margin:0 0 12px}
+.tile{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:9px 11px}
+.tile b{display:block;font-size:19px;color:#f6d4e3}.tile span{color:#c9a0b4;font-size:11px}.tile small{display:block;color:#8a6a7a;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px;margin:0 0 11px}
+.card{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:11px 12px;min-width:0}
+.rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:7px;align-items:center;padding:3px 5px;margin:2px 0;border-radius:5px;overflow:hidden}
 .rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:#c9668f33;z-index:0}
-.rows .rk{width:20px;color:#8a6a7a;z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:#cdeee6}
+.rows .rk{width:18px;color:#8a6a7a;z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:#cdeee6}
 .none{color:#8a6a7a;margin:0}
-.chart{display:flex;align-items:flex-end;gap:3px;height:120px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.col i{display:block;width:100%;background:linear-gradient(#e889b3,#a24a73);border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:10px;color:#8a6a7a;height:14px;font-weight:normal}
-footer{text-align:center;color:#8a6a7a;font-size:12px;margin-top:10px}
+.chart{display:flex;align-items:flex-end;gap:3px;height:106px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.col i{display:block;width:100%;background:linear-gradient(#e889b3,#a24a73);border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:9px;color:#8a6a7a;height:12px;font-weight:normal}
+@media(min-width:900px){.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;align-items:start}}
+footer{text-align:center;color:#8a6a7a;font-size:11px;margin-top:9px}
 """
 
 
-def build(title_days, sections, updated, sample):
+def build(title_days, first, sections, updated, sample):
     note = ' <b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b>' if sample else ""
     return """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="300"><title>88x31 server stats</title><style>%s</style></head><body><div class="wrap">
 <h1>~*~88x31~*~ server stats</h1><div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
 <div class="sub">The past %d days, all servers. Updated %s Hawaii time.%s</div>
-%s
+%s<div class="cols">%s</div>
 <footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div></body></html>""" % (
-        CSS, title_days, esc(updated), note, "\n".join(sections))
+        CSS, title_days, esc(updated), note, first, "\n".join(sections))
 
 
 def overview(all_stats):
@@ -358,7 +359,7 @@ def main():
             st = ("online", "l4d_hospital01_apartment", 2, 8)
         all_stats.append(s)
         sections.append(server_section(name, kind, s, st, days))
-    page = build(days, [overview(all_stats)] + sections, now_hawaii().strftime("%b %d, %I:%M %p"), sample)
+    page = build(days, overview(all_stats), sections, now_hawaii().strftime("%b %d, %I:%M %p"), sample)
     tmp = out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(page)
