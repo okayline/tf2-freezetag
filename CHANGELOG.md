@@ -4,7 +4,7 @@
 
 ## Nightly backup to pCloud
 **Tue Oct 27, 2026**
-- **Added:** `vps/backup-setup.sh` and the `backup-install`, `backup-run` and `backup-status` actions. restic (encrypted, only changed data uploads) backs up to pCloud through rclone every night: server configs, SourceMod data/plugins/logs, Minecraft world, Discord files, systemd and Caddy files, the stats page. Not the TF2/L4D game installs (steamcmd re-downloads those). Keeps 7 daily, 4 weekly and 3 monthly snapshots. Needs repo secrets `PCLOUD_RCLONE_TOKEN` (from `rclone authorize "pcloud"`) and `RESTIC_PASSWORD` (keep a copy somewhere else: without it the backup cannot be opened), plus `PCLOUD_HOST` = `eapi.pcloud.com` only for an EU pCloud account.
+- **Added:** `vps/backup-setup.sh` and the `backup-install`, `backup-run` and `backup-status` actions. restic (encrypted, only changed data uploads) backs up to pCloud through rclone every night: server configs, SourceMod data/plugins/extensions/gamedata/logs, TF2 maps (with .nav files), leaderboard and log page folders, Minecraft world, Discord files, systemd, Caddy, SSH and firewall settings, the stats page. Not the TF2/L4D game installs (steamcmd re-downloads those). Keeps 7 daily, 4 weekly and 3 monthly snapshots. Needs repo secrets `PCLOUD_RCLONE_TOKEN` (from `rclone authorize "pcloud"`) and `RESTIC_PASSWORD` (keep a copy somewhere else: without it the backup cannot be opened), plus `PCLOUD_HOST` = `eapi.pcloud.com` only for an EU pCloud account.
 - **Not tested:** not run on the VPS yet.
 
 ## Stats page: tab order
