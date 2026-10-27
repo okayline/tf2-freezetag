@@ -4,7 +4,7 @@
 
 ## L4D: scores carry over between chapters and campaigns (score keeper)
 **Mon Oct 26, 2026 · 7:00 PM HST**
-- **Added:** `l4d/scripting/l4d_scorekeeper.sp` 1.0 and the `l4d-scorekeeper-install` action (`vps/l4d-install-scorekeeper.sh`). When a chapter ends (or a player leaves) it remembers each human player's score by Steam ID and puts it back when they spawn, in the next chapter, the next campaign and the next visit. Scores are never reset on purpose. Kept in memory only: a plugin reload or server restart forgets them. The admin command `sm_frags` shows each human's score as the server sees it.
+- **Added:** `l4d/scripting/l4d_scorekeeper.sp` 1.0 and the `l4d-scorekeeper-install` action (`vps/l4d-install-scorekeeper.sh`). When a chapter ends (or a player leaves) it remembers each human player's score by Steam ID and puts it back when they spawn, in the next chapter and the next campaign. The play session ends, and scores start over, when the last human leaves. Kept in memory only: a plugin reload or server restart forgets them. The admin command `sm_frags` shows each human's score as the server sees it.
 - **Changed:** nothing.
 - **Removed:** nothing.
 - **Not tested:** not compiled and not loaded anywhere yet (the sandbox could not download the SourceMod compiler; the install action compiles it on the VPS and loads nothing if that fails). Not checked that the score changed is the one the server browser and scoreboard show, or that L4D1 allows setting it; `sm_frags` is there to test that.

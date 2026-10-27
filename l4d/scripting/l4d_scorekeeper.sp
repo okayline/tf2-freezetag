@@ -1,6 +1,7 @@
-// Keeps each player's score (the number the server browser and the scoreboard show) from one chapter to the next,
-// and from one campaign to the next. Scores are remembered by Steam ID when a chapter ends or a player leaves,
-// and put back when the player spawns. They are never reset on purpose.
+// Keeps each player's score (the number the server browser and the scoreboard show) for the whole play session:
+// from one chapter to the next and from one campaign to the next. Scores are remembered by Steam ID when a chapter
+// ends or a player leaves, and put back when the player spawns. A session ends when the last human leaves the
+// server; the next group starts fresh.
 // They are kept in memory only: a plugin reload or a server restart forgets them.
 #include <sourcemod>
 
@@ -32,6 +33,10 @@ public void OnClientDisconnect(int client)
 {
     Save(client);
     g_restored[client] = false;
+    for (int i = 1; i <= MaxClients; i++)
+        if (i != client && IsClientInGame(i) && !IsFakeClient(i))
+            return;
+    g_scores.Clear();   // that was the last human: the session is over
 }
 
 void Save(int client)
