@@ -8,7 +8,7 @@
 - **Added:** the `tf2-gslt` action. It puts the server login token (repo secret `TF2_GSLT`) into the tf2 service launch line, before `+map`. It does not restart the server.
 - **Changed:** `setup` now puts the login token back on its own after rewriting the tf2 service, so it is not lost.
 - **Changed:** `console-view` and `show-file` print the login token as `(hidden)`, since the repo and its Actions output are public.
-- **Removed:** nothing.
+- **Removed:** the `mp_waitingforplayers_time 0` line from `88x31.cfg`. The server said it was an unknown command, so it did nothing. How to skip "waiting for players" is still open.
 - **Not tested:** the server logging on to Steam with the token; `setup` with the token step.
 
 ## Bot paths for the arena maps; server private for testing
