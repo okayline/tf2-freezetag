@@ -1,6 +1,7 @@
 // After a finale rescue, moves the server on to the next campaign before the credits
 // send everyone back to the main menu. story order: No Mercy -> Crash Course -> Death Toll
 // -> Dead Air -> Blood Harvest -> The Sacrifice -> No Mercy. Campaigns not installed are skipped.
+// The order is the l4d_rotate_order setting (default: the story order above).
 // Versus: both teams play the finale, so it moves on after the second round ends on a finale map
 // (the l4d_vs_* version of the next campaign).
 #include <sourcemod>
@@ -9,7 +10,7 @@ public Plugin myinfo = {
     name = "88x31 campaign rotation",
     author = "88x31",
     description = "Next campaign after a finale, keeps players together",
-    version = "1.2",
+    version = "1.3",
     url = ""
 };
 
@@ -32,6 +33,7 @@ static const char CAMPS[][] = {"hospital", "garage", "smalltown", "airport", "fa
 static const int FINALE_CHAPTER[] = {5, 2, 5, 5, 5, 3};   // chapter number of each campaign's finale map
 
 ConVar g_delay;
+ConVar g_order;
 bool g_pending;
 char g_next[64];
 int g_vsRounds;          // rounds that have ended on a versus finale map since it loaded
@@ -39,6 +41,8 @@ float g_lastRoundEnd;
 
 public void OnPluginStart()
 {
+    g_order = CreateConVar("l4d_rotate_order", "hospital garage smalltown airport farm river",
+        "Campaign order, space separated: hospital (No Mercy) garage (Crash Course) smalltown (Death Toll) airport (Dead Air) farm (Blood Harvest) river (The Sacrifice)");
     g_delay = CreateConVar("l4d_rotate_delay", "15.0", "Seconds after the rescue leaves before changing campaign", _, true, 1.0, true, 60.0);
     HookEvent("finale_vehicle_leaving", OnRescue, EventHookMode_PostNoCopy);
     HookEvent("finale_win", OnRescue, EventHookMode_PostNoCopy);
@@ -99,15 +103,30 @@ bool IsFinaleMap(const char[] map)
     return StringToInt(num) == FINALE_CHAPTER[c];
 }
 
+// the campaign that follows the current map's campaign in l4d_rotate_order (-1 if none can be loaded)
 int NextIndex(bool versus)
 {
-    char map[64];
+    char map[64], order[128], parts[8][16];
     GetCurrentMap(map, sizeof(map));
+    g_order.GetString(order, sizeof(order));
+    int cnt = ExplodeString(order, " ", parts, sizeof(parts), sizeof(parts[]));
+    int seq[8], n = 0;
+    for (int i = 0; i < cnt; i++) {
+        for (int c = 0; c < sizeof(CAMPS); c++) {
+            if (StrEqual(parts[i], CAMPS[c], false)) { seq[n++] = c; break; }
+        }
+    }
+    if (n == 0) {   // unusable setting: story order
+        for (int c = 0; c < sizeof(CAMPS); c++) seq[n++] = c;
+    }
     int cur = CampaignOf(map);
-    for (int step = 1; step <= sizeof(STARTS); step++) {
-        int n = (cur + step) % sizeof(STARTS);
-        if (n < 0) n += sizeof(STARTS);
-        if (IsMapValid(versus ? VS_STARTS[n] : STARTS[n])) return n;
+    int pos = -1;   // a map outside the order starts at its first campaign
+    for (int i = 0; i < n; i++) {
+        if (seq[i] == cur) pos = i;
+    }
+    for (int step = 1; step <= n; step++) {
+        int c = seq[(pos + step) % n];
+        if (IsMapValid(versus ? VS_STARTS[c] : STARTS[c])) return c;
     }
     return -1;
 }
