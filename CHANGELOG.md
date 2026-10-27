@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Hard difficulty on the third server
+**Mon Oct 26, 2026 · 8:25 PM HST**
+- **Added:** `l4dc-difficulty` (box: Easy, Normal, Hard or Impossible; empty = Hard) for "L4D ViNtaGe Edition". It writes `z_difficulty` into that server's server.cfg and applies it live, no restart. Set to Hard at min's request. The welcome screen does not mention the difficulty. Not tested: that the server keeps Hard across campaign changes (a map change may reset it).
+
 ## Who joined and left, Steam IDs stripped from log actions
 **Mon Oct 26, 2026 · 8:15 PM HST**
 - **Added:** `l4d-sessions`: when humans connected and disconnected on all three L4D servers over the last 3 hours (names and times only).
