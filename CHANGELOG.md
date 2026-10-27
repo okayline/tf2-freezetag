@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: leaderboard on the welcome screen (Most Zombies Killed in the Past 5 Days)
+**Mon Oct 26, 2026 · 6:40 PM HST**
+- **Added:** `vps/l4d-leaderboard.py`, `vps/l4d-leaderboard-setup.sh` and the `l4d-leaderboard-install` action. A timer on the VPS rebuilds the L4D `motd.txt` every 5 minutes from the template `l4d/motd/motd.txt`, with the top 3 players by common infected killed in the past 5 days (box: days and how many players, like `5 3`). It reads the game logs, counts humans only (bots and special infected are not counted), counts by Steam ID so a name change does not split a score, and shows names only, never IDs or addresses.
+- **Changed:** `l4d/motd/motd.txt` has a `<!--LEADERBOARD-->` spot under the friendly-fire line. The `l4d-motd` action keeps the leaderboard working if it is installed, and removes the empty spot if it is not.
+- **Removed:** nothing.
+- **Not tested:** on the VPS (checked only on made-up log lines: ranking, bots skipped, old kills skipped, name change, names with HTML). Not checked whether the game re-reads `motd.txt` for each player or only at map load, so the board can be a few minutes old.
+
 ## MOTD: list of server settings
 **Mon Oct 26, 2026 · 6:25 PM HST**
 - **Added:** one line under the map pool in the welcome screen (`motd.txt`, and the same in `motd_text.txt`): "No random crits, No damage spread, Big heads". The first two match `88x31.cfg`. Big heads is the plugin's losing-team effect after a round.
