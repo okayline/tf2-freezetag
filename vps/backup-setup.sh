@@ -49,6 +49,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
+Environment=HOME=/root
 ExecStart=/usr/local/bin/vps-backup
 Nice=15
 IOSchedulingClass=idle
