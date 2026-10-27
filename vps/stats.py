@@ -296,6 +296,9 @@ def server_section(name, kind, s, state, days):
 
 # Page colors on the black background. THEME picks one (STATS_THEME in the environment overrides it, for previews).
 THEMES = {
+    "pink1": dict(accent="#ffb3e0", edge="#ff96d4", deco="#ffc9e8", head="#ffd6ee", deep="#ff7fc4", strong="#ffffff", label="#ffdcf0", dim="#eab0d0", line="#85305f", panel="#1c0e17", card="#12080f", text="#ffffff", value="#bffff0", barfill="#ff96d4c0", soft="#f4cde2"),
+    "pink2": dict(accent="#ffa3d9", edge="#ff80c8", deco="#ffb8e2", head="#ffc8ea", deep="#ff66b8", strong="#ffffff", label="#ffd0ec", dim="#e8a0c8", line="#8f2866", panel="#1e0d18", card="#130810", text="#ffffff", value="#b3fff0", barfill="#ff80c8c8", soft="#f2c2dc"),
+    "pink3": dict(accent="#ff94d2", edge="#ff66bb", deco="#ffa6dc", head="#ffb8e4", deep="#ff4da8", strong="#ffffff", label="#ffc4e8", dim="#e590c0", line="#9c1f6b", panel="#200c19", card="#140711", text="#ffffff", value="#a6fff0", barfill="#ff66bbd0", soft="#f0b6d6"),
     "pastelpink":     dict(accent="#ffc2e6", edge="#ffa8d8", deco="#ffd6ee", head="#ffe0f2", deep="#ff9ad0", strong="#ffffff", label="#ffe0f0", dim="#e8b4cf", line="#7a3d5c", panel="#1a0f16", card="#110a0e", text="#ffffff", value="#c2fff0", barfill="#ffa8d8b8", soft="#f2d4e4"),
     "pastelblue":     dict(accent="#b8e6ff", edge="#94d5ff", deco="#cdeeff", head="#dbf3ff", deep="#7cc6f7", strong="#ffffff", label="#dff4ff", dim="#aed0e6", line="#3a6585", panel="#0d1820", card="#08101a", text="#ffffff", value="#fff2b0", barfill="#94d5ffb8", soft="#d0e2ee"),
     "pastelmint":     dict(accent="#c2ffe0", edge="#9bf5c9", deco="#d4ffea", head="#e0fff0", deep="#7fe8b4", strong="#ffffff", label="#e0fff0", dim="#aedcc4", line="#3a7a5c", panel="#0d1a14", card="#08110d", text="#ffffff", value="#ffd0e6", barfill="#9bf5c9b8", soft="#d0eadc"),
