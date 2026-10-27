@@ -12,7 +12,6 @@ p{margin:0 0 10px}b{color:#f0a8c8}.hi{font-size:18px;font-weight:bold;color:#f6d
 <div class="box">
 <p class="hi">Welcome, Survivor! &hearts;</p>
 <p class="route"><b>No Mercy</b> &rarr; <b>Crash Course</b> &rarr; <b>Death Toll</b><br>&rarr; <b>Dead Air</b> &rarr; <b>Blood Harvest</b> &rarr; <b>The Sacrifice</b></p>
-<p>Reverse friendly fire is <b>ON</b></p>
 <!--LEADERBOARD-->
-<p>Have fun!! &#10047;</p>
+<p>Reverse friendly fire is <b>ON</b> &nbsp; Have fun!! &#10047;</p>
 </div></body></html>
