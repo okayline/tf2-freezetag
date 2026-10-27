@@ -288,52 +288,74 @@ def server_section(name, kind, s, state, days):
     camp_title = "Campaigns played" if kind != "tf2" else "Maps played"
     return """<section class="srv"><h2>%s %s</h2>%s<div class="tiles">%s</div>
 <div class="grid">%s<div class="card"><h3>%s</h3>%s</div></div>
-<div class="grid"><div class="card"><h3>When people play (Hawaii time)</h3>%s</div><div class="card"><h3>Players per day</h3>%s</div></div></section>""" % (
+<div class="grid one"><div class="card"><h3>When people play (Hawaii time)</h3>%s</div><div class="card"><h3>Players per day</h3>%s</div></div></section>""" % (
         esc(name), badge, now, "".join(tiles),
         "".join('<div class="card"><h3>%s</h3>%s</div>' % (esc(t), b) for t, b in boards), camp_title, camp,
         hour_chart(s.by_hour), day_chart(s.by_day, days))
 
 
+# Page colors on the black background. THEME picks one (STATS_THEME in the environment overrides it, for previews).
+THEMES = {
+    "pink1": dict(accent="#ffb3e0", edge="#ff96d4", deco="#ffc9e8", head="#ffd6ee", deep="#ff7fc4", strong="#ffffff", label="#ffdcf0", dim="#eab0d0", line="#85305f", panel="#1c0e17", card="#12080f", text="#ffffff", value="#bffff0", barfill="#ff96d4c0", soft="#f4cde2"),
+    "pink2": dict(accent="#ffa3d9", edge="#ff80c8", deco="#ffb8e2", head="#ffc8ea", deep="#ff66b8", strong="#ffffff", label="#ffd0ec", dim="#e8a0c8", line="#8f2866", panel="#1e0d18", card="#130810", text="#ffffff", value="#b3fff0", barfill="#ff80c8c8", soft="#f2c2dc"),
+    "pink3": dict(accent="#ff94d2", edge="#ff66bb", deco="#ffa6dc", head="#ffb8e4", deep="#ff4da8", strong="#ffffff", label="#ffc4e8", dim="#e590c0", line="#9c1f6b", panel="#200c19", card="#140711", text="#ffffff", value="#a6fff0", barfill="#ff66bbd0", soft="#f0b6d6"),
+    "pastelpink":     dict(accent="#ffc2e6", edge="#ffa8d8", deco="#ffd6ee", head="#ffe0f2", deep="#ff9ad0", strong="#ffffff", label="#ffe0f0", dim="#e8b4cf", line="#7a3d5c", panel="#1a0f16", card="#110a0e", text="#ffffff", value="#c2fff0", barfill="#ffa8d8b8", soft="#f2d4e4"),
+    "pastelblue":     dict(accent="#b8e6ff", edge="#94d5ff", deco="#cdeeff", head="#dbf3ff", deep="#7cc6f7", strong="#ffffff", label="#dff4ff", dim="#aed0e6", line="#3a6585", panel="#0d1820", card="#08101a", text="#ffffff", value="#fff2b0", barfill="#94d5ffb8", soft="#d0e2ee"),
+    "pastelmint":     dict(accent="#c2ffe0", edge="#9bf5c9", deco="#d4ffea", head="#e0fff0", deep="#7fe8b4", strong="#ffffff", label="#e0fff0", dim="#aedcc4", line="#3a7a5c", panel="#0d1a14", card="#08110d", text="#ffffff", value="#ffd0e6", barfill="#9bf5c9b8", soft="#d0eadc"),
+    "pastelpeach":    dict(accent="#ffd9b0", edge="#ffc48f", deco="#ffe4c6", head="#ffebd4", deep="#ffb070", strong="#ffffff", label="#ffebd6", dim="#e6c4a0", line="#7a5230", panel="#1a130c", card="#110c07", text="#ffffff", value="#cdf0ff", barfill="#ffc48fb8", soft="#f0dcc8"),
+    "pastellavender": dict(accent="#dcc8ff", edge="#c7aaff", deco="#e8dbff", head="#f0e6ff", deep="#b08cf5", strong="#ffffff", label="#f0e6ff", dim="#c0aee0", line="#523f80", panel="#140e20", card="#0d0916", text="#ffffff", value="#fff2b0", barfill="#c7aaffb8", soft="#dcd2ee"),
+}
+THEME = "pastelpink"
+
 CSS = """
-:root{color-scheme:dark}*{box-sizing:border-box}
-body{margin:0;background:#000;color:#f3e6ec;font:12px/1.5 Verdana,Arial,sans-serif}
+:root{color-scheme:dark;--accent:@accent@;--edge:@edge@;--deco:@deco@;--head:@head@;--deep:@deep@;--strong:@strong@;--label:@label@;--dim:@dim@;--line:@line@;--panel:@panel@;--card:@card@;--text:@text@;--value:@value@;--barfill:@barfill@;--soft:@soft@;}*{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--text);font:12px/1.5 Verdana,Arial,sans-serif}
 .wrap{max-width:700px;margin:0 auto;padding:16px 14px 35px}
-h1{margin:0;color:#e889b3;font-size:23px;text-align:center}.deco{text-align:center;color:#d9779f;letter-spacing:5px;margin:4px 0 16px}
-h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;margin:0 0 9px}
-.sub{text-align:center;color:#a98;margin:-8px 0 18px;font-size:10px}
-.srv{background:#141013;border:2px solid #c9668f;border-radius:14px;padding:14px 16px;margin:0 0 18px}
+h1{margin:0;color:var(--accent);font-size:23px;text-align:center}.deco{text-align:center;color:var(--deco);letter-spacing:5px;margin:4px 0 16px}
+h2{color:var(--head);font-size:17px;margin:0 0 9px}h3{color:var(--accent);font-size:12px;margin:0 0 9px}
+.sub{text-align:center;color:var(--soft);margin:-8px 0 18px;font-size:10px}
+.srv{box-shadow:0 0 26px -6px var(--edge);background:var(--panel);border:2px solid var(--edge);border-radius:14px;padding:14px 16px;margin:0 0 18px}
 .badge{font-size:10px;border-radius:87px;padding:2px 9px;margin-left:7px;border:1px solid #777;color:#aaa;vertical-align:middle}
 .badge.on{border-color:#4be09b;color:#4be09b}.badge.off{border-color:#e85d75;color:#e85d75}
-.now{color:#cdeee6;margin:-4px 0 11px}code{color:#f6d4e3}
+.now{color:var(--value);margin:-4px 0 11px}code{color:var(--strong)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin:0 0 12px}
-.tile{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:9px 11px}
-.tile b{display:block;font-size:17px;color:#f6d4e3}.tile span{color:#c9a0b4;font-size:10px}.tile small{display:block;color:#8a6a7a;font-size:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 11px}
+.tile b{display:block;font-size:17px;color:var(--strong)}.tile span{color:var(--label);font-size:10px}.tile small{display:block;color:var(--dim);font-size:10px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 0 11px}
-.card{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:11px 12px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px;min-width:0}
 .rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:7px;align-items:center;padding:3px 5px;margin:2px 0;border-radius:5px;overflow:hidden}
-.rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:#c9668f33;z-index:0}
-.rows .rk{width:18px;color:#8a6a7a;z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:#cdeee6}
-.none{color:#8a6a7a;margin:0}
+.rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:var(--barfill);z-index:0}
+.rows .rk{width:18px;color:var(--dim);z-index:1}.rows li{text-shadow:0 1px 2px #000a}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:var(--value)}
+.none{color:var(--dim);margin:0}
 .chart{display:flex;align-items:flex-end;gap:3px;height:106px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.col i{display:block;width:100%;background:linear-gradient(#e889b3,#a24a73);border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:#8a6a7a;height:12px;font-weight:normal}
+.col i{display:block;width:100%;background:linear-gradient(var(--accent),var(--deep));border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:var(--dim);height:12px;font-weight:normal}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 14px}
-.tabs a{cursor:pointer;color:#f3e6ec;text-decoration:none;border:1px solid #c9668f;border-radius:99px;padding:5px 14px;background:#141013}
-.tabs a.on{background:#c9668f;color:#000;font-weight:bold}
+.tabs a{cursor:pointer;color:var(--text);text-decoration:none;border:1px solid var(--edge);border-radius:99px;padding:5px 14px;background:var(--panel)}
+.tabs a.on{background:var(--edge);color:#000;font-weight:bold}
 .js .panel{display:none}.js .panel.on{display:block}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
-footer{text-align:center;color:#8a6a7a;font-size:10px;margin-top:9px}
+.grid.one{grid-template-columns:1fr}
+footer{text-align:center;color:var(--dim);font-size:10px;margin-top:9px}
 """
+
+
+def theme_css():
+    t = THEMES.get(os.environ.get("STATS_THEME", THEME), THEMES[THEME])
+    out = CSS
+    for k, v in t.items():
+        out = out.replace("@%s@" % k, v)
+    return out
 
 
 def build(title_days, panels, updated, sample):
     """panels: list of (tab label, html). With JavaScript each is a tab; without it, all are shown one after another."""
-    note = ' <b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b>' if sample else ""
+    note = '<div class="sub"><b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b></div>' if sample else ""
     tabs = "".join('<a href="#%s" data-t="%s">%s</a>' % (tid, tid, esc(label)) for tid, label, _ in panels)
     body = "\n".join('<div class="panel" id="%s">%s</div>' % (tid, h) for tid, _, h in panels)
     return """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="300"><title>88x31 server stats</title><style>%s</style></head><body><div class="wrap">
 <h1>~*~88x31~*~ server stats</h1><div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
-<div class="sub">The past %d days. Updated %s Hawaii time.%s</div>
+%s
 <div class="tabs" id="tabs">%s</div>
 %s
 <footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div>
@@ -347,7 +369,7 @@ try{sessionStorage.setItem("tab",id)}catch(e){}}
 [].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.addEventListener("click",function(e){e.preventDefault();var t=a.getAttribute("data-t");history.replaceState(null,"","#"+t);show(t)})});
 var s=null;try{s=sessionStorage.getItem("tab")}catch(e){}
 show(location.hash.slice(1)||s||ids[0]);})();
-</script></body></html>""" % (CSS, title_days, esc(updated), note, tabs, body)
+</script></body></html>""" % (theme_css(), note, tabs, body)
 
 
 def overview(all_stats):

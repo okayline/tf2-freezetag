@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Stats page: no intro line, stacked charts, color themes
+**Tue Oct 27, 2026 · 6:50 PM HST**
+- **Changed:** the two charts at the bottom ("When people play" and "Players per day") are now full width, stacked one above the other. The page colors now come from a theme table in `vps/stats.py` (pastel pink, blue, mint, peach and lavender; pastel pink is the default until one is picked). Also removed the line under the title ("The past 7 days. Updated ... Hawaii time."). The page still looks at the past 7 days and rebuilds every 5 minutes.
+
 ## Stats page: tabs
 **Tue Oct 27, 2026 · 6:35 PM HST**
 - **Changed:** instead of one long page (or two columns), the stats page has tabs: All servers, cLaSSiC, VeRsUs, ViNtaGe and TF2. The tab you pick is remembered while the page refreshes, and a link like `stats.88x31.app/#vs` opens a tab directly. The panel is narrower (about 700px) and the boards sit in two columns inside it (one column on a phone). Without JavaScript the tabs are skipped and every section shows one after another.
