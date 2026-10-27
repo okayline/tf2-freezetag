@@ -4,7 +4,7 @@
 
 ## Stats page: smaller, two columns
 **Tue Oct 27, 2026 · 6:20 PM HST**
-- **Changed:** the stats page text and spacing are about 12% smaller, and the four servers sit in two columns (one column on narrow screens and phones). The "all servers together" box stays full width.
+- **Changed:** the stats page text and spacing are about 12% smaller (the font a little more), and the four servers sit in two columns (one column on narrow screens and phones). The "all servers together" box stays full width.
 
 ## Public stats page (stats.88x31.app)
 **Tue Oct 27, 2026 · 6:00 PM HST**
