@@ -2,7 +2,7 @@
 # Installs a welcome-screen leaderboard: vps/leaderboard.py plus a systemd timer that rebuilds the game's
 # motd.txt every 5 minutes from a template, with the top players of the past N days (names only).
 # Run as root. Re-running is safe.
-# Arg 1: l4d (zombies killed) or tf2 (freezes). Arg 2: days in the window (default 5). Arg 3: players shown (default 3).
+# Arg 1: l4d (zombies killed), tf2 (freezes) or l4dvs (damage, second L4D server; needs the l4d_damagelog plugin). Arg 2: days in the window (default 5). Arg 3: players shown (default 3).
 # Needs /root/leaderboard.py and /root/<game>-motd-template.html (the actions upload both).
 # Players in /home/tf2/leaderboard-ignore.txt (leaderboard-ignore action) are left out.
 set -euo pipefail
@@ -13,7 +13,8 @@ GAME="${1:-}"; DAYS="${2:-5}"; TOP="${3:-3}"
 case "$GAME" in
   l4d) LOGS=/home/tf2/l4d/left4dead/logs; OUT=/home/tf2/l4d/left4dead/motd.txt ;;
   tf2) LOGS=/home/tf2/server/tf/logs;     OUT=/home/tf2/server/tf/cfg/motd.txt ;;
-  *) echo "First argument must be l4d or tf2."; exit 1 ;;
+  l4dvs) LOGS=/home/tf2/l4d-b/left4dead/logs; OUT=/home/tf2/l4d-b/left4dead/motd.txt ;;
+  *) echo "First argument must be l4d, tf2 or l4dvs."; exit 1 ;;
 esac
 printf '%s' "$DAYS$TOP" | grep -Eq '^[0-9]+$' || { echo "Days and top must be numbers."; exit 1; }
 [ -d "$LOGS" ] || { echo "no $LOGS (is the game installed, and its log turned on: l4d-log-on / tf2-log-on?)"; exit 1; }

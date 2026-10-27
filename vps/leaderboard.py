@@ -2,6 +2,8 @@
 """Leaderboard for a game server's welcome screen (motd.txt), built from the server's game logs.
   l4d: "Most Zombies Killed in the Past N Days"  (common infected killed by human players)
   tf2: "Most Freezes in the Past N Days"          (Freeze Tag turns a kill into a freeze: kills of the other team)
+  l4dvs: "Most Damage in the Past N Days"         (second L4D server, versus: damage to the enemy team by humans of both teams,
+                                                   from the "[88x31dmg]" lines the l4d_damagelog plugin writes into the game log)
 Only human players are counted (never bots), by Steam account so a name change does not split a score. Only
 player names are shown, never Steam IDs or addresses. The line <!--LEADERBOARD--> in the template is replaced
 with the top players and the result is written to OUTPUT.
@@ -16,18 +18,22 @@ from datetime import datetime, timedelta
 
 MARK = "<!--LEADERBOARD-->"
 STAMP = re.compile(r'(\d\d)/(\d\d)/(\d{4}) - (\d\d):(\d\d):(\d\d)')
-ID = r'(STEAM_[0-9]:[0-9]:[0-9]+|\[U:1:[0-9]+\])'
+ID = r'(?P<id>STEAM_[0-9]:[0-9]:[0-9]+|\[U:1:[0-9]+\])'
 
 GAMES = {
-    # (log file pattern, kill line, title)
+    # (log file pattern, line pattern, title, text a line must contain, counts a number from the line)
     # l4d: (DEATH)"Name<userid><STEAM_1:x:y><Survivor>..." killed "infected<...
     "l4d": ("L*.log",
             re.compile(r'"(?P<name>.+?)<\d+><' + ID + r'><[^>]*>.*?" killed "infected<'),
-            "Most Zombies Killed in the Past %s"),
+            "Most Zombies Killed in the Past %s", '" killed "', False),
     # tf2: "Name<userid><[U:1:w]><Red>" killed "Other<userid><...><Blue>" with "weapon"
     "tf2": ("l*.log",
             re.compile(r'"(?P<name>.+?)<\d+><' + ID + r'><(?P<team>Red|Blue)>" killed "[^"]*<\d+><[^>]*><(?P<vteam>Red|Blue)>"'),
-            "Most Freezes in the Past %s"),
+            "Most Freezes in the Past %s", '" killed "', False),
+    # l4dvs: [88x31dmg] <STEAM_1:0:12345> 250 "Name"   (damage since the plugin's last line for that player)
+    "l4dvs": ("L*.log",
+              re.compile(r'\[88x31dmg\] <' + ID + r'> (?P<n>\d+) "(?P<name>.*)"\s*$'),
+              "Most Damage in the Past %s", "[88x31dmg]", True),
 }
 
 
@@ -51,7 +57,7 @@ def read_ignored(path):
 
 def count_kills(game, log_dir, since, ignored=frozenset()):
     """{account: [count, latest name]} for log lines newer than `since` (a datetime)."""
-    pattern, rx, _ = GAMES[game]
+    pattern, rx, _, marker, weighted = GAMES[game]
     totals = {}
     for path in glob.glob(os.path.join(log_dir, pattern)):
         try:
@@ -62,13 +68,13 @@ def count_kills(game, log_dir, since, ignored=frozenset()):
             continue
         with lines:
             for line in lines:
-                if '" killed "' not in line:
+                if marker not in line:
                     continue
                 m = rx.search(line)
                 t = STAMP.search(line)
                 if not m or not t:
                     continue
-                who = account(m.group(2))
+                who = account(m.group("id"))
                 if who in ignored:
                     continue
                 if game == "tf2" and m.group("team") == m.group("vteam"):
@@ -77,7 +83,7 @@ def count_kills(game, log_dir, since, ignored=frozenset()):
                 if datetime(y, mo, d, hh, mi, ss) < since:
                     continue
                 entry = totals.setdefault(who, [0, m.group("name")])
-                entry[0] += 1
+                entry[0] += int(m.group("n")) if weighted else 1
                 entry[1] = m.group("name")   # lines are in time order per file; keep the newest name seen
     return totals
 
