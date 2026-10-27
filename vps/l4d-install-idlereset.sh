@@ -2,7 +2,7 @@
 # Compiles and loads the idle reset plugin (l4d/scripting/l4d_idlereset.sp) live, with no restart and without touching other plugins
 # or players. Run as root. If a server's copy does not compile, nothing is loaded there.
 # Arg 1: "coop" (the two co-op servers, default) or "all" (also the Versus server). Arg 2: minutes empty before the reset (default 30).
-# The settings go into each server's server.cfg (only if not set yet) and are applied live.
+# The settings go into each server's server.cfg (replacing any earlier values) and are applied live. Running it again also reloads the plugin with the newest code.
 set -euo pipefail
 WHO="${1:-coop}"; MIN="${2:-30}"
 printf '%s' "$MIN" | grep -Eq '^[0-9]+$' || { echo "minutes must be a number"; exit 1; }
@@ -13,11 +13,14 @@ install_one() {   # dir screen map
   [ -d "$SM/scripting" ] || { echo "$D: no $SM, skipped"; return; }
   echo "== $D ($S) back to $MAP after $MIN minutes empty =="
   install -o tf2 -g tf2 -m 644 /root/l4d_idlereset.sp $SM/scripting/l4d_idlereset.sp
-  grep -q '^l4d_idle_minutes ' $C || echo "l4d_idle_minutes $MIN" >> $C
-  grep -q '^l4d_idle_map ' $C || echo "l4d_idle_map $MAP" >> $C
+  sed -i '/^l4d_idle_minutes /d; /^l4d_idle_map /d' $C
+  echo "l4d_idle_minutes $MIN" >> $C
+  echo "l4d_idle_map $MAP" >> $C
   chown tf2:tf2 $C
   sudo -u tf2 bash -c "cd $SM/scripting && ./spcomp l4d_idlereset.sp -o ../plugins/l4d_idlereset.smx 2>&1 | grep -iE 'error|warning|Code size' | head -n 8 || true"
   [ -f $SM/plugins/l4d_idlereset.smx ] || { echo "$D: did not compile, nothing loaded"; return; }
+  sudo -u tf2 screen -S $S -X stuff "sm plugins reload l4d_idlereset$(printf '\r')"
+  sleep 1
   sudo -u tf2 screen -S $S -X stuff "sm plugins load l4d_idlereset$(printf '\r')"
   sleep 1
   sudo -u tf2 screen -S $S -X stuff "l4d_idle_minutes $MIN$(printf '\r')"
