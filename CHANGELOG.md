@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Stats page: tabs
+**Tue Oct 27, 2026 · 6:35 PM HST**
+- **Changed:** instead of one long page (or two columns), the stats page has tabs: All servers, cLaSSiC, VeRsUs, ViNtaGe and TF2. The tab you pick is remembered while the page refreshes, and a link like `stats.88x31.app/#vs` opens a tab directly. Without JavaScript the tabs are skipped and every section shows one after another.
+
 ## Stats page: smaller, two columns
 **Tue Oct 27, 2026 · 6:20 PM HST**
 - **Changed:** the stats page text and spacing are about 12% smaller (the font a little more), and the four servers sit in two columns (one column on narrow screens and phones). The "all servers together" box stays full width.
