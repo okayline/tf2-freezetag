@@ -96,7 +96,13 @@ def safe_text(s, n=150):
 
 
 def clean_log(line):
-    line = re.sub(r"<\d+><STEAM_[0-9:]+>", "", line)
+    """One game-log line made readable: '19:46:10 text', no IPs or Steam IDs, names as "Name (Team)"."""
+    m = re.match(r"L (\d+/\d+/\d+) - (\d+:\d+:\d+):\s*(.*)", line)
+    if m:
+        line = "%s %s" % (m.group(2), m.group(3))
+    id_part = r"(?:STEAM_[0-9:]+|\[U:\d:\d+\]|BOT|Console)"
+    line = re.sub(r"<\d+><%s><([^<>]*)>" % id_part, lambda g: " (%s)" % g.group(1) if g.group(1) else "", line)
+    line = re.sub(r"<\d+><%s>" % id_part, "", line)
     line = re.sub(r"STEAM_\d:\d:\d+", "(id)", line)
     line = re.sub(r"\[U:\d:\d+\]", "(id)", line)
     line = re.sub(r"\d{1,3}(\.\d{1,3}){3}(:\d+)?", "(ip)", line)
@@ -442,11 +448,17 @@ async def bots_cmd(interaction: discord.Interaction, count: app_commands.Range[i
 @server_cmd("logs", "Last lines of a server's log (IPs and Steam IDs removed)")
 @app_commands.describe(lines="How many lines, up to 25", filter="Only lines containing this")
 async def logs_cmd(interaction: discord.Interaction, server: str, lines: app_commands.Range[int, 1, 25] = 15, filter: str = ""):
-    files = sorted(glob.glob(SERVERS[server]["logs"] + "/L*.log"), key=os.path.getmtime)
+    files = sorted(glob.glob(SERVERS[server]["logs"] + "/[Ll]*.log"), key=os.path.getmtime)
     if not files:
         return await interaction.response.send_message("No log file yet.", ephemeral=True)
     f = filter.lower()[:40]
-    rows = [clean_log(l.rstrip()) for l in open(files[-1], encoding="utf-8", errors="replace") if f in l.lower()][-lines:]
+    rows = []
+    for l in open(files[-1], encoding="utf-8", errors="replace"):
+        if re.search(r'rcon from|Log file (started|closed)', l):      # the bot's and the status poster's own RCON checks
+            continue
+        if f in l.lower():
+            rows.append(clean_log(l.rstrip()))
+    rows = rows[-lines:]
     text = "\n".join(r[:180] for r in rows) or "(nothing)"
     await interaction.response.send_message("```\n%s\n```" % text[-1800:], ephemeral=True)
 
