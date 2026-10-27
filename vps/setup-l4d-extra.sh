@@ -4,7 +4,7 @@
 # The big read-only game files (4 MB and up) are hard links to the first server's files, so they take no extra disk; everything
 # small is a real copy and logs are left out, so the servers never write to the same file. Does NOT start the server and does
 # not touch any other server. Safe to re-run: an existing copy is kept and only the service file is rewritten.
-#   usage: setup-l4d-extra.sh LETTER PORT MODE START_MAP "SERVER NAME"      (example: c 27018 coop l4d_hospital01_apartment "~*~88x31~*~ L4D cLaSSiC 2")
+#   usage: setup-l4d-extra.sh LETTER PORT MODE START_MAP "SERVER NAME"      (example: c 27018 coop l4d_hospital01_apartment "~*~88x31~*~ L4D ViNtaGe Edition")
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
 [ $# -eq 5 ] || { sed -n '9p' "$0"; exit 1; }

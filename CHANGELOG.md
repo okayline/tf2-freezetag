@@ -4,7 +4,7 @@
 
 ## Third L4D server (second co-op)
 **Mon Oct 26, 2026 · 7:50 PM HST**
-- **Added:** `vps/setup-l4d-extra.sh` and the `l4dc-setup` action. It makes a third Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-c` with its own service `l4dc` (screen `l4dc`), game port 27018, name "~*~88x31~*~ L4D cLaSSiC 2", co-op, starting on No Mercy. Same recipe as the second server (big files hard-linked, about 2 GB of extra disk, logs and the Discord relay not copied, same SourceMod, plugins and admins). The script takes a letter, port, mode, start map and name, so more copies can be made the same way. Also added `l4dc-start` (refuses below 900 MB of free memory), `l4dc-stop`, `l4dc-restart`, `l4dc-console` and `l4dc-log`.
+- **Added:** `vps/setup-l4d-extra.sh` and the `l4dc-setup` action. It makes a third Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-c` with its own service `l4dc` (screen `l4dc`), game port 27018, name "~*~88x31~*~ L4D ViNtaGe Edition", co-op, starting on No Mercy. Same recipe as the second server (big files hard-linked, about 2 GB of extra disk, logs and the Discord relay not copied, same SourceMod, plugins and admins). The script takes a letter, port, mode, start map and name, so more copies can be made the same way. Renamed at min's request (`l4dc-rename` renames it live and in its welcome screen title). Also added `l4dc-start` (refuses below 900 MB of free memory), `l4dc-stop`, `l4dc-restart`, `l4dc-console` and `l4dc-log`.
 - **Not tested:** the script has only had its service-file rewrite checked on a sample file; it has not run on the VPS yet. Min plans to compare this server with the Versus one and keep the busier one.
 
 ## Second L4D server (versus), memory check, TF2 pause
