@@ -88,54 +88,66 @@ def count_kills(game, log_dir, since, ignored=frozenset()):
     return totals
 
 
-TANK_RX = re.compile(r'"(?P<name>.+?)<\d+><' + ID + r'><[^>]*>.*?" killed "Tank<')
-
-
-def count_tanks(log_dir, since, ignored=frozenset()):
-    """Number of Tanks killed by human survivors (co-op: the Tank is a bot named "Tank") newer than `since`."""
-    n = 0
+def lines_since(log_dir, since, marker):
+    """(line, time) for every game-log line that contains `marker` and is newer than `since`."""
     for path in glob.glob(os.path.join(log_dir, "L*.log")):
         try:
             if datetime.fromtimestamp(os.path.getmtime(path)) < since:
-                continue
+                continue   # nothing in this file can be newer than the window
             lines = open(path, encoding="utf-8", errors="replace")
         except OSError:
             continue
         with lines:
             for line in lines:
-                if 'killed "Tank<' not in line:
-                    continue
-                m = TANK_RX.search(line)
-                t = STAMP.search(line)
-                if not m or not t or account(m.group("id")) in ignored:
-                    continue
-                mo, d, y, hh, mi, ss = map(int, t.groups())
-                if datetime(y, mo, d, hh, mi, ss) >= since:
-                    n += 1
-    return n
-
-
-def count_campaigns(log_dir, since):
-    """Number of "[88x31camp] finished" lines (written by l4d_campaign_rotate) newer than `since`."""
-    n = 0
-    for path in glob.glob(os.path.join(log_dir, "L*.log")):
-        try:
-            if datetime.fromtimestamp(os.path.getmtime(path)) < since:
-                continue
-            lines = open(path, encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        with lines:
-            for line in lines:
-                if "[88x31camp] finished" not in line:
+                if marker not in line:
                     continue
                 t = STAMP.search(line)
                 if not t:
                     continue
                 mo, d, y, hh, mi, ss = map(int, t.groups())
-                if datetime(y, mo, d, hh, mi, ss) >= since:
-                    n += 1
+                when = datetime(y, mo, d, hh, mi, ss)
+                if when >= since:
+                    yield line, when
+
+
+TANK_RX = re.compile(r'"(?P<name>.+?)<\d+><' + ID + r'><[^>]*>.*?" killed "Tank<')
+INCAP_RX = re.compile(r'\(INCAP\) "(?P<name>.+?)<\d+><' + ID + r'><Survivor>')
+TANKDMG_RX = re.compile(r'\[88x31tank\] (?P<n>\d+)\s*$')
+
+
+def count_tanks(log_dir, since, ignored=frozenset()):
+    """Tanks killed by human survivors (co-op: the Tank is a bot named "Tank")."""
+    n = 0
+    for line, _ in lines_since(log_dir, since, 'killed "Tank<'):
+        m = TANK_RX.search(line)
+        if m and account(m.group("id")) not in ignored:
+            n += 1
     return n
+
+
+def count_incaps(log_dir, since, ignored=frozenset()):
+    """Times a human survivor was incapacitated: "(INCAP) "Name<..><STEAM_..><Survivor>" is incapacitated"."""
+    n = 0
+    for line, _ in lines_since(log_dir, since, "is incapacitated"):
+        m = INCAP_RX.search(line)
+        if m and account(m.group("id")) not in ignored:
+            n += 1
+    return n
+
+
+def count_tank_damage(log_dir, since):
+    """Damage dealt by player-controlled Tanks: the sum of the "[88x31tank] N" lines l4d_damagelog writes (no names)."""
+    total = 0
+    for line, _ in lines_since(log_dir, since, "[88x31tank]"):
+        m = TANKDMG_RX.search(line)
+        if m:
+            total += int(m.group("n"))
+    return total
+
+
+def count_campaigns(log_dir, since):
+    """Number of "[88x31camp] finished" lines (written by l4d_campaign_rotate)."""
+    return sum(1 for _ in lines_since(log_dir, since, "[88x31camp] finished"))
 
 
 def board_html(game, totals, days, top, extras=()):
@@ -163,6 +175,9 @@ def main():
     extras = []
     if game == "l4d":   # co-op only: in versus a human plays the Tank under their own name
         extras.append(("Tanks killed", count_tanks(log_dir, since, ignored)))
+    if game == "l4dvs":
+        extras.append(("Survivors incapacitated", count_incaps(log_dir, since, ignored)))
+        extras.append(("Tank damage", count_tank_damage(log_dir, since)))
     if game in ("l4d", "l4dvs"):
         extras.append(("Campaigns finished", count_campaigns(log_dir, since)))
     page = page.replace(MARK, board_html(game, totals, days, top, extras))
