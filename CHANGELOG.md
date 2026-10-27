@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome screens: small divider lines
+**Mon Oct 26, 2026 · 8:45 PM HST**
+- **Added:** a short centered line (a quarter of the panel width, same pink as the border) under the campaign list and another under the leaderboard, on all three welcome screens (`motd.txt` for both co-op servers, `motd-vs.txt` for Versus). Applied by reinstalling the three leaderboards; no restart. Not seen in game: only the preview in a desktop browser.
+
 ## Co-op welcome screen: one bottom line
 **Mon Oct 26, 2026 · 8:35 PM HST**
 - **Changed:** `l4d/motd/motd.txt` (first server and "L4D ViNtaGe Edition"): "Reverse friendly fire is ON   Have fun!!" is now one line at the bottom, under the leaderboard (it was two lines with the leaderboard between them). The Versus screen already had its line this way. Applied by reinstalling the two co-op leaderboards, which rebuild the screen; no restart.
