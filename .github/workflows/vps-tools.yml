@@ -202,7 +202,7 @@ jobs:
               T=$(printf '%s' "$TF2_GSLT" | tr -cd 'A-Fa-f0-9')
               if [ -z "$T" ]; then echo "Needs the TF2_GSLT repo secret." >> "$R"
               else
-                printf '%s' "$T" | vps 'umask 077; cat > /root/tf2-gslt; S=/etc/systemd/system/tf2.service; T=$(cat /root/tf2-gslt); sed -i -E "/^ExecStart=/{s/ \+sv_setsteamaccount [A-Fa-f0-9]+//; s/\$/ +sv_setsteamaccount $T/}" $S; systemctl daemon-reload; grep -c "sv_setsteamaccount" $S | sed "s/^/token lines in service file: /"' >> "$R" 2>&1
+                printf '%s' "$T" | vps 'umask 077; cat > /root/tf2-gslt; S=/etc/systemd/system/tf2.service; T=$(cat /root/tf2-gslt); sed -i -E "/^ExecStart=/{s/ \+sv_setsteamaccount [A-Fa-f0-9]+//; s/ \+map / +sv_setsteamaccount $T +map /}" $S; systemctl daemon-reload; grep -c "sv_setsteamaccount" $S | sed "s/^/token lines in service file: /"' >> "$R" 2>&1
               fi ;;
             mc-setup)
               scp $SSHO vps/setup-minecraft.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
