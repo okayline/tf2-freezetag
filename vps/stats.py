@@ -17,13 +17,13 @@ from datetime import datetime, timedelta
 
 SERVER_HOURS_AHEAD = 18   # the server clock is 18 hours ahead of Hawaii
 
-TABS = [("cl", "cLaSSiC"), ("vs", "VeRsUs"), ("vg", "ViNtaGe"), ("tf", "TF2")]   # tab ids and labels, in SERVERS order
+TABS = [("cl", "cLaSSiC"), ("vg", "ViNtaGe"), ("vs", "VeRsUs"), ("tf", "TF2")]   # tab ids and labels, in SERVERS order
 
 # name, kind, folder under LOGROOT (relative), log pattern, rcon port, server.cfg (relative)
 SERVERS = [
     ("L4D cLaSSiC",           "l4d",   "l4d/left4dead",   "L*.log", 27016, "l4d/left4dead/cfg/server.cfg"),
-    ("L4D VeRsUs SeRveR",     "l4dvs", "l4d-b/left4dead", "L*.log", 27017, "l4d-b/left4dead/cfg/server.cfg"),
     ("L4D ViNtaGe Edition",   "l4d",   "l4d-c/left4dead", "L*.log", 27018, "l4d-c/left4dead/cfg/server.cfg"),
+    ("L4D VeRsUs SeRveR",     "l4dvs", "l4d-b/left4dead", "L*.log", 27017, "l4d-b/left4dead/cfg/server.cfg"),
     ("TF2 Freeze Tag",        "tf2",   "server/tf",       "l*.log", 27015, "server/tf/cfg/server.cfg"),
 ]
 
@@ -335,6 +335,7 @@ h2{color:var(--head);font-size:17px;margin:0 0 9px}h3{color:var(--accent);font-s
 .js .panel{display:none}.js .panel.on{display:block}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
 .grid.one{grid-template-columns:1fr}
+footer .upd{color:var(--label);font-size:12px;margin:0 0 4px}
 footer{text-align:center;color:var(--dim);font-size:10px;margin-top:9px}
 """
 
@@ -358,7 +359,7 @@ def build(title_days, panels, updated, sample):
 %s
 <div class="tabs" id="tabs">%s</div>
 %s
-<footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div>
+<footer><div class="upd">Last updated: %s Hawaii time</div>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div>
 <script>
 (function(){var d=document.documentElement;d.className+=" js";
 var ids=[].map.call(document.querySelectorAll(".panel"),function(p){return p.id});
@@ -369,7 +370,7 @@ try{sessionStorage.setItem("tab",id)}catch(e){}}
 [].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.addEventListener("click",function(e){e.preventDefault();var t=a.getAttribute("data-t");history.replaceState(null,"","#"+t);show(t)})});
 var s=null;try{s=sessionStorage.getItem("tab")}catch(e){}
 show(location.hash.slice(1)||s||ids[0]);})();
-</script></body></html>""" % (theme_css(), note, tabs, body)
+</script></body></html>""" % (theme_css(), note, tabs, body, esc(updated))
 
 
 def overview(all_stats):
