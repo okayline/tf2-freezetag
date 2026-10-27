@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Idle reset: 10 minutes empty
+**Tue Oct 27, 2026 · 5:45 PM HST**
+- **Changed:** the idle reset is meant to run with `l4d_idle_minutes 10`; the check stays every 10 minutes, so the server goes back to No Mercy chapter 1 10 to 20 minutes after the last player left, which gives players time to come back and resume the same playthrough. The install action now replaces the minutes and map in each `server.cfg` (before, it kept old values, and server.cfg is read again on every map change) and reloads the plugin, so running `l4d-idlereset-install` with `all 10` updates the two co-op servers and the Versus server live, no restart. Versus uses `l4d_vs_hospital01_apartment`.
+- **Not tested:** not compiled or run on the VPS yet. Nothing installed.
+
 ## Idle reset (back to No Mercy when empty)
 **Tue Oct 27, 2026 · 5:35 PM HST**
 - **Added:** `l4d/scripting/l4d_idlereset.sp` and the `l4d-idlereset-install` action. After the server has had no humans on it for 30 minutes (`l4d_idle_minutes`, 0 turns it off) it goes back to `l4d_hospital01_apartment` (`l4d_idle_map`; the Versus server uses `l4d_vs_hospital01_apartment`), so the next players start at the beginning of No Mercy. A timer checks every 10 minutes (so the reset lands 30 to 40 minutes after the last player left); a human joining cancels the count. It does nothing at join time and does nothing if the server is already on that map. Not handled: if the empty server hibernates, its timers may stop and the reset would not happen until it wakes; this has not been tested. The install covers the two co-op servers by default and the Versus server with "all"; live, no restart; the settings go into each server.cfg.
