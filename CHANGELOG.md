@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Third L4D server (second co-op)
+**Mon Oct 26, 2026 · 7:50 PM HST**
+- **Added:** `vps/setup-l4d-extra.sh` and the `l4dc-setup` action. It makes a third Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-c` with its own service `l4dc` (screen `l4dc`), game port 27018, name "~*~88x31~*~ L4D ViNtaGe Edition", co-op, starting on No Mercy. Same recipe as the second server (big files hard-linked, about 2 GB of extra disk, logs and the Discord relay not copied, same SourceMod, plugins and admins). The script takes a letter, port, mode, start map and name, so more copies can be made the same way. Renamed at min's request (`l4dc-rename` renames it live and in its welcome screen title). Also added `l4dc-start` (refuses below 900 MB of free memory), `l4dc-stop`, `l4dc-restart`, `l4dc-console` and `l4dc-log`.
+- **Not tested:** the script has only had its service-file rewrite checked on a sample file; it has not run on the VPS yet. Min plans to compare this server with the Versus one and keep the busier one.
+
 ## Second L4D server (versus), memory check, TF2 pause
 **Mon Oct 26, 2026 · 7:10 PM HST**
 - **Added:** the `l4db-setup` action (`vps/setup-l4d-b.sh`). It makes a second Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-b` with its own service `l4db` (screen `l4db`), game port 27017, name "~*~88x31~*~ L4D1 VeRsUs SeRveR" (first named "L4D cLaSSiC 2"; renamed with `l4db-rename`), 8 players, starting in versus on `l4d_vs_hospital01_apartment`. Game files of 4 MB and up are hard links to the first server's (about 2 GB of extra disk instead of 8.5 GB); everything smaller is a real copy, and logs are not copied. The copy has the same SourceMod, plugins and admins, so `!tools` can switch it between co-op and versus. The Discord chat relay plugin and its settings are not copied.
