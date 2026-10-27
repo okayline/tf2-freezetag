@@ -4,7 +4,7 @@
 
 ## Welcome screens: small divider lines
 **Mon Oct 26, 2026 · 8:45 PM HST**
-- **Added:** a short centered line (a quarter of the panel width, same pink as the border) under the campaign list and another under the leaderboard, on all three welcome screens (`motd.txt` for both co-op servers, `motd-vs.txt` for Versus). Applied by reinstalling the three leaderboards; no restart. Not seen in game: only the preview in a desktop browser.
+- **Added:** a short centered line (a quarter of the panel width, same pink as the border) under the campaign list and another under the leaderboard, on all three welcome screens (`motd.txt` for both co-op servers, `motd-vs.txt` for Versus). The TF2 welcome screen (`tf/cfg/motd.txt`) has the same two lines, under the map list and under the leaderboard. Applied by reinstalling the leaderboards (three L4D plus TF2); no restart. Not seen in game: only the preview in a desktop browser.
 
 ## Co-op welcome screen: one bottom line
 **Mon Oct 26, 2026 · 8:35 PM HST**
