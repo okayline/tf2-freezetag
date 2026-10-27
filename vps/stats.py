@@ -296,11 +296,11 @@ def server_section(name, kind, s, state, days):
 
 # Page colors on the black background. THEME picks one (STATS_THEME in the environment overrides it, for previews).
 THEMES = {
-    "pastelpink":     dict(accent="#ffb3d9", edge="#ff9ccc", deco="#ffc7e3", head="#ffd1e8", deep="#ff8bc0", strong="#ffffff", label="#ffd9ec", dim="#d9a3bd", line="#6b3a52", panel="#140c11", card="#0b0609", text="#ffffff", value="#b8f2e6", barfill="#ffb3d990", soft="#e6c4d6"),
-    "pastelblue":     dict(accent="#a8dcff", edge="#8fcdf7", deco="#bde5ff", head="#cdeaff", deep="#78bdf0", strong="#ffffff", label="#d3edff", dim="#9cbfd6", line="#355b73", panel="#0b1217", card="#06090c", text="#ffffff", value="#ffe9a8", barfill="#a8dcff90", soft="#c2d6e3"),
-    "pastelmint":     dict(accent="#b5f5d4", edge="#9aeac2", deco="#c8f8de", head="#d4fae6", deep="#82dcb0", strong="#ffffff", label="#dcfbe9", dim="#9ccbb4", line="#356b52", panel="#0b1410", card="#060b09", text="#ffffff", value="#ffc9e0", barfill="#b5f5d490", soft="#c4e0d2"),
-    "pastelpeach":    dict(accent="#ffcfa3", edge="#ffbd85", deco="#ffdbb8", head="#ffe2c7", deep="#f5a868", strong="#ffffff", label="#ffe8d1", dim="#d1ae8c", line="#6b4a2a", panel="#15100b", card="#0c0906", text="#ffffff", value="#c9ecff", barfill="#ffcfa390", soft="#e6d2c0"),
-    "pastellavender": dict(accent="#d4bbff", edge="#c2a3fa", deco="#e0ceff", head="#e8dbff", deep="#ae8cf0", strong="#ffffff", label="#eadfff", dim="#b3a1d6", line="#4d3a73", panel="#100c17", card="#08060d", text="#ffffff", value="#ffe9a8", barfill="#d4bbff90", soft="#d3c8e6"),
+    "pastelpink":     dict(accent="#ffc2e6", edge="#ffa8d8", deco="#ffd6ee", head="#ffe0f2", deep="#ff9ad0", strong="#ffffff", label="#ffe0f0", dim="#e8b4cf", line="#7a3d5c", panel="#1a0f16", card="#110a0e", text="#ffffff", value="#c2fff0", barfill="#ffa8d8b8", soft="#f2d4e4"),
+    "pastelblue":     dict(accent="#b8e6ff", edge="#94d5ff", deco="#cdeeff", head="#dbf3ff", deep="#7cc6f7", strong="#ffffff", label="#dff4ff", dim="#aed0e6", line="#3a6585", panel="#0d1820", card="#08101a", text="#ffffff", value="#fff2b0", barfill="#94d5ffb8", soft="#d0e2ee"),
+    "pastelmint":     dict(accent="#c2ffe0", edge="#9bf5c9", deco="#d4ffea", head="#e0fff0", deep="#7fe8b4", strong="#ffffff", label="#e0fff0", dim="#aedcc4", line="#3a7a5c", panel="#0d1a14", card="#08110d", text="#ffffff", value="#ffd0e6", barfill="#9bf5c9b8", soft="#d0eadc"),
+    "pastelpeach":    dict(accent="#ffd9b0", edge="#ffc48f", deco="#ffe4c6", head="#ffebd4", deep="#ffb070", strong="#ffffff", label="#ffebd6", dim="#e6c4a0", line="#7a5230", panel="#1a130c", card="#110c07", text="#ffffff", value="#cdf0ff", barfill="#ffc48fb8", soft="#f0dcc8"),
+    "pastellavender": dict(accent="#dcc8ff", edge="#c7aaff", deco="#e8dbff", head="#f0e6ff", deep="#b08cf5", strong="#ffffff", label="#f0e6ff", dim="#c0aee0", line="#523f80", panel="#140e20", card="#0d0916", text="#ffffff", value="#fff2b0", barfill="#c7aaffb8", soft="#dcd2ee"),
 }
 THEME = "pastelpink"
 
@@ -311,7 +311,7 @@ body{margin:0;background:#000;color:var(--text);font:12px/1.5 Verdana,Arial,sans
 h1{margin:0;color:var(--accent);font-size:23px;text-align:center}.deco{text-align:center;color:var(--deco);letter-spacing:5px;margin:4px 0 16px}
 h2{color:var(--head);font-size:17px;margin:0 0 9px}h3{color:var(--accent);font-size:12px;margin:0 0 9px}
 .sub{text-align:center;color:var(--soft);margin:-8px 0 18px;font-size:10px}
-.srv{background:var(--panel);border:2px solid var(--edge);border-radius:14px;padding:14px 16px;margin:0 0 18px}
+.srv{box-shadow:0 0 26px -6px var(--edge);background:var(--panel);border:2px solid var(--edge);border-radius:14px;padding:14px 16px;margin:0 0 18px}
 .badge{font-size:10px;border-radius:87px;padding:2px 9px;margin-left:7px;border:1px solid #777;color:#aaa;vertical-align:middle}
 .badge.on{border-color:#4be09b;color:#4be09b}.badge.off{border-color:#e85d75;color:#e85d75}
 .now{color:var(--value);margin:-4px 0 11px}code{color:var(--strong)}
@@ -322,7 +322,7 @@ h2{color:var(--head);font-size:17px;margin:0 0 9px}h3{color:var(--accent);font-s
 .card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px;min-width:0}
 .rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:7px;align-items:center;padding:3px 5px;margin:2px 0;border-radius:5px;overflow:hidden}
 .rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:var(--barfill);z-index:0}
-.rows .rk{width:18px;color:var(--dim);z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:var(--value)}
+.rows .rk{width:18px;color:var(--dim);z-index:1}.rows li{text-shadow:0 1px 2px #000a}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:var(--value)}
 .none{color:var(--dim);margin:0}
 .chart{display:flex;align-items:flex-end;gap:3px;height:106px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
 .col i{display:block;width:100%;background:linear-gradient(var(--accent),var(--deep));border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:var(--dim);height:12px;font-weight:normal}
