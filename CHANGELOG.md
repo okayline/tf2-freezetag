@@ -39,6 +39,13 @@
 - **Removed:** nothing.
 - **Not tested:** joining the new server from the game client or seeing it in the server browser; a full versus match; what happens after a versus finale (the campaign rotation plugin only acts in co-op, so the server may stay on the same campaign); the Discord status and live feed do not include the new server; its welcome screen is a copy of the first server's.
 
+## L4D: scores carry over between chapters and campaigns (score keeper)
+**Mon Oct 26, 2026 · 7:00 PM HST**
+- **Added:** `l4d/scripting/l4d_scorekeeper.sp` 1.0 and the `l4d-scorekeeper-install` action (`vps/l4d-install-scorekeeper.sh`). When a chapter ends (or a player leaves) it remembers each human player's score by Steam ID and puts it back when they spawn, in the next chapter and the next campaign. The play session ends, and scores start over, when the last human leaves. Kept in memory only: a plugin reload or server restart forgets them. The admin command `sm_frags` shows each human's score as the server sees it.
+- **Changed:** nothing.
+- **Removed:** nothing.
+- **Not tested:** not compiled and not loaded anywhere yet (the sandbox could not download the SourceMod compiler; the install action compiles it on the VPS and loads nothing if that fails). Not checked that the score changed is the one the server browser and scoreboard show, or that L4D1 allows setting it; `sm_frags` is there to test that.
+
 ## Leaderboards on the welcome screens (L4D zombies, TF2 freezes)
 **Mon Oct 26, 2026 · 6:50 PM HST**
 - **Added:** `vps/leaderboard.py`, `vps/leaderboard-setup.sh` and the `l4d-leaderboard-install` and `tf2-leaderboard-install` actions (box: days and how many players, like `5 3`; empty = 5 3). A timer on the VPS rebuilds each game's `motd.txt` every 5 minutes from its template, with the top 3 players of the past 5 days: "Most Zombies Killed in the Past 5 Days" on L4D (common infected killed) and "Most Freezes in the Past 5 Days" on TF2 (Freeze Tag turns a kill into a freeze, so kills of the other team). It reads the game logs, counts humans only (bots, teamkills and L4D special infected are not counted), counts by Steam account so a name change does not split a score, and shows names only, never IDs or addresses.
