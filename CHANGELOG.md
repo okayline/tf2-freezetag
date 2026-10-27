@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Idle reset (back to No Mercy when empty)
+**Tue Oct 27, 2026 · 5:35 PM HST**
+- **Added:** `l4d/scripting/l4d_idlereset.sp` and the `l4d-idlereset-install` action. After the server has had no humans on it for 30 minutes (`l4d_idle_minutes`, 0 turns it off) it goes back to `l4d_hospital01_apartment` (`l4d_idle_map`; the Versus server uses `l4d_vs_hospital01_apartment`), so the next players start at the beginning of No Mercy. A timer checks every 10 minutes (so the reset lands 30 to 40 minutes after the last player left); a human joining cancels the count. It does nothing at join time and does nothing if the server is already on that map. Not handled: if the empty server hibernates, its timers may stop and the reset would not happen until it wakes; this has not been tested. The install covers the two co-op servers by default and the Versus server with "all"; live, no restart; the settings go into each server.cfg.
+- **Not tested:** the plugin has not been compiled or run yet.
+
 ## Welcome screens: no scrollbar
 **Tue Oct 27, 2026 · 5:25 PM HST**
 - **Changed:** the three L4D welcome screens (`motd.txt`, `motd-vs.txt`) had a scrollbar in game because the page ran a little past the panel (about 383 px tall). Spacing is tighter (page padding, the gaps between lines and dividers, the box padding), so the screen ends at about 336 px with a three-name leaderboard, and scrolling is switched off on the page (`overflow:hidden`) as a backstop. Same look otherwise. The TF2 screen was not changed. Applied by reinstalling the three L4D leaderboards; no restart. Not seen in game after the change.
