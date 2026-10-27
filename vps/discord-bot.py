@@ -109,6 +109,10 @@ def clean_log(line):
     return line.replace("`", "'")
 
 
+# log lines nobody wants to read: RCON checks, log file markers, bots getting stuck on the map
+NOISE = re.compile(r"rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b")
+
+
 class Bot(discord.Client):
     def __init__(self):
         super().__init__(intents=discord.Intents.default())
@@ -453,11 +457,13 @@ async def logs_cmd(interaction: discord.Interaction, server: str, lines: app_com
         return await interaction.response.send_message("No log file yet.", ephemeral=True)
     f = filter.lower()[:40]
     rows = []
-    for l in open(files[-1], encoding="utf-8", errors="replace"):
-        if re.search(r'rcon from|Log file (started|closed)', l):      # the bot's and the status poster's own RCON checks
-            continue
-        if f in l.lower():
-            rows.append(clean_log(l.rstrip()))
+    for raw in open(files[-1], encoding="utf-8", errors="replace"):
+        for l in re.split(r"(?=L \d+/\d+/\d+ - )", raw):          # some lines hold several records
+            l = l.strip()
+            if not l or NOISE.search(l):
+                continue
+            if f in l.lower():
+                rows.append(clean_log(l))
     rows = rows[-lines:]
     text = "\n".join(r[:180] for r in rows) or "(nothing)"
     await interaction.response.send_message("```\n%s\n```" % text[-1800:], ephemeral=True)
