@@ -44,7 +44,7 @@ name: VPS tools (manual only)
 #   l4db-rff         turns the Reverse Friendly-Fire plugin off or on on the second L4D server only (box: off or on; empty = off). Off moves it to plugins/disabled so it stays off after restarts. Live, no restart.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
-#   host-remove     deletes host.txt from the Versus (l4d-b) and ViNtaGe (l4d-c) servers, so the welcome window goes back to the game's own layout (banner on the right). No restart.
+#   host-remove     deletes host.txt from all three L4D servers, so the welcome window goes back to the game's own layout (banner on the right). No restart.
 #   l4db-order       sets the campaign order of the second L4D server (box: names in order, separated by commas, like No Mercy, Blood Harvest, Death Toll). Saved in its server.cfg and applied live; the first campaign is also the one the server starts on after a restart. Needs l4db-rotate-install first.
 #   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ L4D VeRsUs SeRveR). Does NOT restart.
 #   l4db-admins      compares the two L4D servers' SourceMod plugins and config files (file names only) and says whether the owner is in each admin list (the ID is read from vps/setup-l4d-sourcemod.sh)
@@ -249,10 +249,10 @@ jobs:
               scp $SSHO l4d/motd/host.txt "$VPS_USER@$VPS_HOST:/root/host.txt" >> "$R" 2>&1 \
                 && vps 'for d in l4d l4d-b l4d-c; do G=/home/tf2/$d/left4dead; if [ -d $G ]; then install -o tf2 -g tf2 -m 644 /root/host.txt $G/host.txt && echo "$d: $(cat $G/host.txt)"; else echo "$d: no folder"; fi; done' >> "$R" 2>&1 ;;
             host-remove)
-              vps 'for d in l4d-b l4d-c; do F=/home/tf2/$d/left4dead/host.txt; if [ -e $F ]; then rm -f $F && echo "$d: host.txt removed"; else echo "$d: no host.txt"; fi; done' >> "$R" 2>&1 ;;
+              vps 'for d in l4d l4d-b l4d-c; do F=/home/tf2/$d/left4dead/host.txt; if [ -e $F ]; then rm -f $F && echo "$d: host.txt removed"; else echo "$d: no host.txt"; fi; done' >> "$R" 2>&1 ;;
             l4d-motd)
-              scp $SSHO l4d/motd/motd.txt l4d/motd/host.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d/left4dead/" >> "$R" 2>&1 \
-                && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt host.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt host.txt' >> "$R" 2>&1
+              scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d/left4dead/" >> "$R" 2>&1 \
+                && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt' >> "$R" 2>&1
               scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/root/l4d-motd-template.html" >> "$R" 2>&1 \
                 && vps 'D=/home/tf2/leaderboard-l4d; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4d-motd-template.html $D/template.html && systemctl start leaderboard-l4d.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
             l4d-leaderboard-install|tf2-leaderboard-install|l4dvs-leaderboard-install|l4dc-leaderboard-install)
