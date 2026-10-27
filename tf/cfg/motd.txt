@@ -17,6 +17,7 @@ li:nth-child(odd) { color:#ff93cb; }
 .rules { margin:14px 0 0 0; color:#cdeee6; font-size:15px; }
 .board { margin:14px 0 0 0; color:#cdeee6; font-size:15px; line-height:1.5; }
 .board b { color:#ffa0d6; }
+.sep { width:25%; margin:12px auto 0 auto; border-top:1px solid #b8acde; }
 .fun { text-align:center; margin:16px 0 4px 0; font-size:15px; color:#ffa0d6; }
 </style>
 </head>
@@ -46,7 +47,9 @@ li:nth-child(odd) { color:#ff93cb; }
 </td>
 </tr>
 </table>
+<div class="sep"></div>
 <!--LEADERBOARD-->
+<div class="sep"></div>
 <p class="rules">&bull; No random crits &nbsp; &bull; No damage spread &nbsp; &bull; Big heads</p>
 </div>
 <p class="fun">Have fun, Stay Frosty</p>
