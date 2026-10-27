@@ -288,7 +288,7 @@ def server_section(name, kind, s, state, days):
     camp_title = "Campaigns played" if kind != "tf2" else "Maps played"
     return """<section class="srv"><h2>%s %s</h2>%s<div class="tiles">%s</div>
 <div class="grid">%s<div class="card"><h3>%s</h3>%s</div></div>
-<div class="grid"><div class="card"><h3>When people play (Hawaii time)</h3>%s</div><div class="card"><h3>Players per day</h3>%s</div></div></section>""" % (
+<div class="grid one"><div class="card"><h3>When people play (Hawaii time)</h3>%s</div><div class="card"><h3>Players per day</h3>%s</div></div></section>""" % (
         esc(name), badge, now, "".join(tiles),
         "".join('<div class="card"><h3>%s</h3>%s</div>' % (esc(t), b) for t, b in boards), camp_title, camp,
         hour_chart(s.by_hour), day_chart(s.by_day, days))
@@ -321,6 +321,7 @@ h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;m
 .tabs a.on{background:#c9668f;color:#000;font-weight:bold}
 .js .panel{display:none}.js .panel.on{display:block}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
+.grid.one{grid-template-columns:1fr}
 footer{text-align:center;color:#8a6a7a;font-size:10px;margin-top:9px}
 """
 
