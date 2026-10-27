@@ -5,6 +5,7 @@
 ## Stats page: tab order
 **Tue Oct 27, 2026 · 7:10 PM HST**
 - **Changed:** the tabs are now All servers, cLaSSiC, ViNtaGe, VeRsUs, TF2 (ViNtaGe moved up to sit after cLaSSiC).
+- **Added:** a "Last updated: ... Hawaii time" line at the bottom of the page, set each time the page is rebuilt (every 5 minutes).
 
 ## Stats page: no intro line, stacked charts, color themes
 **Tue Oct 27, 2026 · 6:50 PM HST**
