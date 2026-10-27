@@ -296,13 +296,13 @@ def server_section(name, kind, s, state, days):
 
 # Page colors on the black background. THEME picks one (STATS_THEME in the environment overrides it, for previews).
 THEMES = {
-    "pink":   dict(accent="#e889b3", edge="#c9668f", deco="#d9779f", head="#f0a8c8", deep="#a24a73", strong="#f6d4e3", label="#c9a0b4", dim="#8a6a7a", line="#3a2330", panel="#141013", card="#0b080a", text="#f3e6ec", value="#cdeee6", barfill="#c9668f33", soft="#aa9988"),
-    "mint":   dict(accent="#5fd9b0", edge="#2fa883", deco="#4cc79f", head="#9cecd0", deep="#1f7a5c", strong="#d8f7ec", label="#9cc9ba", dim="#628a7c", line="#1d3a30", panel="#0d1512", card="#080e0c", text="#e6f3ee", value="#ffd9a8", barfill="#2fa88333", soft="#9aaaa2"),
-    "sky":    dict(accent="#6cb8ff", edge="#3f86d1", deco="#5aa5ee", head="#a9d5ff", deep="#2b5f9c", strong="#dcecff", label="#9fb9d6", dim="#64809f", line="#1f2f45", panel="#0d1220", card="#080c16", text="#e8eef7", value="#ffe3a3", barfill="#3f86d133", soft="#9aa6b5"),
-    "amber":  dict(accent="#ffb04a", edge="#d9812a", deco="#f09a36", head="#ffd08a", deep="#a35a14", strong="#ffe9c9", label="#d1b48a", dim="#8f7452", line="#43301a", panel="#17110b", card="#0e0a06", text="#f6ece0", value="#a8e6d4", barfill="#d9812a33", soft="#aa9c88"),
-    "violet": dict(accent="#b794ff", edge="#8a63d6", deco="#a37cf0", head="#d4c2ff", deep="#5f3fa3", strong="#ece3ff", label="#b3a5d1", dim="#7a6c9a", line="#2e2447", panel="#110e1c", card="#0a0813", text="#eeeaf7", value="#ffd7a0", barfill="#8a63d633", soft="#a79fb8"),
+    "hotpink": dict(accent="#ff4fa3", edge="#ff2d92", deco="#ff6fb5", head="#ff8ac4", deep="#c2186b", strong="#ffffff", label="#ffb3d6", dim="#c27a9b", line="#5c1a3d", panel="#0c0508", card="#060204", text="#ffffff", value="#2ef2ff", barfill="#ff2d9250", soft="#d9a3bd"),
+    "cyan":    dict(accent="#19e3ff", edge="#00c8ee", deco="#52ecff", head="#7df0ff", deep="#0089b3", strong="#ffffff", label="#a6f4ff", dim="#5fb3c4", line="#0b4a59", panel="#040b0d", card="#020608", text="#ffffff", value="#ffe14d", barfill="#00c8ee50", soft="#9fd0da"),
+    "lime":    dict(accent="#9dff3a", edge="#7ee81f", deco="#b6ff6b", head="#c8ff8f", deep="#4fa80a", strong="#ffffff", label="#d3ffa3", dim="#82b04a", line="#2c4d0e", panel="#070c04", card="#040702", text="#ffffff", value="#ff5fb0", barfill="#7ee81f50", soft="#b7d19a"),
+    "orange":  dict(accent="#ff9a1f", edge="#ff7a00", deco="#ffb04d", head="#ffc680", deep="#c25200", strong="#ffffff", label="#ffd6a3", dim="#c79052", line="#5c3000", panel="#0c0702", card="#070401", text="#ffffff", value="#3fe6ff", barfill="#ff7a0050", soft="#d9bd99"),
+    "purple":  dict(accent="#b05cff", edge="#9333ff", deco="#c58aff", head="#d2a6ff", deep="#6a12c9", strong="#ffffff", label="#dbc2ff", dim="#9a73cc", line="#3d1470", panel="#08040d", card="#04020a", text="#ffffff", value="#ffe14d", barfill="#9333ff50", soft="#c0aadc"),
 }
-THEME = "pink"
+THEME = "hotpink"
 
 CSS = """
 :root{color-scheme:dark;--accent:@accent@;--edge:@edge@;--deco:@deco@;--head:@head@;--deep:@deep@;--strong:@strong@;--label:@label@;--dim:@dim@;--line:@line@;--panel:@panel@;--card:@card@;--text:@text@;--value:@value@;--barfill:@barfill@;--soft:@soft@;}*{box-sizing:border-box}
