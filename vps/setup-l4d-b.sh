@@ -12,7 +12,7 @@ set -euo pipefail
 SRC=/home/tf2/l4d
 DST=/home/tf2/l4d-b
 PORT=27017
-NAME="${L4DB_HOSTNAME:-~*~88x31~*~ VERSUS Server}"
+NAME="${L4DB_HOSTNAME:-~*~88x31~*~ L4D1 VeRsUs SeRveR}"
 START_MAP=l4d_vs_hospital01_apartment
 UNIT_SRC=/etc/systemd/system/l4d.service
 UNIT=/etc/systemd/system/l4db.service

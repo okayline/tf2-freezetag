@@ -39,7 +39,7 @@ name: VPS tools (manual only)
 #   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
 #   mem-use          shows how much memory each game server, Minecraft and the web tools use right now (RSS, in MB), and free memory
 #   net-check        shows which UDP game ports are listening and the VPS's own firewall rules (iptables/nftables, if any)
-#   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ VERSUS Server). Does NOT restart.
+#   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ L4D1 VeRsUs SeRveR). Does NOT restart.
 #   l4db-cfg         prints the second server's server.cfg (anything with pass/token/hook/secret/key/rcon in the name is hidden), its plugin list, and which lines differ from the first server's server.cfg
 #   l4db-log         shows the last 80 lines of the newest game log of the second L4D server (optional filter word in the box); IP addresses and Steam IDs are removed
 #   cpu-use          shows the CPU model and core count, the load average, and the busiest programs by CPU over a few seconds
@@ -256,7 +256,7 @@ jobs:
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
               vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-rename)
-              N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ VERSUS Server'
+              N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ L4D1 VeRsUs SeRveR'
               printf '%s' "$N" | vps 'N=$(cat); sudo -u tf2 screen -S l4db -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s#\+hostname .*\$#+hostname \"$N\"#" /etc/systemd/system/l4db.service; systemctl daemon-reload; C=/home/tf2/l4d-b/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; sleep 1; sudo -u tf2 screen -S l4db -X stuff "hostname$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep "hostname" /home/tf2/l4db-console.txt | tail -n 2' >> "$R" 2>&1 ;;
             l4db-cfg)
               vps 'm() { grep -vE "^\s*(//|$)" "$1" | sed -E "s/^([A-Za-z_0-9]*(pass|token|hook|secret|key|rcon)[A-Za-z_0-9]*) .*/\1 (hidden)/I"; }; G=/home/tf2/l4d-b/left4dead; echo "== server.cfg (second server) =="; m $G/cfg/server.cfg; echo "== differs from the first server (< first, > second) =="; diff <(m /home/tf2/l4d/left4dead/cfg/server.cfg) <(m $G/cfg/server.cfg) && echo "(no differences)"; echo "== plugins (second) =="; ls $G/addons/sourcemod/plugins/*.smx | xargs -n1 basename | tr "\n" " "; echo' 2>&1 | tail -c 3800 >> "$R" ;;
