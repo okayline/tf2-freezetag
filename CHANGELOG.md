@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Restored: welcome-screen stats without names and the two plugin changes
+**Tue Oct 27, 2026 · 9:17 AM HST**
+- **Changed:** `vps/leaderboard.py`, `vps/leaderboard-setup.sh`, `l4d/scripting/l4d_campaign_rotate.sp` and `l4d/scripting/l4d_damagelog.sp` are back to this morning's versions (before the 8:40 rollback), at the owner's request. The L4D welcome screens show stats without player names again. Installing on the 3 L4D servers follows. TF2 is not included.
+- **Why the rollback was wrong:** a stock L4D server with nothing installed shows the same welcome window layout, so the layout was not caused by these changes.
+
 ## Rolled back: welcome-screen stats and the two plugin changes
 **Tue Oct 27, 2026 · 8:40 AM HST**
 - **Changed (in the repo only; not installed on the servers yet):** `vps/leaderboard.py`, `vps/leaderboard-setup.sh`, `l4d/scripting/l4d_campaign_rotate.sp` and `l4d/scripting/l4d_damagelog.sp` are back to how they were before this morning's stats work (the board shows the top players by name again; no "Campaigns finished", "Tanks killed", "Survivors incapacitated" or "Tank damage" lines; no `[88x31camp]` or `[88x31tank]` log lines). Done at the owner's request, because the L4D welcome screen layout changed after this morning's installs and the cause was not found. The entries below describe the work that was rolled back. The `host-install` action and the `sm plugins reload` fix in `l4db-install-damagelog.sh` are kept.
