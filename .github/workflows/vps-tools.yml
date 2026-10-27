@@ -276,10 +276,10 @@ jobs:
               C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
               vps "sudo -u tf2 screen -S l4dc -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4dc -X hardcopy -h /home/tf2/l4dc-console.txt; tail -n 15 /home/tf2/l4dc-console.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g'" 2>&1 | tail -c 2500 >> "$R" ;;
             l4d-sessions)
-              vps 'for d in l4d l4d-b l4d-c; do echo "== $d"; find /home/tf2/$d/left4dead/logs -name "L*.log" -mmin -180 | sort | xargs -r cat | grep -E "\" (connected|disconnected)|entered the game" | grep -v "<BOT>" | sed -E "s/<[0-9]+><STEAM_[0-9:]+>//g; s/, address \"[^\"]*\"//; s/^L //" | grep -E "connected|entered" | sort -u | tail -n 30; done' 2>&1 | tail -c 3500 >> "$R" ;;
+              vps 'for d in l4d l4d-b l4d-c; do echo "== $d"; find /home/tf2/$d/left4dead/logs -name "L*.log" -mmin -180 | sort | xargs -r cat | grep -E "\" (connected|disconnected)" | grep -v "<BOT>" | sed -E "s/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/\[U:1:[0-9]+\]/(id)/g; s/, address \"[^\"]*\"//; s/^L //; s/^[0-9\/]+ - //" | sort -u | tail -n 40; done' 2>&1 | tail -c 3500 >> "$R" ;;
             l4dc-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
-              vps "f=\$(ls -t /home/tf2/l4d-c/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
+              vps "f=\$(ls -t /home/tf2/l4d-c/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-start)
               vps 'A=$(awk "/MemAvailable/{print int(\$2/1024)}" /proc/meminfo); if [ "$A" -lt 900 ]; then echo "only $A MB of memory free, not starting (run tf2-pause first)"; else systemctl start l4db; sleep 3; systemctl is-active l4db; fi' >> "$R" 2>&1 ;;
             l4db-stop|l4db-restart) vps "systemctl ${ACTION#l4db-} l4db; sleep 2; systemctl is-active l4db" >> "$R" 2>&1 ;;
@@ -290,7 +290,7 @@ jobs:
               vps "sudo -u tf2 screen -S l4db -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; tail -n 15 /home/tf2/l4db-console.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g'" 2>&1 | tail -c 2500 >> "$R" ;;
             l4db-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
-              vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
+              vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-rename)
               N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ L4D VeRsUs SeRveR'
               printf '%s' "$N" | vps 'N=$(cat); sudo -u tf2 screen -S l4db -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s#\+hostname .*\$#+hostname \"$N\"#" /etc/systemd/system/l4db.service; systemctl daemon-reload; C=/home/tf2/l4d-b/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; sleep 1; sudo -u tf2 screen -S l4db -X stuff "hostname$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep "hostname" /home/tf2/l4db-console.txt | tail -n 2' >> "$R" 2>&1 ;;
