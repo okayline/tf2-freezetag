@@ -37,6 +37,10 @@ name: VPS tools (manual only)
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   l4d-leaderboard-install  puts the "Most Zombies Killed in the Past N Days" top players (names only) into the L4D welcome screen, rebuilt every 5 minutes from the game logs (box: days and how many players, like 5 3; empty = 5 3)
 #   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
+#   mem-use          shows how much memory each game server, Minecraft and the web tools use right now (RSS, in MB), and free memory
+#   l4db-setup       makes the second L4D server: a copy of the first in /home/tf2/l4d-b (big game files are hard links, so little extra disk), service "l4db", port 27017, starting in versus. Does NOT start it.
+#   l4db-start / l4db-stop / l4db-restart   control the l4db service (l4db-start refuses if less than 900 MB of memory is free); l4db-console shows its console; l4db-command sends it one console command
+#   tf2-pause        stops the tf2 service and keeps it from starting at boot (nothing is deleted); tf2-resume undoes it
 #   leaderboard-ignore  leaves one Steam ID out of the leaderboards (box: STEAM_0:1:12345). The list stays on the VPS, not in the repo.
 #   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. console-view and show-file print the token as (hidden).
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
@@ -58,7 +62,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -225,6 +229,21 @@ jobs:
             l4d-command)
               C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
               vps "sudo -u tf2 screen -S l4d -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; tail -n 15 /home/tf2/l4d-console.txt" 2>&1 | tail -c 2500 >> "$R" ;;
+            mem-use)
+              vps 'ps -eo rss=,args= --sort=-rss | head -n 8 | awk "{m=\$1/1024; \$1=\"\"; printf \"%5d MB %s\n\", m, substr(\$0,1,70)}" | sed -E "s/sv_setsteamaccount [A-Fa-f0-9]+/sv_setsteamaccount (hidden)/"; free -m | sed -n 1,2p; systemctl is-active tf2 l4d l4db mc 2>&1 | paste -sd" "' 2>&1 | tail -c 2000 >> "$R" ;;
+            l4db-setup)
+              scp $SSHO vps/setup-l4d-b.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d-b.sh" >> "$R" 2>&1 \
+                && vps "bash /root/setup-l4d-b.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+            l4db-start)
+              vps 'A=$(awk "/MemAvailable/{print int(\$2/1024)}" /proc/meminfo); if [ "$A" -lt 900 ]; then echo "only $A MB of memory free, not starting (run tf2-pause first)"; else systemctl start l4db; sleep 3; systemctl is-active l4db; fi' >> "$R" 2>&1 ;;
+            l4db-stop|l4db-restart) vps "systemctl ${ACTION#l4db-} l4db; sleep 2; systemctl is-active l4db" >> "$R" 2>&1 ;;
+            l4db-console)
+              vps 'sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; sleep 1; tail -n 40 /home/tf2/l4db-console.txt; echo "-- processes:"; pgrep -a srcds | grep l4d-b | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
+            l4db-command)
+              C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
+              vps "sudo -u tf2 screen -S l4db -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; tail -n 15 /home/tf2/l4db-console.txt" 2>&1 | tail -c 2500 >> "$R" ;;
+            tf2-pause) vps "systemctl disable --now tf2 2>&1 | tail -n 2; systemctl is-active tf2; systemctl is-enabled tf2" >> "$R" 2>&1 ;;
+            tf2-resume) vps "systemctl enable --now tf2 2>&1 | tail -n 2; sleep 3; systemctl is-active tf2; systemctl is-enabled tf2" >> "$R" 2>&1 ;;
             tf2-gslt) gslt ;;
             mc-setup)
               scp $SSHO vps/setup-minecraft.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
