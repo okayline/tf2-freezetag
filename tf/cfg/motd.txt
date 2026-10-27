@@ -15,6 +15,7 @@ li { margin:4px 0; color:#cdeee6; }
 li:nth-child(odd) { color:#ff93cb; }
 .rules { margin:14px 0 0 0; color:#cdeee6; font-size:15px; }
 .board { margin:12px 0 0 0; color:#cdeee6; font-size:15px; line-height:1.5; }
+.board b { color:#ffa0d6; }
 .fun { text-align:center; margin:16px 0 4px 0; font-size:15px; color:#ffa0d6; }
 </style>
 </head>
