@@ -16,7 +16,7 @@ install_one() {   # dir screen map
   grep -q '^l4d_idle_minutes ' $C || echo "l4d_idle_minutes $MIN" >> $C
   grep -q '^l4d_idle_map ' $C || echo "l4d_idle_map $MAP" >> $C
   chown tf2:tf2 $C
-  sudo -u tf2 bash -c "cd $SM/scripting && ./spcomp l4d_idlereset.sp -o ../plugins/l4d_idlereset.smx 2>&1 | grep -iE 'error|warning|Code size' | head -n 8"
+  sudo -u tf2 bash -c "cd $SM/scripting && ./spcomp l4d_idlereset.sp -o ../plugins/l4d_idlereset.smx 2>&1 | grep -iE 'error|warning|Code size' | head -n 8 || true"
   [ -f $SM/plugins/l4d_idlereset.smx ] || { echo "$D: did not compile, nothing loaded"; return; }
   sudo -u tf2 screen -S $S -X stuff "sm plugins load l4d_idlereset$(printf '\r')"
   sleep 1
@@ -24,7 +24,7 @@ install_one() {   # dir screen map
   sudo -u tf2 screen -S $S -X stuff "l4d_idle_map $MAP$(printf '\r')"
   sleep 2
   sudo -u tf2 screen -S $S -X hardcopy -h /home/tf2/$S-console.txt
-  grep -iE "idle reset|error" /home/tf2/$S-console.txt | tail -n 3
+  grep -iE "idle reset|error" /home/tf2/$S-console.txt | tail -n 3 || true
 }
 
 install_one l4d   l4d  l4d_hospital01_apartment
