@@ -17,6 +17,8 @@ from datetime import datetime, timedelta
 
 SERVER_HOURS_AHEAD = 18   # the server clock is 18 hours ahead of Hawaii
 
+TABS = [("cl", "cLaSSiC"), ("vs", "VeRsUs"), ("vg", "ViNtaGe"), ("tf", "TF2")]   # tab ids and labels, in SERVERS order
+
 # name, kind, folder under LOGROOT (relative), log pattern, rcon port, server.cfg (relative)
 SERVERS = [
     ("L4D cLaSSiC",           "l4d",   "l4d/left4dead",   "L*.log", 27016, "l4d/left4dead/cfg/server.cfg"),
@@ -295,7 +297,7 @@ def server_section(name, kind, s, state, days):
 CSS = """
 :root{color-scheme:dark}*{box-sizing:border-box}
 body{margin:0;background:#000;color:#f3e6ec;font:12px/1.5 Verdana,Arial,sans-serif}
-.wrap{max-width:1280px;margin:0 auto;padding:16px 14px 35px}
+.wrap{max-width:700px;margin:0 auto;padding:16px 14px 35px}
 h1{margin:0;color:#e889b3;font-size:23px;text-align:center}.deco{text-align:center;color:#d9779f;letter-spacing:5px;margin:4px 0 16px}
 h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;margin:0 0 9px}
 .sub{text-align:center;color:#a98;margin:-8px 0 18px;font-size:10px}
@@ -303,10 +305,10 @@ h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;m
 .badge{font-size:10px;border-radius:87px;padding:2px 9px;margin-left:7px;border:1px solid #777;color:#aaa;vertical-align:middle}
 .badge.on{border-color:#4be09b;color:#4be09b}.badge.off{border-color:#e85d75;color:#e85d75}
 .now{color:#cdeee6;margin:-4px 0 11px}code{color:#f6d4e3}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px;margin:0 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin:0 0 12px}
 .tile{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:9px 11px}
 .tile b{display:block;font-size:17px;color:#f6d4e3}.tile span{color:#c9a0b4;font-size:10px}.tile small{display:block;color:#8a6a7a;font-size:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px;margin:0 0 11px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 0 11px}
 .card{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:11px 12px;min-width:0}
 .rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:7px;align-items:center;padding:3px 5px;margin:2px 0;border-radius:5px;overflow:hidden}
 .rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:#c9668f33;z-index:0}
@@ -314,20 +316,38 @@ h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;m
 .none{color:#8a6a7a;margin:0}
 .chart{display:flex;align-items:flex-end;gap:3px;height:106px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
 .col i{display:block;width:100%;background:linear-gradient(#e889b3,#a24a73);border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:#8a6a7a;height:12px;font-weight:normal}
-@media(min-width:900px){.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;align-items:start}}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 14px}
+.tabs a{cursor:pointer;color:#f3e6ec;text-decoration:none;border:1px solid #c9668f;border-radius:99px;padding:5px 14px;background:#141013}
+.tabs a.on{background:#c9668f;color:#000;font-weight:bold}
+.js .panel{display:none}.js .panel.on{display:block}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
 footer{text-align:center;color:#8a6a7a;font-size:10px;margin-top:9px}
 """
 
 
-def build(title_days, first, sections, updated, sample):
+def build(title_days, panels, updated, sample):
+    """panels: list of (tab label, html). With JavaScript each is a tab; without it, all are shown one after another."""
     note = ' <b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b>' if sample else ""
+    tabs = "".join('<a href="#%s" data-t="%s">%s</a>' % (tid, tid, esc(label)) for tid, label, _ in panels)
+    body = "\n".join('<div class="panel" id="%s">%s</div>' % (tid, h) for tid, _, h in panels)
     return """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="300"><title>88x31 server stats</title><style>%s</style></head><body><div class="wrap">
 <h1>~*~88x31~*~ server stats</h1><div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
-<div class="sub">The past %d days, all servers. Updated %s Hawaii time.%s</div>
-%s<div class="cols">%s</div>
-<footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div></body></html>""" % (
-        CSS, title_days, esc(updated), note, first, "\n".join(sections))
+<div class="sub">The past %d days. Updated %s Hawaii time.%s</div>
+<div class="tabs" id="tabs">%s</div>
+%s
+<footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div>
+<script>
+(function(){var d=document.documentElement;d.className+=" js";
+var ids=[].map.call(document.querySelectorAll(".panel"),function(p){return p.id});
+function show(id){if(ids.indexOf(id)<0)id=ids[0];
+[].forEach.call(document.querySelectorAll(".panel"),function(p){p.className="panel"+(p.id==id?" on":"")});
+[].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.className=a.getAttribute("data-t")==id?"on":""});
+try{sessionStorage.setItem("tab",id)}catch(e){}}
+[].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.addEventListener("click",function(e){e.preventDefault();var t=a.getAttribute("data-t");history.replaceState(null,"","#"+t);show(t)})});
+var s=null;try{s=sessionStorage.getItem("tab")}catch(e){}
+show(location.hash.slice(1)||s||ids[0]);})();
+</script></body></html>""" % (CSS, title_days, esc(updated), note, tabs, body)
 
 
 def overview(all_stats):
@@ -359,7 +379,8 @@ def main():
             st = ("online", "l4d_hospital01_apartment", 2, 8)
         all_stats.append(s)
         sections.append(server_section(name, kind, s, st, days))
-    page = build(days, overview(all_stats), sections, now_hawaii().strftime("%b %d, %I:%M %p"), sample)
+    panels = [("all", "All servers", overview(all_stats))] + [(tid, label, h) for (tid, label), h in zip(TABS, sections)]
+    page = build(days, panels, now_hawaii().strftime("%b %d, %I:%M %p"), sample)
     tmp = out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(page)
