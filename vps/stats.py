@@ -327,13 +327,13 @@ footer{text-align:center;color:#8a6a7a;font-size:10px;margin-top:9px}
 
 def build(title_days, panels, updated, sample):
     """panels: list of (tab label, html). With JavaScript each is a tab; without it, all are shown one after another."""
-    note = ' <b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b>' if sample else ""
+    note = '<div class="sub"><b style="color:#ffb36b">(SAMPLE DATA, made up for the preview)</b></div>' if sample else ""
     tabs = "".join('<a href="#%s" data-t="%s">%s</a>' % (tid, tid, esc(label)) for tid, label, _ in panels)
     body = "\n".join('<div class="panel" id="%s">%s</div>' % (tid, h) for tid, _, h in panels)
     return """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="300"><title>88x31 server stats</title><style>%s</style></head><body><div class="wrap">
 <h1>~*~88x31~*~ server stats</h1><div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
-<div class="sub">The past %d days. Updated %s Hawaii time.%s</div>
+%s
 <div class="tabs" id="tabs">%s</div>
 %s
 <footer>Player names only. Bots, Steam IDs, addresses and chat are never shown. Refreshes every 5 minutes.</footer></div>
@@ -347,7 +347,7 @@ try{sessionStorage.setItem("tab",id)}catch(e){}}
 [].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.addEventListener("click",function(e){e.preventDefault();var t=a.getAttribute("data-t");history.replaceState(null,"","#"+t);show(t)})});
 var s=null;try{s=sessionStorage.getItem("tab")}catch(e){}
 show(location.hash.slice(1)||s||ids[0]);})();
-</script></body></html>""" % (CSS, title_days, esc(updated), note, tabs, body)
+</script></body></html>""" % (CSS, note, tabs, body)
 
 
 def overview(all_stats):
