@@ -3,8 +3,9 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## L4D "provided by" name
-**Tue Oct 27, 2026 · 8:07 AM HST**
-- **Changed:** `l4d/motd/host.txt` (the orange name in "This third-party server provided by:") is now "~*~88x31 cLuB~*~" (a version with spaces inside the symbols was tried first; after it went live the welcome box moved from the right of the screen to the top, so it was shortened to test if the longer name caused it). Plain text only; the game shows it in orange and takes no color codes (not tested). New action `host-install` puts `host.txt` on all three L4D servers (no restart, the welcome screens are not touched). `l4d-motd` still sends it to the first server too.
+**Tue Oct 27, 2026 · 8:15 AM HST**
+- **Changed:** new action `host-install` puts `l4d/motd/host.txt` (the orange name in "This third-party server provided by:") on all three L4D servers (no restart, the welcome screens are not touched). `l4d-motd` still sends it to the first server too.
+- **Tried and undone:** "~*~ 88x31 cLuB ~*~" and "~*~88x31 cLuB~*~". The welcome box had moved from the right of the screen to the top, but it stayed there with the shorter name, so the name was not the cause. `host.txt` is back to "88x31 cLuB". The game takes plain text only (no color codes; not tested).
 
 ## Welcome screens: stats, no names
 **Tue Oct 27, 2026 · 7:50 AM HST**
