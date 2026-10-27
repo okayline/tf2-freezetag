@@ -1,7 +1,7 @@
-// Keeps each player's score (the number the server browser and the scoreboard show) from one chapter to the next.
-// When a chapter ends the scores are remembered by Steam ID, and put back when the player spawns in the next one.
-// They start over when a new campaign begins (the first chapter) and when the last human leaves the server.
-// Scores are kept in memory only: a plugin reload or a server restart forgets them.
+// Keeps each player's score (the number the server browser and the scoreboard show) from one chapter to the next,
+// and from one campaign to the next. Scores are remembered by Steam ID when a chapter ends or a player leaves,
+// and put back when the player spawns. They are never reset on purpose.
+// They are kept in memory only: a plugin reload or a server restart forgets them.
 #include <sourcemod>
 
 public Plugin myinfo = { name = "88x31 score keeper", author = "88x31", description = "Scores carry over between chapters", version = "1.0", url = "" };
@@ -18,10 +18,6 @@ public void OnPluginStart()
 
 public void OnMapStart()
 {
-    char map[64];
-    GetCurrentMap(map, sizeof(map));
-    if (StrContains(map, "01_") != -1)   // first chapter of a campaign (l4d_hospital01_apartment, l4d_smalltown01_caves, ...)
-        g_scores.Clear();
     for (int i = 1; i <= MaxClients; i++)
         g_restored[i] = false;
 }
@@ -36,10 +32,6 @@ public void OnClientDisconnect(int client)
 {
     Save(client);
     g_restored[client] = false;
-    for (int i = 1; i <= MaxClients; i++)
-        if (i != client && IsClientInGame(i) && !IsFakeClient(i))
-            return;
-    g_scores.Clear();   // that was the last human: the next group starts fresh
 }
 
 void Save(int client)
