@@ -457,15 +457,18 @@ async def logs_cmd(interaction: discord.Interaction, server: str, lines: app_com
         return await interaction.response.send_message("No log file yet.", ephemeral=True)
     f = filter.lower()[:40]
     rows = []
-    for raw in open(files[-1], encoding="utf-8", errors="replace"):
-        for l in re.split(r"(?=L \d+/\d+/\d+ - )", raw):          # some lines hold several records
-            l = l.strip()
-            if not l or NOISE.search(l):
-                continue
-            if f in l.lower():
-                rows.append(clean_log(l))
+    for path in reversed(files[-6:]):                                 # newest file first, back a few files if it is quiet
+        part = []
+        for raw in open(path, encoding="utf-8", errors="replace"):
+            for l in re.split(r"(?=L \d+/\d+/\d+ - )", raw):      # some lines hold several records
+                l = l.strip()
+                if l and not NOISE.search(l) and f in l.lower():
+                    part.append(clean_log(l))
+        rows = part + rows
+        if len(rows) >= lines:
+            break
     rows = rows[-lines:]
-    text = "\n".join(r[:180] for r in rows) or "(nothing)"
+    text = "\n".join(r[:180] for r in rows) or "(nothing yet: no game activity in the recent logs)"
     await interaction.response.send_message("```\n%s\n```" % text[-1800:], ephemeral=True)
 
 
