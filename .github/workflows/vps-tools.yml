@@ -39,6 +39,8 @@ name: VPS tools (manual only)
 #   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
 #   mem-use          shows how much memory each game server, Minecraft and the web tools use right now (RSS, in MB), and free memory
 #   net-check        shows which UDP game ports are listening and the VPS's own firewall rules (iptables/nftables, if any)
+#   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ VERSUS Server). Does NOT restart.
+#   l4db-cfg         prints the second server's server.cfg (anything with pass/token/hook/secret/key/rcon in the name is hidden), its plugin list, and which lines differ from the first server's server.cfg
 #   l4db-log         shows the last 80 lines of the newest game log of the second L4D server (optional filter word in the box); IP addresses and Steam IDs are removed
 #   cpu-use          shows the CPU model and core count, the load average, and the busiest programs by CPU over a few seconds
 #   l4db-setup       makes the second L4D server: a copy of the first in /home/tf2/l4d-b (big game files are hard links, so little extra disk), service "l4db", port 27017, starting in versus. Does NOT start it.
@@ -66,7 +68,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rotate-install, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-cfg, l4db-rotate-install, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -253,6 +255,11 @@ jobs:
             l4db-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
               vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
+            l4db-rename)
+              N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ VERSUS Server'
+              printf '%s' "$N" | vps 'N=$(cat); sudo -u tf2 screen -S l4db -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s#\+hostname .*\$#+hostname \"$N\"#" /etc/systemd/system/l4db.service; systemctl daemon-reload; C=/home/tf2/l4d-b/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; sleep 1; sudo -u tf2 screen -S l4db -X stuff "hostname$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep "hostname" /home/tf2/l4db-console.txt | tail -n 2' >> "$R" 2>&1 ;;
+            l4db-cfg)
+              vps 'm() { grep -vE "^\s*(//|$)" "$1" | sed -E "s/^([A-Za-z_0-9]*(pass|token|hook|secret|key|rcon)[A-Za-z_0-9]*) .*/\1 (hidden)/I"; }; G=/home/tf2/l4d-b/left4dead; echo "== server.cfg (second server) =="; m $G/cfg/server.cfg; echo "== differs from the first server (< first, > second) =="; diff <(m /home/tf2/l4d/left4dead/cfg/server.cfg) <(m $G/cfg/server.cfg) && echo "(no differences)"; echo "== plugins (second) =="; ls $G/addons/sourcemod/plugins/*.smx | xargs -n1 basename | tr "\n" " "; echo' 2>&1 | tail -c 3800 >> "$R" ;;
             l4db-rotate-install)
               scp $SSHO l4d/scripting/l4d_campaign_rotate.sp vps/l4db-install-rotate.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/l4db-install-rotate.sh" 2>&1 | tail -c 2000 >> "$R" ;;
