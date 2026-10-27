@@ -1,7 +1,7 @@
 name: VPS tools (manual only)
 
 # Never runs on its own. Started by hand from the Actions tab (or by Claude).
-#   setup    uploads vps/setup.sh to the VPS and runs it (installs steamcmd, TF2, Metamod, SourceMod, the "tf2" service). Takes a while.
+#   setup    uploads vps/setup.sh to the VPS and runs it (installs steamcmd, TF2, Metamod, SourceMod, the "tf2" service), then puts the login token back (same as tf2-gslt). Takes a while.
 #   start / stop / restart   controls the tf2 service
 #   status   shows the service state and disk space
 #   logs     prints the last lines of the server's screen/journal output and the newest SourceMod error log
@@ -35,7 +35,7 @@ name: VPS tools (manual only)
 #   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
 #   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
-#   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards.
+#   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. console-view and show-file print the token as (hidden).
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
 #   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
@@ -80,11 +80,20 @@ jobs:
           mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
           SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20 -o LogLevel=ERROR"
           vps() { ssh $SSHO "$VPS_USER@$VPS_HOST" "$@"; }
+          hide() { sed -E 's/(sv_setsteamaccount )[A-Fa-f0-9]+/\1(hidden)/g'; }   # the repo is public: never show the login token
+          gslt() {   # puts the login token (TF2_GSLT) in the tf2 service launch line, before +map; any old one is replaced
+            T=$(printf '%s' "$TF2_GSLT" | tr -cd 'A-Fa-f0-9')
+            if [ -z "$T" ]; then echo "No TF2_GSLT repo secret, so no login token was set." >> "$R"
+            else
+              printf '%s' "$T" | vps 'umask 077; cat > /root/tf2-gslt; S=/etc/systemd/system/tf2.service; T=$(cat /root/tf2-gslt); sed -i -E "/^ExecStart=/{s/ \+sv_setsteamaccount [A-Fa-f0-9]+//; s/ \+map / +sv_setsteamaccount $T +map /}" $S; systemctl daemon-reload; grep -c "sv_setsteamaccount" $S | sed "s/^/token lines in service file: /"' >> "$R" 2>&1
+            fi
+          }
           R="$RUNNER_TEMP/result.txt"; : > "$R"
           case "$ACTION" in
             setup)
               scp $SSHO vps/setup.sh "$VPS_USER@$VPS_HOST:/root/setup.sh" >> "$R" 2>&1 \
-                && vps "bash /root/setup.sh" 2>&1 | tail -n 40 >> "$R" ;;
+                && vps "bash /root/setup.sh" 2>&1 | tail -n 40 >> "$R" \
+                && gslt ;;
             start|stop|restart) vps "systemctl $ACTION tf2; sleep 2; systemctl is-active tf2" >> "$R" 2>&1 ;;
             status) vps "systemctl is-active tf2; df -h /home | tail -1; free -m | sed -n 2p" >> "$R" 2>&1 ;;
             logs)
@@ -117,10 +126,10 @@ jobs:
                 vps "f=/home/tf2/server/tf/addons/sourcemod/configs/admins_simple.ini; if grep -qF '\"$SID\"' \$f 2>/dev/null; then echo 'already an admin'; else printf '\"%s\" \"z\"\n' '$SID' >> \$f; echo 'added'; fi; chown tf2:tf2 \$f; sudo -u tf2 screen -S tf2 -X stuff \"sm_reloadadmins\$(printf '\\r')\"; tail -n 3 \$f" >> "$R" 2>&1
               else echo "Give a Steam ID like STEAM_0:1:12345 or a 17-digit SteamID64." >> "$R"; fi ;;
             console-view)
-              vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
+              vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | hide | tail -c 3200 >> "$R" ;;
             show-file)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
-                vps "tail -n 100 -- $COMMAND" 2>&1 | tail -c 3000 >> "$R"
+                vps "tail -n 100 -- $COMMAND" 2>&1 | hide | tail -c 3000 >> "$R"
               else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
             install-maps)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
@@ -198,12 +207,7 @@ jobs:
             l4d-command)
               C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
               vps "sudo -u tf2 screen -S l4d -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; tail -n 15 /home/tf2/l4d-console.txt" 2>&1 | tail -c 2500 >> "$R" ;;
-            tf2-gslt)
-              T=$(printf '%s' "$TF2_GSLT" | tr -cd 'A-Fa-f0-9')
-              if [ -z "$T" ]; then echo "Needs the TF2_GSLT repo secret." >> "$R"
-              else
-                printf '%s' "$T" | vps 'umask 077; cat > /root/tf2-gslt; S=/etc/systemd/system/tf2.service; T=$(cat /root/tf2-gslt); sed -i -E "/^ExecStart=/{s/ \+sv_setsteamaccount [A-Fa-f0-9]+//; s/ \+map / +sv_setsteamaccount $T +map /}" $S; systemctl daemon-reload; grep -c "sv_setsteamaccount" $S | sed "s/^/token lines in service file: /"' >> "$R" 2>&1
-              fi ;;
+            tf2-gslt) gslt ;;
             mc-setup)
               scp $SSHO vps/setup-minecraft.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/setup-minecraft.sh" 2>&1 | tail -c 2500 >> "$R" ;;
