@@ -131,7 +131,8 @@ int NextIndex(bool versus)
     return -1;
 }
 
-void Schedule(float delay, bool force)
+// finished = a campaign really ended (rescue, or the second versus round of a finale); the admin command does not count
+void Schedule(float delay, bool force, bool finished = false)
 {
     if (g_pending) return;
     bool versus = IsVersus();
@@ -139,6 +140,12 @@ void Schedule(float delay, bool force)
     int n = NextIndex(versus);
     if (n == -1) return;
     g_pending = true;
+    if (finished) {
+        // the welcome screen counts these lines ("Campaigns Finished"); no player names or IDs
+        char map[64];
+        GetCurrentMap(map, sizeof(map));
+        LogToGame("[88x31camp] finished \"%s\"", map);
+    }
     strcopy(g_next, sizeof(g_next), versus ? VS_STARTS[n] : STARTS[n]);
     PrintToChatAll("\x04[88x31]\x01 %s Next campaign: \x05%s\x01 in %d seconds.", versus ? "Match over!" : "Rescued!", NAMES[n], RoundToFloor(delay));
     CreateTimer(delay, DoChange, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -146,7 +153,7 @@ void Schedule(float delay, bool force)
 
 public void OnRescue(Event event, const char[] name, bool dontBroadcast)
 {
-    Schedule(g_delay.FloatValue, false);
+    Schedule(g_delay.FloatValue, false, true);
 }
 
 // versus: round_end fires once per team's turn; on a finale map the second one ends the campaign
@@ -161,13 +168,13 @@ public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
     g_lastRoundEnd = now;
     g_vsRounds++;
     LogMessage("versus round_end on %s, round %d", map, g_vsRounds);
-    if (g_vsRounds >= 2) Schedule(g_delay.FloatValue, true);
+    if (g_vsRounds >= 2) Schedule(g_delay.FloatValue, true, true);
 }
 
 public void OnMatchFinished(Event event, const char[] name, bool dontBroadcast)
 {
     LogMessage("versus_match_finished");
-    Schedule(g_delay.FloatValue, true);
+    Schedule(g_delay.FloatValue, true, true);
 }
 
 public Action CmdNext(int client, int args)

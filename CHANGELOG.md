@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome screens: stats, no names
+**Tue Oct 27, 2026 · 7:50 AM HST**
+- **Changed:** the welcome-screen board in `vps/leaderboard.py` no longer lists players. It shows plain lines with the server total for the past 5 days: "Zombies killed: 5523", "Tanks killed: N" and "Campaigns finished: 3" (L4D co-op; Versus has no Tanks line because a human plays the Tank there), "Freezes: N" (TF2) and "Damage: N" plus "Campaigns finished: N" (Versus). The ranking and the player count are gone, and the players-shown number in the install box is ignored. "Campaigns finished" counts a new `[88x31camp] finished` line that `l4d_campaign_rotate.sp` now writes to the game log when a rescue happens (co-op) or the second finale round ends (Versus); the admin next-campaign command does not count. The count starts at 0 when the plugin is reinstalled (older logs have no such line). A bold heading "Past 5 days" sits above the lines ("Past day" if the window is 1). Bots are still not counted. Takes effect on each server after reinstalling its leaderboard (`l4d-leaderboard-install`, `l4dc-leaderboard-install`, `l4dvs-leaderboard-install` and `tf2-leaderboard-install`); no restart.
+- **Tested:** on made-up log lines only (totals, player count, the empty case). Not run on the VPS or seen in game. Not pushed or deployed yet.
+
 ## Bot /logs: easier to read
 **Tue Oct 27, 2026**
 - **Changed:** `/logs` shows `19:46:10 text` lines with names as "Name (Team)", looks back through the last few log files when the newest is quiet, finds TF2's log files, and hides lines nobody reads: RCON status checks, bots getting stuck on the map, the server settings list at map start, and map loading lines (NAV_MOB_ONLY, Computing Flow Distances, Preventing spawning).
