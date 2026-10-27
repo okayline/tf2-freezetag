@@ -43,6 +43,16 @@ li:nth-child(odd) { color:#ff93cb; }
 </tr>
 </table>
 </div>
+<div class="box" style="margin-top:14px">
+<p class="lead"><b>Server settings:</b></p>
+<ul>
+<li>No random crits</li>
+<li>No damage spread</li>
+<li>No friendly fire</li>
+<li>Bots fill the server to 12 players and leave as people join</li>
+<li>Frozen players are in third person and are not pushed around when shot</li>
+</ul>
+</div>
 <p class="fun">Have fun, Stay Frosty</p>
 <p class="deco">* . ~ * . ~ * . ~ *</p>
 </body>

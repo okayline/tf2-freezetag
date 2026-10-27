@@ -10,3 +10,10 @@ koth_snowtower
 koth_winter_ridge
 koth_highpass
 koth_overcast_final
+
+Server settings:
+No random crits
+No damage spread
+No friendly fire
+Bots fill the server to 12 players and leave as people join
+Frozen players are in third person and are not pushed around when shot
