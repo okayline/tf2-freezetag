@@ -17,7 +17,6 @@ public Plugin myinfo = {
 #define MAX_COMMON_HIT 100   // one hit on a common infected can report more than its health; keep it sane
 
 int g_dmg[MAXPLAYERS + 1];
-int g_tankDmg;   // damage by player-controlled Tanks since the last log line (not per player)
 
 public void OnPluginStart()
 {
@@ -67,13 +66,7 @@ public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast)
     if (attacker == victim || !IsHuman(attacker) || victim < 1 || victim > MaxClients || !IsClientInGame(victim)) return;
     if (GetClientTeam(attacker) == GetClientTeam(victim)) return;   // friendly fire
     int d = event.GetInt("dmg_health");
-    if (d > 0) {
-        g_dmg[attacker] += d;
-        // damage from a player-controlled Tank (swipes and thrown rocks), for the Versus welcome screen
-        char weapon[32];
-        event.GetString("weapon", weapon, sizeof(weapon));
-        if (StrEqual(weapon, "tank_claw") || StrEqual(weapon, "tank_rock")) g_tankDmg += d;
-    }
+    if (d > 0) g_dmg[attacker] += d;
 }
 
 public void OnInfectedHurt(Event event, const char[] name, bool dontBroadcast)
@@ -99,10 +92,6 @@ void Flush(int client)
 void FlushAll()
 {
     for (int i = 1; i <= MaxClients; i++) Flush(i);
-    if (g_tankDmg > 0) {
-        LogToGame("[88x31tank] %d", g_tankDmg);   // no player name or ID
-        g_tankDmg = 0;
-    }
 }
 
 public Action CmdDamage(int client, int args)

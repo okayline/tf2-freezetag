@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Rolled back: welcome-screen stats and the two plugin changes
+**Tue Oct 27, 2026 · 8:40 AM HST**
+- **Changed (in the repo only; not installed on the servers yet):** `vps/leaderboard.py`, `vps/leaderboard-setup.sh`, `l4d/scripting/l4d_campaign_rotate.sp` and `l4d/scripting/l4d_damagelog.sp` are back to how they were before this morning's stats work (the board shows the top players by name again; no "Campaigns finished", "Tanks killed", "Survivors incapacitated" or "Tank damage" lines; no `[88x31camp]` or `[88x31tank]` log lines). Done at the owner's request, because the L4D welcome screen layout changed after this morning's installs and the cause was not found. The entries below describe the work that was rolled back. The `host-install` action and the `sm plugins reload` fix in `l4db-install-damagelog.sh` are kept.
+
 ## L4D "provided by" name
 **Tue Oct 27, 2026 · 8:15 AM HST**
 - **Changed:** new action `host-install` puts `l4d/motd/host.txt` (the orange name in "This third-party server provided by:") on all three L4D servers (no restart, the welcome screens are not touched). `l4d-motd` still sends it to the first server too.
