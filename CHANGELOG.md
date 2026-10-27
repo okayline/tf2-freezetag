@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Versus server renamed
+**Mon Oct 26, 2026 · 7:55 PM HST**
+- **Changed:** the second L4D server is now "~*~88x31~*~ L4D VeRsUs SeRveR" (the 1 is gone), in the `l4db-rename` default, the `l4db-setup` default and the title of `motd-vs.txt`. Applied live with `l4db-rename` and `l4db-motd`; no restart.
+
 ## Third L4D server (second co-op)
 **Mon Oct 26, 2026 · 7:50 PM HST**
 - **Added:** `vps/setup-l4d-extra.sh` and the `l4dc-setup` action. It makes a third Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-c` with its own service `l4dc` (screen `l4dc`), game port 27018, name "~*~88x31~*~ L4D ViNtaGe Edition", co-op, starting on No Mercy. Same recipe as the second server (big files hard-linked, about 2 GB of extra disk, logs and the Discord relay not copied, same SourceMod, plugins and admins). The script takes a letter, port, mode, start map and name, so more copies can be made the same way. Renamed at min's request (`l4dc-rename` renames it live and in its welcome screen title). Also added `l4dc-start` (refuses below 900 MB of free memory), `l4dc-stop`, `l4dc-restart`, `l4dc-console` and `l4dc-log`.

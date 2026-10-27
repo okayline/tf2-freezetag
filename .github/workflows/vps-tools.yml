@@ -44,7 +44,7 @@ name: VPS tools (manual only)
 #   l4db-rff         turns the Reverse Friendly-Fire plugin off or on on the second L4D server only (box: off or on; empty = off). Off moves it to plugins/disabled so it stays off after restarts. Live, no restart.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   l4db-order       sets the campaign order of the second L4D server (box: names in order, separated by commas, like No Mercy, Blood Harvest, Death Toll). Saved in its server.cfg and applied live; the first campaign is also the one the server starts on after a restart. Needs l4db-rotate-install first.
-#   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ L4D1 VeRsUs SeRveR). Does NOT restart.
+#   l4db-rename      renames the second L4D server live, in its service file and in its server.cfg (name in the box; empty = ~*~88x31~*~ L4D VeRsUs SeRveR). Does NOT restart.
 #   l4db-admins      compares the two L4D servers' SourceMod plugins and config files (file names only) and says whether the owner is in each admin list (the ID is read from vps/setup-l4d-sourcemod.sh)
 #   l4db-cfg         prints the second server's server.cfg (anything with pass/token/hook/secret/key/rcon in the name is hidden), its plugin list, and which lines differ from the first server's server.cfg
 #   l4db-log         shows the last 80 lines of the newest game log of the second L4D server (optional filter word in the box); IP addresses and Steam IDs are removed
@@ -279,7 +279,7 @@ jobs:
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
               vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-rename)
-              N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ L4D1 VeRsUs SeRveR'
+              N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ L4D VeRsUs SeRveR'
               printf '%s' "$N" | vps 'N=$(cat); sudo -u tf2 screen -S l4db -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s#\+hostname .*\$#+hostname \"$N\"#" /etc/systemd/system/l4db.service; systemctl daemon-reload; C=/home/tf2/l4d-b/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; sleep 1; sudo -u tf2 screen -S l4db -X stuff "hostname$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep "hostname" /home/tf2/l4db-console.txt | tail -n 2' >> "$R" 2>&1 ;;
             l4db-damagelog-install)
               scp $SSHO l4d/scripting/l4d_damagelog.sp vps/l4db-install-damagelog.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
