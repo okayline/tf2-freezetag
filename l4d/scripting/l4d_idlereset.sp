@@ -2,7 +2,7 @@
 // so the next players start at the beginning instead of in the middle of whatever the last group reached.
 // l4d_idle_minutes: minutes with no humans on the server before it goes back (default 30, 0 = off).
 // l4d_idle_map: the map to go back to (default l4d_hospital01_apartment, No Mercy chapter 1; use l4d_vs_hospital01_apartment on a versus server).
-// A check runs every 5 minutes (so with 10 minutes the reset lands 10 to 15 minutes after the last player left); a human joining cancels the count. Nothing happens at join time.
+// A check runs every 10 minutes (so with 10 minutes the reset lands 10 to 20 minutes after the last player left); a human joining cancels the count. Nothing happens at join time.
 #include <sourcemod>
 
 public Plugin myinfo = { name = "88x31 idle reset", author = "88x31", description = "Back to the first campaign after a long empty spell", version = "1.0", url = "" };
@@ -15,7 +15,7 @@ public void OnPluginStart()
 {
     g_minutes = CreateConVar("l4d_idle_minutes", "30", "Minutes with no humans before the server goes back to l4d_idle_map (0 = off)", _, true, 0.0, true, 1440.0);
     g_map = CreateConVar("l4d_idle_map", "l4d_hospital01_apartment", "Map to go back to after the idle time");
-    CreateTimer(300.0, TimerCheck, _, TIMER_REPEAT);
+    CreateTimer(600.0, TimerCheck, _, TIMER_REPEAT);
     MarkIfEmpty(0);
 }
 
