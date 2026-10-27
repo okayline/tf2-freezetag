@@ -39,6 +39,8 @@ name: VPS tools (manual only)
 #   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
 #   mem-use          shows how much memory each game server, Minecraft and the web tools use right now (RSS, in MB), and free memory
 #   net-check        shows which UDP game ports are listening and the VPS's own firewall rules (iptables/nftables, if any)
+#   l4db-damagelog-install  compiles and loads the damage log plugin (writes each human's damage to the enemy team into the game log) in the second L4D server only. Compiles on the VPS and prints compiler errors. No restart.
+#   l4dvs-leaderboard-install  puts "Most Damage in the Past N Days" (top players, names only, from the damage log lines) into the second L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). Install l4db-damagelog-install first; the board starts empty and counts from then on.
 #   l4db-rff         turns the Reverse Friendly-Fire plugin off or on on the second L4D server only (box: off or on; empty = off). Off moves it to plugins/disabled so it stays off after restarts. Live, no restart.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   l4db-order       sets the campaign order of the second L4D server (box: names in order, separated by commas, like No Mercy, Blood Harvest, Death Toll). Saved in its server.cfg and applied live; the first campaign is also the one the server starts on after a restart. Needs l4db-rotate-install first.
@@ -72,7 +74,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-damagelog-install, l4dvs-leaderboard-install, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -220,10 +222,10 @@ jobs:
                 && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt host.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt host.txt' >> "$R" 2>&1
               scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/root/l4d-motd-template.html" >> "$R" 2>&1 \
                 && vps 'D=/home/tf2/leaderboard-l4d; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4d-motd-template.html $D/template.html && systemctl start leaderboard-l4d.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
-            l4d-leaderboard-install|tf2-leaderboard-install)
+            l4d-leaderboard-install|tf2-leaderboard-install|l4dvs-leaderboard-install)
               G=${ACTION%%-*}
               D=$(printf '%s' "$COMMAND" | grep -Eo '^[0-9]+( [0-9]+)?$' || true)
-              T=l4d/motd/motd.txt; [ "$G" = tf2 ] && T=tf/cfg/motd.txt
+              T=l4d/motd/motd.txt; [ "$G" = tf2 ] && T=tf/cfg/motd.txt; [ "$G" = l4dvs ] && T=l4d/motd/motd-vs.txt
               scp $SSHO vps/leaderboard.py vps/leaderboard-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && scp $SSHO "$T" "$VPS_USER@$VPS_HOST:/root/$G-motd-template.html" >> "$R" 2>&1 \
                 && vps "bash /root/leaderboard-setup.sh $G $D" 2>&1 | tail -c 1500 >> "$R" ;;
@@ -231,7 +233,7 @@ jobs:
               ID=$(printf '%s' "$COMMAND" | grep -Eo '^STEAM_[0-5]:[01]:[0-9]{1,12}$' || true)
               if [ -z "$ID" ]; then echo "Give a Steam ID like STEAM_0:1:12345." >> "$R"
               else
-                vps "F=/home/tf2/leaderboard-ignore.txt; touch \$F; if grep -qF '$ID' \$F; then echo 'already ignored'; else echo '$ID' >> \$F; echo 'added to the ignore list'; fi; chown tf2:tf2 \$F; chmod 600 \$F; wc -l < \$F | sed 's/^/ignored accounts: /'; for g in l4d tf2; do if [ -d /home/tf2/leaderboard-\$g ]; then systemctl start leaderboard-\$g.service && echo \"\$g leaderboard rebuilt\"; fi; done" >> "$R" 2>&1
+                vps "F=/home/tf2/leaderboard-ignore.txt; touch \$F; if grep -qF '$ID' \$F; then echo 'already ignored'; else echo '$ID' >> \$F; echo 'added to the ignore list'; fi; chown tf2:tf2 \$F; chmod 600 \$F; wc -l < \$F | sed 's/^/ignored accounts: /'; for g in l4d tf2 l4dvs; do if [ -d /home/tf2/leaderboard-\$g ]; then systemctl start leaderboard-\$g.service && echo \"\$g leaderboard rebuilt\"; fi; done" >> "$R" 2>&1
               fi ;;
             l4d-reserve-install)
               scp $SSHO l4d/scripting/l4d_reserve.sp vps/l4d-install-reserve.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
@@ -262,6 +264,9 @@ jobs:
             l4db-rename)
               N=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9 ~*._-'); [ -n "$N" ] || N='~*~88x31~*~ L4D1 VeRsUs SeRveR'
               printf '%s' "$N" | vps 'N=$(cat); sudo -u tf2 screen -S l4db -X stuff "hostname \"$N\"$(printf "\r")"; sed -i -E "s#\+hostname .*\$#+hostname \"$N\"#" /etc/systemd/system/l4db.service; systemctl daemon-reload; C=/home/tf2/l4d-b/left4dead/cfg/server.cfg; sed -i "/^hostname /d" $C; echo "hostname \"$N\"" >> $C; chown tf2:tf2 $C; grep -n "^hostname" $C; sleep 1; sudo -u tf2 screen -S l4db -X stuff "hostname$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep "hostname" /home/tf2/l4db-console.txt | tail -n 2' >> "$R" 2>&1 ;;
+            l4db-damagelog-install)
+              scp $SSHO l4d/scripting/l4d_damagelog.sp vps/l4db-install-damagelog.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps "bash /root/l4db-install-damagelog.sh" 2>&1 | tail -c 2000 >> "$R" ;;
             l4db-rff)
               if [ "$COMMAND" = on ]; then
                 vps 'P=/home/tf2/l4d-b/left4dead/addons/sourcemod/plugins; [ -f $P/disabled/l4d_reverse_ff.smx ] && mv $P/disabled/l4d_reverse_ff.smx $P/; sudo -u tf2 screen -S l4db -X stuff "sm plugins load l4d_reverse_ff$(printf "\r")"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; grep -i "reverse" /home/tf2/l4db-console.txt | tail -n 3; ls $P | grep -c reverse_ff | sed "s/^/plugin files in plugins\/: /"' >> "$R" 2>&1
@@ -270,7 +275,9 @@ jobs:
               fi ;;
             l4db-motd)
               scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d-b/left4dead/motd.txt" >> "$R" 2>&1 \
-                && vps 'chown tf2:tf2 /home/tf2/l4d-b/left4dead/motd.txt; ls -l /home/tf2/l4d-b/left4dead/motd.txt; grep -o "<h2>[^<]*" /home/tf2/l4d-b/left4dead/motd.txt' >> "$R" 2>&1 ;;
+                && vps 'cd /home/tf2/l4d-b/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt; grep -o "<h2>[^<]*" motd.txt' >> "$R" 2>&1
+              scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/root/l4dvs-motd-template.html" >> "$R" 2>&1 \
+                && vps 'D=/home/tf2/leaderboard-l4dvs; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4dvs-motd-template.html $D/template.html && systemctl start leaderboard-l4dvs.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
             l4db-order)
               O=""; IFS=',' read -ra P <<< "$COMMAND"
               for x in "${P[@]}"; do
