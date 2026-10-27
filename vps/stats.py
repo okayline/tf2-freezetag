@@ -294,36 +294,54 @@ def server_section(name, kind, s, state, days):
         hour_chart(s.by_hour), day_chart(s.by_day, days))
 
 
+# Page colors on the black background. THEME picks one (STATS_THEME in the environment overrides it, for previews).
+THEMES = {
+    "pink":   dict(accent="#e889b3", edge="#c9668f", deco="#d9779f", head="#f0a8c8", deep="#a24a73", strong="#f6d4e3", label="#c9a0b4", dim="#8a6a7a", line="#3a2330", panel="#141013", card="#0b080a", text="#f3e6ec", value="#cdeee6", barfill="#c9668f33", soft="#aa9988"),
+    "mint":   dict(accent="#5fd9b0", edge="#2fa883", deco="#4cc79f", head="#9cecd0", deep="#1f7a5c", strong="#d8f7ec", label="#9cc9ba", dim="#628a7c", line="#1d3a30", panel="#0d1512", card="#080e0c", text="#e6f3ee", value="#ffd9a8", barfill="#2fa88333", soft="#9aaaa2"),
+    "sky":    dict(accent="#6cb8ff", edge="#3f86d1", deco="#5aa5ee", head="#a9d5ff", deep="#2b5f9c", strong="#dcecff", label="#9fb9d6", dim="#64809f", line="#1f2f45", panel="#0d1220", card="#080c16", text="#e8eef7", value="#ffe3a3", barfill="#3f86d133", soft="#9aa6b5"),
+    "amber":  dict(accent="#ffb04a", edge="#d9812a", deco="#f09a36", head="#ffd08a", deep="#a35a14", strong="#ffe9c9", label="#d1b48a", dim="#8f7452", line="#43301a", panel="#17110b", card="#0e0a06", text="#f6ece0", value="#a8e6d4", barfill="#d9812a33", soft="#aa9c88"),
+    "violet": dict(accent="#b794ff", edge="#8a63d6", deco="#a37cf0", head="#d4c2ff", deep="#5f3fa3", strong="#ece3ff", label="#b3a5d1", dim="#7a6c9a", line="#2e2447", panel="#110e1c", card="#0a0813", text="#eeeaf7", value="#ffd7a0", barfill="#8a63d633", soft="#a79fb8"),
+}
+THEME = "pink"
+
 CSS = """
-:root{color-scheme:dark}*{box-sizing:border-box}
-body{margin:0;background:#000;color:#f3e6ec;font:12px/1.5 Verdana,Arial,sans-serif}
+:root{color-scheme:dark;--accent:@accent@;--edge:@edge@;--deco:@deco@;--head:@head@;--deep:@deep@;--strong:@strong@;--label:@label@;--dim:@dim@;--line:@line@;--panel:@panel@;--card:@card@;--text:@text@;--value:@value@;--barfill:@barfill@;--soft:@soft@;}*{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--text);font:12px/1.5 Verdana,Arial,sans-serif}
 .wrap{max-width:700px;margin:0 auto;padding:16px 14px 35px}
-h1{margin:0;color:#e889b3;font-size:23px;text-align:center}.deco{text-align:center;color:#d9779f;letter-spacing:5px;margin:4px 0 16px}
-h2{color:#f0a8c8;font-size:17px;margin:0 0 9px}h3{color:#e889b3;font-size:12px;margin:0 0 9px}
-.sub{text-align:center;color:#a98;margin:-8px 0 18px;font-size:10px}
-.srv{background:#141013;border:2px solid #c9668f;border-radius:14px;padding:14px 16px;margin:0 0 18px}
+h1{margin:0;color:var(--accent);font-size:23px;text-align:center}.deco{text-align:center;color:var(--deco);letter-spacing:5px;margin:4px 0 16px}
+h2{color:var(--head);font-size:17px;margin:0 0 9px}h3{color:var(--accent);font-size:12px;margin:0 0 9px}
+.sub{text-align:center;color:var(--soft);margin:-8px 0 18px;font-size:10px}
+.srv{background:var(--panel);border:2px solid var(--edge);border-radius:14px;padding:14px 16px;margin:0 0 18px}
 .badge{font-size:10px;border-radius:87px;padding:2px 9px;margin-left:7px;border:1px solid #777;color:#aaa;vertical-align:middle}
 .badge.on{border-color:#4be09b;color:#4be09b}.badge.off{border-color:#e85d75;color:#e85d75}
-.now{color:#cdeee6;margin:-4px 0 11px}code{color:#f6d4e3}
+.now{color:var(--value);margin:-4px 0 11px}code{color:var(--strong)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin:0 0 12px}
-.tile{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:9px 11px}
-.tile b{display:block;font-size:17px;color:#f6d4e3}.tile span{color:#c9a0b4;font-size:10px}.tile small{display:block;color:#8a6a7a;font-size:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 11px}
+.tile b{display:block;font-size:17px;color:var(--strong)}.tile span{color:var(--label);font-size:10px}.tile small{display:block;color:var(--dim);font-size:10px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 0 11px}
-.card{background:#0b080a;border:1px solid #3a2330;border-radius:11px;padding:11px 12px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 12px;min-width:0}
 .rows{list-style:none;margin:0;padding:0}.rows li{position:relative;display:flex;gap:7px;align-items:center;padding:3px 5px;margin:2px 0;border-radius:5px;overflow:hidden}
-.rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:#c9668f33;z-index:0}
-.rows .rk{width:18px;color:#8a6a7a;z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:#cdeee6}
-.none{color:#8a6a7a;margin:0}
+.rows .bar{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:var(--barfill);z-index:0}
+.rows .rk{width:18px;color:var(--dim);z-index:1}.rows .nm{flex:1;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows .vl{z-index:1;color:var(--value)}
+.none{color:var(--dim);margin:0}
 .chart{display:flex;align-items:flex-end;gap:3px;height:106px}.col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.col i{display:block;width:100%;background:linear-gradient(#e889b3,#a24a73);border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:#8a6a7a;height:12px;font-weight:normal}
+.col i{display:block;width:100%;background:linear-gradient(var(--accent),var(--deep));border-radius:3px 3px 0 0;min-height:1px}.col b{font-size:8px;color:var(--dim);height:12px;font-weight:normal}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 14px}
-.tabs a{cursor:pointer;color:#f3e6ec;text-decoration:none;border:1px solid #c9668f;border-radius:99px;padding:5px 14px;background:#141013}
-.tabs a.on{background:#c9668f;color:#000;font-weight:bold}
+.tabs a{cursor:pointer;color:var(--text);text-decoration:none;border:1px solid var(--edge);border-radius:99px;padding:5px 14px;background:var(--panel)}
+.tabs a.on{background:var(--edge);color:#000;font-weight:bold}
 .js .panel{display:none}.js .panel.on{display:block}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
 .grid.one{grid-template-columns:1fr}
-footer{text-align:center;color:#8a6a7a;font-size:10px;margin-top:9px}
+footer{text-align:center;color:var(--dim);font-size:10px;margin-top:9px}
 """
+
+
+def theme_css():
+    t = THEMES.get(os.environ.get("STATS_THEME", THEME), THEMES[THEME])
+    out = CSS
+    for k, v in t.items():
+        out = out.replace("@%s@" % k, v)
+    return out
 
 
 def build(title_days, panels, updated, sample):
@@ -348,7 +366,7 @@ try{sessionStorage.setItem("tab",id)}catch(e){}}
 [].forEach.call(document.querySelectorAll("#tabs a"),function(a){a.addEventListener("click",function(e){e.preventDefault();var t=a.getAttribute("data-t");history.replaceState(null,"","#"+t);show(t)})});
 var s=null;try{s=sessionStorage.getItem("tab")}catch(e){}
 show(location.hash.slice(1)||s||ids[0]);})();
-</script></body></html>""" % (CSS, note, tabs, body)
+</script></body></html>""" % (theme_css(), note, tabs, body)
 
 
 def overview(all_stats):
