@@ -10,3 +10,5 @@ koth_snowtower
 koth_winter_ridge
 koth_highpass
 koth_overcast_final
+
+- No random crits  - No damage spread  - Big heads
