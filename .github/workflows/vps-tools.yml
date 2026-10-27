@@ -35,6 +35,9 @@ name: VPS tools (manual only)
 #   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
 #   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
+#   l4d-leaderboard-install  puts the "Most Zombies Killed in the Past N Days" top players (names only) into the L4D welcome screen, rebuilt every 5 minutes from the game logs (box: days and how many players, like 5 3; empty = 5 3)
+#   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
+#   leaderboard-ignore  leaves one Steam ID out of the leaderboards (box: STEAM_0:1:12345). The list stays on the VPS, not in the repo.
 #   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. console-view and show-file print the token as (hidden).
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
@@ -55,7 +58,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -200,7 +203,22 @@ jobs:
               for r in lakwsh/l4dtoolz ivailosp/l4dtoolz Accelerator74/l4dtoolz; do echo "== $r"; curl -s "https://api.github.com/repos/$r/releases?per_page=4" | grep -E '"(tag_name|browser_download_url)"' | head -12; done >> "$R" 2>&1 ;;
             l4d-motd)
               scp $SSHO l4d/motd/motd.txt l4d/motd/host.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d/left4dead/" >> "$R" 2>&1 \
-                && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt host.txt && ls -l motd.txt host.txt' >> "$R" 2>&1 ;;
+                && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt host.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt host.txt' >> "$R" 2>&1
+              scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/root/l4d-motd-template.html" >> "$R" 2>&1 \
+                && vps 'D=/home/tf2/leaderboard-l4d; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4d-motd-template.html $D/template.html && systemctl start leaderboard-l4d.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
+            l4d-leaderboard-install|tf2-leaderboard-install)
+              G=${ACTION%%-*}
+              D=$(printf '%s' "$COMMAND" | grep -Eo '^[0-9]+( [0-9]+)?$' || true)
+              T=l4d/motd/motd.txt; [ "$G" = tf2 ] && T=tf/cfg/motd.txt
+              scp $SSHO vps/leaderboard.py vps/leaderboard-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && scp $SSHO "$T" "$VPS_USER@$VPS_HOST:/root/$G-motd-template.html" >> "$R" 2>&1 \
+                && vps "bash /root/leaderboard-setup.sh $G $D" 2>&1 | tail -c 1500 >> "$R" ;;
+            leaderboard-ignore)
+              ID=$(printf '%s' "$COMMAND" | grep -Eo '^STEAM_[0-5]:[01]:[0-9]{1,12}$' || true)
+              if [ -z "$ID" ]; then echo "Give a Steam ID like STEAM_0:1:12345." >> "$R"
+              else
+                vps "F=/home/tf2/leaderboard-ignore.txt; touch \$F; if grep -qF '$ID' \$F; then echo 'already ignored'; else echo '$ID' >> \$F; echo 'added to the ignore list'; fi; chown tf2:tf2 \$F; chmod 600 \$F; wc -l < \$F | sed 's/^/ignored accounts: /'; for g in l4d tf2; do if [ -d /home/tf2/leaderboard-\$g ]; then systemctl start leaderboard-\$g.service && echo \"\$g leaderboard rebuilt\"; fi; done" >> "$R" 2>&1
+              fi ;;
             l4d-reserve-install)
               scp $SSHO l4d/scripting/l4d_reserve.sp vps/l4d-install-reserve.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/l4d-install-reserve.sh" 2>&1 | tail -c 2500 >> "$R" ;;

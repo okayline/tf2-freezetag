@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Leaderboards on the welcome screens (L4D zombies, TF2 freezes)
+**Mon Oct 26, 2026 · 6:50 PM HST**
+- **Added:** `vps/leaderboard.py`, `vps/leaderboard-setup.sh` and the `l4d-leaderboard-install` and `tf2-leaderboard-install` actions (box: days and how many players, like `5 3`; empty = 5 3). A timer on the VPS rebuilds each game's `motd.txt` every 5 minutes from its template, with the top 3 players of the past 5 days: "Most Zombies Killed in the Past 5 Days" on L4D (common infected killed) and "Most Freezes in the Past 5 Days" on TF2 (Freeze Tag turns a kill into a freeze, so kills of the other team). It reads the game logs, counts humans only (bots, teamkills and L4D special infected are not counted), counts by Steam account so a name change does not split a score, and shows names only, never IDs or addresses.
+- **Added:** the `leaderboard-ignore` action (box: a Steam ID). The list lives on the VPS in `/home/tf2/leaderboard-ignore.txt`, not in the repo, and those players are left out of both boards. `STEAM_0:`, `STEAM_1:` and `[U:1:]` forms of the same account are treated alike.
+- **Changed:** `l4d/motd/motd.txt` and `tf/cfg/motd.txt` have a `<!--LEADERBOARD-->` spot (under the friendly-fire line on L4D; on TF2 under the map list, with the "No random crits" line below it). The `l4d-motd` action keeps the L4D leaderboard working if it is installed, and removes the empty spot if it is not. A TF2 deploy puts the template back, and the board returns within 5 minutes.
+- **Removed:** nothing.
+- **Not tested:** on the VPS (checked only on made-up log lines: ranking, bots and teamkills skipped, old kills skipped, name change, an ignored account, names with HTML). Not checked whether the game re-reads `motd.txt` for each player or only at map load, so a board can be a few minutes old. The TF2 kill-line format is the standard one, but no real TF2 kill line was read here.
+
 ## MOTD: list of server settings
 **Mon Oct 26, 2026 · 6:25 PM HST**
 - **Added:** one line under the map pool in the welcome screen (`motd.txt`, and the same in `motd_text.txt`): "No random crits, No damage spread, Big heads". The first two match `88x31.cfg`. Big heads is the plugin's losing-team effect after a round.
