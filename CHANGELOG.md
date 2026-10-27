@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Leaderboard on the third server
+**Mon Oct 26, 2026 · 8:05 PM HST**
+- **Added:** `l4dc-leaderboard-install` (same board as the first server's: "Most Zombies Killed in the Past 5 Days", names only, rebuilt every 5 minutes, ignore list applies) for "L4D ViNtaGe Edition", plus `l4dc-command` (one console command) and `l4dc-compare` (checks it against the first server). `leaderboard-setup.sh` has a new `l4dc` game that uses the same counting rules as `l4d` on the third server's logs.
+
 ## Versus server renamed
 **Mon Oct 26, 2026 · 7:55 PM HST**
 - **Changed:** the second L4D server is now "~*~88x31~*~ L4D VeRsUs SeRveR" (the 1 is gone), in the `l4db-rename` default, the `l4db-setup` default and the title of `motd-vs.txt`. Applied live with `l4db-rename` and `l4db-motd`; no restart.
