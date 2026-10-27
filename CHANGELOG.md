@@ -2,6 +2,28 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Hard difficulty on the third server
+**Mon Oct 26, 2026 · 8:25 PM HST**
+- **Added:** `l4dc-difficulty` (box: Easy, Normal, Hard or Impossible; empty = Hard) for "L4D ViNtaGe Edition". It writes `z_difficulty` into that server's server.cfg and applies it live, no restart. Set to Hard at min's request. The welcome screen does not mention the difficulty. Not tested: that the server keeps Hard across campaign changes (a map change may reset it).
+
+## Who joined and left, Steam IDs stripped from log actions
+**Mon Oct 26, 2026 · 8:15 PM HST**
+- **Added:** `l4d-sessions`: when humans connected and disconnected on all three L4D servers over the last 3 hours (names and times only).
+- **Changed:** `l4d-log`, `l4db-log`, `l4dc-log` and `l4d-sessions` now remove every Steam ID from the lines they print, including the ones inside disconnect reasons (a ban message had one). The first `l4d-sessions` run printed one into the public log and was deleted.
+
+## Leaderboard on the third server
+**Mon Oct 26, 2026 · 8:05 PM HST**
+- **Added:** `l4dc-leaderboard-install` (same board as the first server's: "Most Zombies Killed in the Past 5 Days", names only, rebuilt every 5 minutes, ignore list applies) for "L4D ViNtaGe Edition", plus `l4dc-command` (one console command) and `l4dc-compare` (checks it against the first server). `leaderboard-setup.sh` has a new `l4dc` game that uses the same counting rules as `l4d` on the third server's logs.
+
+## Versus server renamed
+**Mon Oct 26, 2026 · 7:55 PM HST**
+- **Changed:** the second L4D server is now "~*~88x31~*~ L4D VeRsUs SeRveR" (the 1 is gone), in the `l4db-rename` default, the `l4db-setup` default and the title of `motd-vs.txt`. Applied live with `l4db-rename` and `l4db-motd`; no restart.
+
+## Third L4D server (second co-op)
+**Mon Oct 26, 2026 · 7:50 PM HST**
+- **Added:** `vps/setup-l4d-extra.sh` and the `l4dc-setup` action. It makes a third Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-c` with its own service `l4dc` (screen `l4dc`), game port 27018, name "~*~88x31~*~ L4D ViNtaGe Edition", co-op, starting on No Mercy. Same recipe as the second server (big files hard-linked, about 2 GB of extra disk, logs and the Discord relay not copied, same SourceMod, plugins and admins). The script takes a letter, port, mode, start map and name, so more copies can be made the same way. Renamed at min's request (`l4dc-rename` renames it live and in its welcome screen title). Also added `l4dc-start` (refuses below 900 MB of free memory), `l4dc-stop`, `l4dc-restart`, `l4dc-console` and `l4dc-log`.
+- **Not tested:** the script has only had its service-file rewrite checked on a sample file; it has not run on the VPS yet. Min plans to compare this server with the Versus one and keep the busier one.
+
 ## Second L4D server (versus), memory check, TF2 pause
 **Mon Oct 26, 2026 · 7:10 PM HST**
 - **Added:** the `l4db-setup` action (`vps/setup-l4d-b.sh`). It makes a second Left 4 Dead (1) server, a copy of the first in `/home/tf2/l4d-b` with its own service `l4db` (screen `l4db`), game port 27017, name "~*~88x31~*~ L4D1 VeRsUs SeRveR" (first named "L4D cLaSSiC 2"; renamed with `l4db-rename`), 8 players, starting in versus on `l4d_vs_hospital01_apartment`. Game files of 4 MB and up are hard links to the first server's (about 2 GB of extra disk instead of 8.5 GB); everything smaller is a real copy, and logs are not copied. The copy has the same SourceMod, plugins and admins, so `!tools` can switch it between co-op and versus. The Discord chat relay plugin and its settings are not copied.

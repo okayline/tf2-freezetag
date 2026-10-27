@@ -7,7 +7,7 @@ p{margin:0 0 10px}b{color:#f0a8c8}.hi{font-size:18px;font-weight:bold;color:#f6d
 .route{color:#e889b3;line-height:1.6}
 .board{color:#cdeee6;line-height:1.6}
 </style></head><body>
-<h2>~*~88x31~*~ L4D1 VeRsUs SeRveR</h2>
+<h2>~*~88x31~*~ L4D VeRsUs SeRveR</h2>
 <div class="deco">&hearts; &#10047; &hearts; &#10047; &hearts;</div>
 <div class="box">
 <p class="hi">Welcome, Survivor! &hearts;</p>
