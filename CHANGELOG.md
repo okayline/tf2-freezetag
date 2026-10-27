@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Nightly backup to pCloud
+**Tue Oct 27, 2026**
+- **Added:** `vps/backup-setup.sh` and the `backup-install`, `backup-run` and `backup-status` actions. restic (encrypted, only changed data uploads) backs up to pCloud through rclone every night: server configs, SourceMod data/plugins/logs, Minecraft world, Discord files, systemd and Caddy files, the stats page. Not the TF2/L4D game installs (steamcmd re-downloads those). Keeps 7 daily, 4 weekly and 3 monthly snapshots. Needs repo secrets `PCLOUD_RCLONE_TOKEN` (from `rclone authorize "pcloud"`) and `RESTIC_PASSWORD` (keep a copy somewhere else: without it the backup cannot be opened), plus `PCLOUD_HOST` = `eapi.pcloud.com` only for an EU pCloud account.
+- **Not tested:** not run on the VPS yet.
+
 ## Stats page: tab order
 **Tue Oct 27, 2026 · 7:10 PM HST**
 - **Changed:** the tabs are now All servers, cLaSSiC, ViNtaGe, VeRsUs, TF2 (ViNtaGe moved up to sit after cLaSSiC).

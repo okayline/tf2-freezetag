@@ -77,6 +77,9 @@ name: VPS tools (manual only)
 #   mc-import-cleanup  deletes /root/world2.zip after a finished import (only if /home/tf2/mc/world exists)
 #   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
 #   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
+#   backup-install  installs restic + rclone and a nightly encrypted backup of configs, logs, Minecraft world and tools to pCloud (not the game installs). Needs repo secrets PCLOUD_RCLONE_TOKEN (output of `rclone authorize "pcloud"`), RESTIC_PASSWORD, and PCLOUD_HOST only for the EU region (eapi.pcloud.com). Secrets go to private files on the VPS, never printed. Does not run a backup.
+#   backup-run      runs the backup now (can take a while the first time) and shows the result
+#   backup-status   lists the latest backup snapshots and how much is stored in pCloud
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
   workflow_dispatch:
@@ -86,7 +89,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-damagelog-install, l4dvs-leaderboard-install, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-console, l4dc-log, l4dc-rename, l4dc-compare, l4dc-command, l4dc-leaderboard-install, l4dc-difficulty, l4d-scorekeeper-install, discord-urls-install, l4d-idlereset-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-damagelog-install, l4dvs-leaderboard-install, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-console, l4dc-log, l4dc-rename, l4dc-compare, l4dc-command, l4dc-leaderboard-install, l4dc-difficulty, l4d-scorekeeper-install, discord-urls-install, l4d-idlereset-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage, backup-install, backup-run, backup-status]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -103,6 +106,9 @@ jobs:
       VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
       MC_DISCORD_TOKEN: ${{ secrets.MC_DISCORD_TOKEN }}
       TF2_GSLT: ${{ secrets.TF2_GSLT }}
+      PCLOUD_RCLONE_TOKEN: ${{ secrets.PCLOUD_RCLONE_TOKEN }}
+      PCLOUD_HOST: ${{ secrets.PCLOUD_HOST }}
+      RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
       DISCORD_L4DB_STATUS_URL: ${{ secrets.DISCORD_L4DB_STATUS_URL }}
       DISCORD_L4DB_FEED_URL: ${{ secrets.DISCORD_L4DB_FEED_URL }}
       DISCORD_L4DC_STATUS_URL: ${{ secrets.DISCORD_L4DC_STATUS_URL }}
@@ -425,6 +431,17 @@ jobs:
                 chown -R tf2:tf2 \$B; grep -n '^accept-download\|^render-thread-count' \$B/core.conf; tail -n 1 \$B/maps/world.conf
                 sudo -u tf2 screen -S mc -X stuff \"bluemap reload\$(printf '\\r')\"; sleep 25
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8" 2>&1 | tail -c 2000 >> "$R"; fi ;;
+            backup-install)
+              if [ -z "$PCLOUD_RCLONE_TOKEN" ] || [ -z "$RESTIC_PASSWORD" ]; then echo "Add repo secrets PCLOUD_RCLONE_TOKEN and RESTIC_PASSWORD first." >> "$R"
+              else
+                printf '%s' "$PCLOUD_RCLONE_TOKEN" | vps 'umask 077; cat > /root/pcloud-token'
+                printf '%s' "$RESTIC_PASSWORD" | vps 'umask 077; cat > /root/restic-password'
+                printf '%s' "$PCLOUD_HOST" | vps 'umask 077; cat > /root/pcloud-host'
+                scp $SSHO vps/backup-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                  && vps 'bash /root/backup-setup.sh' 2>&1 | tail -c 2000 >> "$R"
+              fi ;;
+            backup-run) vps 'systemctl start --no-block vps-backup.service; sleep 60; systemctl is-active vps-backup.service; journalctl -u vps-backup -n 15 --no-pager -o cat | tail -n 15' 2>&1 | tail -c 2500 >> "$R" ;;
+            backup-status) vps '/usr/local/bin/vps-backup status; systemctl list-timers vps-backup.timer --no-legend' 2>&1 | tail -c 2500 >> "$R" ;;
             disk-usage) vps 'du -sh /home/tf2/* 2>/dev/null | sort -h; echo "-- TF2 server:"; du -sh /home/tf2/server/* /home/tf2/server/tf/* 2>/dev/null | sort -h | tail -n 12; df -h / | tail -1' 2>&1 | tail -c 2500 >> "$R" ;;
             map-https)
               scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
