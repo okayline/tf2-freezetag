@@ -4,7 +4,7 @@
 
 ## Server login token: set again by setup, hidden in output
 **Mon Oct 26, 2026 · 6:05 PM HST**
-- **Added:** server browser tags (`freezetag,freeze,custom,nocrits,nodmgspread,chill`) and region US West (`sv_region 1`) in `88x31.cfg`.
+- **Added:** server browser tags (`chill,custom,freeze,freezetag,nocrits,nodmgspread`) and region US West (`sv_region 1`) in `88x31.cfg`.
 - **Added:** the `tf2-gslt` action. It puts the server login token (repo secret `TF2_GSLT`) into the tf2 service launch line, before `+map`. It does not restart the server.
 - **Changed:** `setup` now puts the login token back on its own after rewriting the tf2 service, so it is not lost.
 - **Changed:** `console-view` and `show-file` print the login token as `(hidden)`, since the repo and its Actions output are public.
