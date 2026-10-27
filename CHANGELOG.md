@@ -4,7 +4,7 @@
 
 ## L4D "provided by" name
 **Tue Oct 27, 2026 · 8:07 AM HST**
-- **Changed:** `l4d/motd/host.txt` (the orange name in "This third-party server provided by:") is now "~*~ 88x31 cLuB ~*~". Plain text only; the game shows it in orange and takes no color codes (not tested). The `l4d-motd` action puts it on the first server only; the other two L4D servers keep whatever `host.txt` they already have.
+- **Changed:** `l4d/motd/host.txt` (the orange name in "This third-party server provided by:") is now "~*~ 88x31 cLuB ~*~". Plain text only; the game shows it in orange and takes no color codes (not tested). New action `host-install` puts `host.txt` on all three L4D servers (no restart, the welcome screens are not touched). `l4d-motd` still sends it to the first server too.
 
 ## Welcome screens: stats, no names
 **Tue Oct 27, 2026 · 7:50 AM HST**
