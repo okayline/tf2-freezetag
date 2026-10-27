@@ -4,7 +4,7 @@
 
 ## Stats page: tabs
 **Tue Oct 27, 2026 · 6:35 PM HST**
-- **Changed:** instead of one long page (or two columns), the stats page has tabs: All servers, cLaSSiC, VeRsUs, ViNtaGe and TF2. The tab you pick is remembered while the page refreshes, and a link like `stats.88x31.app/#vs` opens a tab directly. Without JavaScript the tabs are skipped and every section shows one after another.
+- **Changed:** instead of one long page (or two columns), the stats page has tabs: All servers, cLaSSiC, VeRsUs, ViNtaGe and TF2. The tab you pick is remembered while the page refreshes, and a link like `stats.88x31.app/#vs` opens a tab directly. The panel is narrower (about 700px) and the boards sit in two columns inside it (one column on a phone). Without JavaScript the tabs are skipped and every section shows one after another.
 
 ## Stats page: smaller, two columns
 **Tue Oct 27, 2026 · 6:20 PM HST**
