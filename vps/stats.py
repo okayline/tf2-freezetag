@@ -17,13 +17,13 @@ from datetime import datetime, timedelta
 
 SERVER_HOURS_AHEAD = 18   # the server clock is 18 hours ahead of Hawaii
 
-TABS = [("cl", "cLaSSiC"), ("vs", "VeRsUs"), ("vg", "ViNtaGe"), ("tf", "TF2")]   # tab ids and labels, in SERVERS order
+TABS = [("cl", "cLaSSiC"), ("vg", "ViNtaGe"), ("vs", "VeRsUs"), ("tf", "TF2")]   # tab ids and labels, in SERVERS order
 
 # name, kind, folder under LOGROOT (relative), log pattern, rcon port, server.cfg (relative)
 SERVERS = [
     ("L4D cLaSSiC",           "l4d",   "l4d/left4dead",   "L*.log", 27016, "l4d/left4dead/cfg/server.cfg"),
-    ("L4D VeRsUs SeRveR",     "l4dvs", "l4d-b/left4dead", "L*.log", 27017, "l4d-b/left4dead/cfg/server.cfg"),
     ("L4D ViNtaGe Edition",   "l4d",   "l4d-c/left4dead", "L*.log", 27018, "l4d-c/left4dead/cfg/server.cfg"),
+    ("L4D VeRsUs SeRveR",     "l4dvs", "l4d-b/left4dead", "L*.log", 27017, "l4d-b/left4dead/cfg/server.cfg"),
     ("TF2 Freeze Tag",        "tf2",   "server/tf",       "l*.log", 27015, "server/tf/cfg/server.cfg"),
 ]
 
