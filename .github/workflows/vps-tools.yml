@@ -208,7 +208,7 @@ jobs:
               vps 'C=/home/tf2/l4d/left4dead/cfg/server.cfg; touch $C; for l in "log on" "sv_logfile 1" "sv_log_onefile 0" "sv_logecho 0"; do grep -qxF "$l" $C || echo "$l" >> $C; done; chown tf2:tf2 $C; sudo -u tf2 screen -S l4d -X stuff "sv_logfile 1;sv_logecho 0;log on$(printf "\r")"; sleep 3; ls -lt /home/tf2/l4d/left4dead/logs | head -4' 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
-              vps "f=\$(ls -t /home/tf2/l4d/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//; s/^L //' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
+              vps "f=\$(ls -t /home/tf2/l4d/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4d-feed-status-channel)
               vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
             l4d-log-kinds)
