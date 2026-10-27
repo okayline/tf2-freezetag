@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Public stats page (stats.88x31.app)
+**Tue Oct 27, 2026 · 6:00 PM HST**
+- **Added:** `vps/stats.py`, `vps/stats-setup.sh` and the `stats-install` action. A timer rebuilds one static page every 5 minutes from the game logs of all four servers (L4D cLaSSiC, Versus, ViNtaGe Edition, TF2), plus a live look at each server over RCON (online, map, players). Per server: totals (players, hours, zombies and special infected killed, Tanks, Witches, finales, friendly fire hits, incapacitations, damage in Versus, freezes in TF2, longest stay), top-10 boards (names only), campaigns or maps played, busiest hours (Hawaii time) and players per day. Bots, Steam IDs, addresses and chat are never shown; the ignore list is honored. Caddy serves it as `stats.88x31.app` (DNS record added in Cloudflare, proxied like logs.88x31.app).
+- **Fixed:** the `l4d-log-kinds` action printed Steam IDs into the public Actions log; it now strips them.
+- **Not tested:** the special infected, Tank, Witch and finale counts depend on log line formats that have not been checked against real logs; some tiles may show zero until fixed. The page has only been rendered with made-up sample logs.
+
 ## Idle reset: 10 minutes empty
 **Tue Oct 27, 2026 · 5:45 PM HST**
 - **Changed:** the idle reset is meant to run with `l4d_idle_minutes 10`; the check stays every 10 minutes, so the server goes back to No Mercy chapter 1 10 to 20 minutes after the last player left, which gives players time to come back and resume the same playthrough. The install action now replaces the minutes and map in each `server.cfg` (before, it kept old values, and server.cfg is read again on every map change) and reloads the plugin, so running `l4d-idlereset-install` with `all 10` updates the two co-op servers and the Versus server live, no restart. Versus uses `l4d_vs_hospital01_apartment`.
