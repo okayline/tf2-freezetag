@@ -58,6 +58,7 @@ name: VPS tools (manual only)
 #   l4dc-leaderboard-install  puts "Most Zombies Killed in the Past N Days" (top players, names only) into the third L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). The ignore list applies. The board counts the server's game logs from the start.
 #   l4d-sessions     lists when humans joined and left, on all three L4D servers, from the last 3 hours of game logs (bots, IPs and Steam IDs left out; names and times only)
 #   l4dc-difficulty  sets the third L4D server's difficulty (box: Easy, Normal, Hard or Impossible; empty = Hard). Saved in its server.cfg (kept after restarts) and applied live, no restart; it counts from the next map/round.
+#   discord-urls-install  copies the four GitHub secrets DISCORD_L4DB_STATUS_URL, DISCORD_L4DB_FEED_URL, DISCORD_L4DC_STATUS_URL and DISCORD_L4DC_FEED_URL onto the VPS as private files in /home/tf2/discord (l4db.url, l4db-feed.url, l4dc.url, l4dc-feed.url) and says which were found. Never prints them. Then run discord-install and discord-feed-install to start the status messages and live feeds for the Versus and ViNtaGe Edition servers.
 #   l4dc-start / l4dc-stop / l4dc-restart   control the l4dc service (l4dc-start refuses if less than 900 MB of memory is free); l4dc-console shows its console; l4dc-log shows the newest game log (filter word in the box; IPs and Steam IDs removed)
 #   l4db-rotate-install  compiles and loads the campaign rotation plugin (now with versus: next campaign after the second team has played the finale) in the second L4D server only. Compiles on the VPS and prints compiler errors. No restart.
 #   tf2-pause        stops the tf2 service and keeps it from starting at boot (nothing is deleted); tf2-resume undoes it
@@ -83,7 +84,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-damagelog-install, l4dvs-leaderboard-install, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-console, l4dc-log, l4dc-rename, l4dc-compare, l4dc-command, l4dc-leaderboard-install, l4dc-difficulty, l4d-scorekeeper-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
+        options: [setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, l4d-sourcemod, l4d-reverse-ff, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-addons-off, l4d-rename, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-rotate-install, l4d-toolz-find, l4d-motd, l4d-reserve-install, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4db-rename, l4db-rff, l4db-damagelog-install, l4dvs-leaderboard-install, l4db-motd, l4db-order, l4db-admins, l4db-cfg, l4db-rotate-install, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-console, l4dc-log, l4dc-rename, l4dc-compare, l4dc-command, l4dc-leaderboard-install, l4dc-difficulty, l4d-scorekeeper-install, discord-urls-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -100,6 +101,10 @@ jobs:
       VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
       MC_DISCORD_TOKEN: ${{ secrets.MC_DISCORD_TOKEN }}
       TF2_GSLT: ${{ secrets.TF2_GSLT }}
+      DISCORD_L4DB_STATUS_URL: ${{ secrets.DISCORD_L4DB_STATUS_URL }}
+      DISCORD_L4DB_FEED_URL: ${{ secrets.DISCORD_L4DB_FEED_URL }}
+      DISCORD_L4DC_STATUS_URL: ${{ secrets.DISCORD_L4DC_STATUS_URL }}
+      DISCORD_L4DC_FEED_URL: ${{ secrets.DISCORD_L4DC_FEED_URL }}
     steps:
       - uses: actions/checkout@v4
       - name: Run
@@ -286,6 +291,10 @@ jobs:
               D=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z' | tr 'A-Z' 'a-z'); [ -n "$D" ] || D=hard
               if ! printf '%s' "$D" | grep -Eq '^(easy|normal|hard|impossible)$'; then echo "difficulty must be Easy, Normal, Hard or Impossible" >> "$R"; else
               vps "D=$D; C=/home/tf2/l4d-c/left4dead/cfg/server.cfg; sed -i '/^z_difficulty /d' \$C; echo \"z_difficulty \$D\" >> \$C; chown tf2:tf2 \$C; grep -n '^z_difficulty' \$C; sudo -u tf2 screen -S l4dc -X stuff \"z_difficulty \$D\$(printf '\\r')\"; sleep 1; sudo -u tf2 screen -S l4dc -X stuff \"z_difficulty\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4dc -X hardcopy -h /home/tf2/l4dc-console.txt; grep 'z_difficulty' /home/tf2/l4dc-console.txt | tail -n 3" >> "$R" 2>&1; fi ;;
+            discord-urls-install)
+              put() { if [ -n "$2" ]; then printf '%s\n' "$2" | vps "umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/$1; chown tf2:tf2 /home/tf2/discord/$1 /home/tf2/discord; chmod 700 /home/tf2/discord" >> "$R" 2>&1 && echo "$1: written" >> "$R"; else echo "$1: secret not set, skipped" >> "$R"; fi; }
+              put l4db.url "$DISCORD_L4DB_STATUS_URL"; put l4db-feed.url "$DISCORD_L4DB_FEED_URL"
+              put l4dc.url "$DISCORD_L4DC_STATUS_URL"; put l4dc-feed.url "$DISCORD_L4DC_FEED_URL" ;;
             l4dc-log)
               F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
               vps "f=\$(ls -t /home/tf2/l4d-c/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;

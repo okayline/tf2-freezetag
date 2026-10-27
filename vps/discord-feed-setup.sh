@@ -64,3 +64,31 @@ else
   echo "l4d-feed.url: NOT there yet (L4D feed not started)"
 fi
 systemctl is-active discord-feed-l4d.service || true
+
+# Feeds for the Versus server (l4d-b) and L4D ViNtaGe Edition (l4d-c): same script, their own webhook file and log folder.
+for X in "b|l4db|~*~88x31~*~ L4D VeRsUs SeRveR" "c|l4dc|~*~88x31~*~ L4D ViNtaGe Edition"; do
+  DIRL=${X%%|*}; REST=${X#*|}; SVC=${REST%%|*}; NM=${REST#*|}
+  cat > /etc/systemd/system/discord-feed-$SVC.service <<EOF
+[Unit]
+Description=$NM live feed to Discord (chat, kills, joins)
+After=network.target
+
+[Service]
+User=tf2
+ExecStart=/usr/bin/python3 $D/discord-feed-l4d.py "$NM" /home/tf2/l4d-$DIRL/left4dead/logs $D/$SVC-feed.url
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  if [ -s "$D/$SVC-feed.url" ]; then
+    systemctl enable discord-feed-$SVC.service >/dev/null 2>&1
+    systemctl restart discord-feed-$SVC.service
+    echo "$SVC-feed.url: found, feed started"
+  else
+    echo "$SVC-feed.url: NOT there yet (feed not started)"
+  fi
+  systemctl is-active discord-feed-$SVC.service || true
+done
