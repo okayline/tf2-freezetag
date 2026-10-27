@@ -3,10 +3,10 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## MOTD: list of server settings
-**Mon Oct 26, 2026 · 6:20 PM HST**
-- **Added:** a "Server settings" box on the welcome screen (`motd.txt`) and the same lines in the text version (`motd_text.txt`): no random crits, no damage spread, no friendly fire, bots fill to 12, frozen players in third person and not pushed. Each one matches a setting in `88x31.cfg`.
+**Mon Oct 26, 2026 · 6:25 PM HST**
+- **Added:** one line under the map pool in the welcome screen (`motd.txt`, and the same in `motd_text.txt`): "No random crits, No damage spread, Big heads". The first two match `88x31.cfg`. Big heads is the plugin's losing-team effect after a round.
 - **Removed:** nothing.
-- **Not tested:** how the new box looks in the game window (the page is longer now).
+- **Not tested:** how the line looks in the game window; big heads at a real round end (not seen yet).
 
 ## Server login token: set again by setup, hidden in output
 **Mon Oct 26, 2026 · 6:05 PM HST**
