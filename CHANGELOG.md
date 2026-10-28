@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D rebuild: one shared base, one deploy
+**Tue Oct 27, 2026**
+- **Added:** `l4d/base/` (shared config, plugin list, announcements), `l4d/servers/` (one small file per server: classic, versus, vintage) and `l4d/deploy.sh`, run by the `l4d-deploy` action. All three L4D servers were reinstalled from it (fresh MetaMod, SourceMod and l4dtoolz). New rcon passwords were generated on the VPS and are not in the repo.
+- **Changed:** `l4d_campaign_rotate.sp` is back to the simple version, 10 second delay, and is the only plugin that changes maps. `l4d_admintools.sp` no longer has the co-op/versus switch or "restart chapter".
+- **Removed:** `l4d_idlereset.sp`; the scripts `setup-l4d-sourcemod.sh`, `l4d-install-*.sh`, `l4db-install-*.sh`; and the actions `l4d-sourcemod`, `l4d-reverse-ff`, `l4d-rotate-install`, `l4db-rotate-install`, `l4d-reserve-install`, `l4d-scorekeeper-install`, `l4db-damagelog-install`, `l4d-idlereset-install`, `l4d-rename`, `l4db-rename`, `l4dc-rename`, `l4db-order`, `l4db-rff`, `l4dc-difficulty`, `l4d-addons-off`, `l4db-cfg`, `l4db-admins`, `l4dc-compare`. Also the committed `__pycache__` files.
+- **Added:** `CLAUDE.md` with the ground rules for this repo.
+
 ## Restored: welcome-screen stats without names and the two plugin changes
 **Tue Oct 27, 2026 · 9:17 AM HST**
 - **Changed:** `vps/leaderboard.py`, `vps/leaderboard-setup.sh`, `l4d/scripting/l4d_campaign_rotate.sp` and `l4d/scripting/l4d_damagelog.sp` are back to this morning's versions (before the 8:40 rollback), at the owner's request. The L4D welcome screens show stats without player names again. Installing on the 3 L4D servers follows. TF2 is not included.
