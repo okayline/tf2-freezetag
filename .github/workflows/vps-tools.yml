@@ -176,7 +176,7 @@ jobs:
               vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | hide | tail -c 3200 >> "$R" ;;
             show-file)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
-                vps "tail -n 100 -- $COMMAND" 2>&1 | hide | tail -c 3000 >> "$R"
+                vps "tail -n 100 -- $COMMAND" 2>&1 | hide | tail -c 8000 >> "$R"
               else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
             install-maps)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
