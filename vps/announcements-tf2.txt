@@ -1,3 +1,4 @@
 // One chat line per message, picked at random by the Discord bot every hour while someone is on the server.
 // Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
 ~*~88x31 cLuB~*~ SeRveR
+Welcome to ~*~88x31 cLuB~*~
