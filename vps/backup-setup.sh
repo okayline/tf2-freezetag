@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs restic + rclone and a nightly encrypted backup to pCloud (restic repo at rclone remote "pcloud:" folder vps-backup).
+# Installs restic + rclone and a nightly encrypted backup to pCloud (restic repo at rclone remote "pcloud:" folder Backups/vps-backup).
 # Run as root. Re-running is safe. Needs /root/pcloud-token (JSON from `rclone authorize "pcloud"`), optional /root/pcloud-host,
 # and /root/restic-password. The workflow action backup-install puts those three files there. Nothing here is printed.
 # Backs up configs, logs, plugins, maps (with .nav files), Minecraft world, service files, SSH/firewall settings and the small tools.
@@ -24,7 +24,7 @@ chmod 600 /root/.config/rclone/rclone.conf /root/restic-password
 cat > /usr/local/bin/vps-backup <<'SH'
 #!/usr/bin/env bash
 # Nightly backup to pCloud with restic. "vps-backup" runs it; "vps-backup status" lists snapshots.
-export RESTIC_REPOSITORY=rclone:pcloud:vps-backup RESTIC_PASSWORD_FILE=/root/restic-password
+export RESTIC_REPOSITORY=rclone:pcloud:Backups/vps-backup RESTIC_PASSWORD_FILE=/root/restic-password
 if [ "${1:-}" = keep ]; then restic tag --add keep "${2:-latest}" 2>&1 | tail -n 3; restic snapshots --tag keep --compact | tail -n 6; exit 0; fi   # "keep": tag a snapshot (default: the newest) so cleanup never deletes it
 if [ "${1:-}" = status ]; then restic snapshots --compact | tail -n 15; restic stats --mode raw-data 2>&1 | tail -n 3; exit 0; fi
 restic cat config >/dev/null 2>&1 || restic init

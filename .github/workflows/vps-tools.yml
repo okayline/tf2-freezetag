@@ -414,7 +414,7 @@ jobs:
                 printf '%s' "$RESTIC_PASSWORD" | vps 'umask 077; cat > /root/restic-password'
                 printf '%s' "$PCLOUD_HOST" | vps 'umask 077; cat > /root/pcloud-host'
                 scp $SSHO vps/backup-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                  && vps "bash /root/backup-setup.sh >/dev/null 2>&1; export RESTIC_REPOSITORY=rclone:pcloud:vps-backup RESTIC_PASSWORD_FILE=/root/restic-password HOME=/root; T=/root/restore; [ $MODE = apply ] && T=/; restic restore $SNAP --target \$T 2>&1 | tail -n 4; echo \"restored $SNAP into \$T\"; [ $MODE = apply ] || du -sh /root/restore" 2>&1 | tail -c 2000 >> "$R"
+                  && vps "bash /root/backup-setup.sh >/dev/null 2>&1; export RESTIC_REPOSITORY=rclone:pcloud:Backups/vps-backup RESTIC_PASSWORD_FILE=/root/restic-password HOME=/root; T=/root/restore; [ $MODE = apply ] && T=/; restic restore $SNAP --target \$T 2>&1 | tail -n 4; echo \"restored $SNAP into \$T\"; [ $MODE = apply ] || du -sh /root/restore" 2>&1 | tail -c 2000 >> "$R"
               fi ;;
             bot-install)
               if [ -z "$DISCORD_BOT_TOKEN" ]; then echo "Add repo secret DISCORD_BOT_TOKEN first." >> "$R"
