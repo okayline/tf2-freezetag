@@ -29,7 +29,7 @@ if [ "${1:-}" = keep ]; then restic tag --add keep "${2:-latest}" 2>&1 | tail -n
 if [ "${1:-}" = status ]; then restic snapshots --compact | tail -n 15; restic stats --mode raw-data 2>&1 | tail -n 3; exit 0; fi
 restic cat config >/dev/null 2>&1 || restic init
 P=()
-for d in /home/tf2/discord /home/tf2/mc /home/tf2/leaderboard-ignore.txt /home/tf2/stats-app /home/tf2/*.txt /home/tf2/leaderboard-* /home/tf2/l4d-leaderboard /home/tf2/logweb /home/tf2/navgen.log \
+for d in /home/tf2/discord /home/tf2/uptime-kuma/data /home/tf2/mc /home/tf2/leaderboard-ignore.txt /home/tf2/stats-app /home/tf2/*.txt /home/tf2/leaderboard-* /home/tf2/l4d-leaderboard /home/tf2/logweb /home/tf2/navgen.log \
          /home/tf2/server/tf/cfg /home/tf2/server/tf/addons/sourcemod/{configs,data,plugins,logs,extensions,gamedata} /home/tf2/server/tf/maps \
          /home/tf2/l4d/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
          /home/tf2/l4d-b/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
