@@ -1,14 +1,3 @@
 // One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
 // Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
-Be the Tank you wish to see in the world.
-Smokers: it's not rude if it's strategic.
-Boomer main? We see you. We see all of you.
-Hunters: it's called a pounce, not a hug.
-Good game is free. Say it.
-The Tank can't hurt you if you're not there.
-If you're reading this, you're not shooting.
-Need a break? Type !afk. Back? Type !back.
-Pills!
-Grabbin' Pills.
-~*~88x31 cLuB~*~ sErVeRs: L4D cLaSSiC - L4D VeRsUs - TF2 FrEEze tAg - ??
-Boomer bile is a love language.
+~*~88x31 cLuB~*~ SeRveR
