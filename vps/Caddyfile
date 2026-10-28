@@ -2,6 +2,7 @@
 #   map.88x31.app   -> BlueMap web map (port 8100), real certificate from Let's Encrypt
 #   logs.88x31.app  -> log page (127.0.0.1:8090), self-signed certificate for Cloudflare "Full" mode
 #   stats.88x31.app -> public stats page (files in /var/www/stats, rebuilt every 5 minutes by vps/stats-setup.sh), self-signed certificate for Cloudflare "Full" mode
+#   status.88x31.app -> Uptime Kuma (127.0.0.1:3001, installed by vps/kuma-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   anything else on port 80 (the bare IP) -> log page
 
 map.88x31.app {
@@ -17,6 +18,11 @@ stats.88x31.app {
 	tls internal
 	root * /var/www/stats
 	file_server
+}
+
+status.88x31.app {
+	tls internal
+	reverse_proxy 127.0.0.1:3001
 }
 
 :80 {

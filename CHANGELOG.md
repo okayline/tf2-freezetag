@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Added:** Uptime Kuma 2.x on the VPS (`vps/kuma-setup.sh`, service `uptime-kuma`, 127.0.0.1:3001, runs as tf2, memory capped at 400 MB). `vps/Caddyfile` has a `status.88x31.app` entry; it goes live after the `web` action (job `https`) runs and a DNS record for `status` exists in Cloudflare. Monitors and the Discord webhook are set in its web page.
 - **Changed:** TF2 server name in `tf/cfg/88x31.cfg` is now "~*~88x31~*~ TF2 FrEEze tAg SeRveR:  ICEY COLD Edition" (also set live). Needs a push to stick after a restart.
 - **Changed:** 9 more actions merged into three: `backup` (install, run, status, restore), `vintage` (private, public, unlock) and `leaderboard` (install, ignore; replaces `leaderboard-install` and `leaderboard-ignore`). The menu is now 20 actions. The box starts with the job. Not run since the merge.
 - **Removed:** `vps/nav-check.py` and 11 unused Python wheel files (4.3 MB) at the repo root; nothing referred to them. The stale `/var/www/banner` test page was deleted from the VPS. `CLAUDE.md` now describes the `run` action and the owner's rules (no restarts or pushes unless asked, 2-minute limit).
