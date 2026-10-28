@@ -18,7 +18,7 @@ case "$GAME" in
   *) echo "First argument must be l4d, l4dc, tf2 or l4dvs."; exit 1 ;;
 esac
 printf '%s' "$DAYS$TOP" | grep -Eq '^[0-9]+$' || { echo "Days and top must be numbers."; exit 1; }
-[ -d "$LOGS" ] || { echo "no $LOGS (is the game installed, and its log turned on: l4d-log-on / tf2-log-on?)"; exit 1; }
+[ -d "$LOGS" ] || { echo "no $LOGS (is the game installed, and its game log turned on)"; exit 1; }
 D=/home/tf2/leaderboard-$GAME
 IGN=/home/tf2/leaderboard-ignore.txt
 mkdir -p "$D"
