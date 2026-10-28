@@ -37,20 +37,15 @@ name: VPS tools (manual only)
 #   mc-start / mc-stop / mc-restart   control the mc service; mc-console shows its screen; mc-command sends one console command (like whitelist add Name); mc-log shows the latest log
 #   l4d-leaderboard-install  puts the "Most Zombies Killed in the Past N Days" top players (names only) into the L4D welcome screen, rebuilt every 5 minutes from the game logs (box: days and how many players, like 5 3; empty = 5 3)
 #   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
-#   mem-use          shows how much memory each game server, Minecraft and the web tools use right now (RSS, in MB), and free memory
-#   net-check        shows which UDP game ports are listening and the VPS's own firewall rules (iptables/nftables, if any)
 #   l4dvs-leaderboard-install  puts "Most Damage in the Past N Days" (top players, names only, from the damage log lines) into the second L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). Install l4db-damagelog-install first; the board starts empty and counts from then on.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
 #   host-remove     deletes host.txt from all three L4D servers, so the welcome window goes back to the game's own layout (banner on the right). No restart.
 #   l4dc-private     makes the ViNtaGe server (l4d-c) private: password from the box (letters and digits only), and takes its welcome screen off (motd.txt moved to motd.txt.off, leaderboard timer stopped). l4dc-public undoes both. The password is not stored in the repo.
 #   l4dc-unlock      takes the password off the ViNtaGe server only (config and live); the welcome screen stays as it is. Also prints the size of the picture the VPS serves for the banner.
-#   l4db-log         shows the last 80 lines of the newest game log of the second L4D server (optional filter word in the box); IP addresses and Steam IDs are removed
-#   cpu-use          shows the CPU model and core count, the load average, and the busiest programs by CPU over a few seconds
 #   l4db-setup       makes the second L4D server: a copy of the first in /home/tf2/l4d-b (big game files are hard links, so little extra disk), service "l4db", port 27017, starting in versus. Does NOT start it.
 #   l4db-start / l4db-stop / l4db-restart   control the l4db service (l4db-start refuses if less than 900 MB of memory is free); l4db-console shows its console; l4db-command sends it one console command
 #   l4dc-setup       makes a third L4D server (the second co-op): a copy of the first in /home/tf2/l4d-c (big game files are hard links), service "l4dc", port 27018, name ~*~88x31~*~ L4D ViNtaGe Edition, starting in co-op on No Mercy. Does NOT start it.
-#   l4dc-command     sends one console command to the third L4D server and shows the last 15 console lines (IPs removed); command in the box
 #   l4dc-leaderboard-install  puts "Most Zombies Killed in the Past N Days" (top players, names only) into the third L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). The ignore list applies. The board counts the server's game logs from the start.
 #   l4d-sessions     lists when humans joined and left, on all three L4D servers, from the last 3 hours of game logs (bots, IPs and Steam IDs left out; names and times only)
 #   discord-urls-install  copies the four GitHub secrets DISCORD_L4DB_STATUS_URL, DISCORD_L4DB_FEED_URL, DISCORD_L4DC_STATUS_URL and DISCORD_L4DC_FEED_URL onto the VPS as private files in /home/tf2/discord (l4db.url, l4db-feed.url, l4dc.url, l4dc-feed.url) and says which were found. Never prints them. Then run discord-install and discord-feed-install to start the status messages and live feeds for the Versus and ViNtaGe Edition servers.
@@ -84,7 +79,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-toolz-find, l4d-motd, l4d-command, mem-use, cpu-use, net-check, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4db-console, l4db-command, l4db-log, l4dvs-leaderboard-install, l4db-motd, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-console, l4dc-log, l4dc-command, l4dc-leaderboard-install, discord-urls-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-console, mc-command, mc-log, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, host-remove, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-toolz-find, l4d-motd, l4d-command, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4dvs-leaderboard-install, l4db-motd, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-leaderboard-install, discord-urls-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, host-remove, l4dc-private, l4dc-public, l4dc-unlock]
       command:
         description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
         required: false
@@ -271,12 +266,6 @@ jobs:
             l4d-command)
               C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
               vps "sudo -u tf2 screen -S l4d -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4d -X hardcopy -h /home/tf2/l4d-console.txt; tail -n 15 /home/tf2/l4d-console.txt" 2>&1 | tail -c 2500 >> "$R" ;;
-            mem-use)
-              vps 'ps -eo rss=,args= --sort=-rss | head -n 8 | awk "{m=\$1/1024; \$1=\"\"; printf \"%5d MB %s\n\", m, substr(\$0,1,70)}" | sed -E "s/sv_setsteamaccount [A-Fa-f0-9]+/sv_setsteamaccount (hidden)/"; free -m | sed -n 1,2p; systemctl is-active tf2 l4d l4db mc 2>&1 | paste -sd" "' 2>&1 | tail -c 2000 >> "$R" ;;
-            net-check)
-              vps 'echo "-- listening udp 270xx:"; ss -lunp | grep -E ":270[0-9][0-9]" | sed -E "s/ +/ /g" | cut -c1-110; echo "-- iptables:"; (iptables -S 2>&1 | head -n 12); echo "-- nft:"; (nft list ruleset 2>&1 | head -n 15); echo "-- ufw/firewalld:"; (command -v ufw firewall-cmd || echo none)' 2>&1 | tail -c 2500 >> "$R" ;;
-            cpu-use)
-              vps 'lscpu | grep -E "^(Model name|CPU\(s\)|Thread|Core|CPU max MHz|BogoMIPS|Hypervisor)" | sed -E "s/ +/ /g"; echo "load average: $(cut -d" " -f1-3 /proc/loadavg)"; echo "-- busiest now (5 s sample, % of one core):"; top -b -d 5 -n 2 -w 200 | awk "/^top -/{n++} n==2" | sed -n 8,15p | awk "{printf \"%5s%% %s\n\", \$9, substr(\$0, index(\$0,\$12), 60)}" | sed -E "s/sv_setsteamaccount [A-Fa-f0-9]+/sv_setsteamaccount (hidden)/"' 2>&1 | tail -c 2000 >> "$R" ;;
             l4db-setup)
               scp $SSHO vps/setup-l4d-b.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d-b.sh" >> "$R" 2>&1 \
                 && vps "bash /root/setup-l4d-b.sh" 2>&1 | tail -c 2500 >> "$R" ;;
@@ -294,11 +283,6 @@ jobs:
             l4dc-start)
               vps 'A=$(awk "/MemAvailable/{print int(\$2/1024)}" /proc/meminfo); if [ "$A" -lt 900 ]; then echo "only $A MB of memory free, not starting"; else systemctl start l4dc; sleep 3; systemctl is-active l4dc; fi' >> "$R" 2>&1 ;;
             l4dc-stop|l4dc-restart) vps "systemctl ${ACTION#l4dc-} l4dc; sleep 2; systemctl is-active l4dc" >> "$R" 2>&1 ;;
-            l4dc-console)
-              vps 'sudo -u tf2 screen -S l4dc -X hardcopy -h /home/tf2/l4dc-console.txt; sleep 1; tail -n 40 /home/tf2/l4dc-console.txt | sed -E "s/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g"; echo "-- processes:"; pgrep -a srcds | grep l4d-c | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
-            l4dc-command)
-              C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
-              vps "sudo -u tf2 screen -S l4dc -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4dc -X hardcopy -h /home/tf2/l4dc-console.txt; tail -n 15 /home/tf2/l4dc-console.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g'" 2>&1 | tail -c 2500 >> "$R" ;;
             l4d-sessions)
               vps 'for d in l4d l4d-b l4d-c; do echo "== $d"; find /home/tf2/$d/left4dead/logs -name "L*.log" -mmin -180 | sort | xargs -r cat | grep -E "\" (connected|disconnected)" | grep -v "<BOT>" | sed -E "s/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/\[U:1:[0-9]+\]/(id)/g; s/, address \"[^\"]*\"//; s/^L //; s/^[0-9\/]+ - //" | sort -u | tail -n 40; done' 2>&1 | tail -c 3500 >> "$R" ;;
             discord-urls-install)
@@ -308,20 +292,9 @@ jobs:
             stats-install)
               scp $SSHO vps/stats.py vps/discord-status.py vps/stats-setup.sh vps/Caddyfile "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps 'bash /root/stats-setup.sh 2>&1 | tail -n 4; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 1; systemctl reload caddy; sleep 8; curl -s -o /dev/null -w "stats via caddy: HTTP %{http_code}\n" --resolve stats.88x31.app:443:127.0.0.1 -k https://stats.88x31.app/' 2>&1 | tail -c 2000 >> "$R" ;;
-            l4dc-log)
-              F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
-              vps "f=\$(ls -t /home/tf2/l4d-c/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-start)
               vps 'A=$(awk "/MemAvailable/{print int(\$2/1024)}" /proc/meminfo); if [ "$A" -lt 900 ]; then echo "only $A MB of memory free, not starting (run tf2-pause first)"; else systemctl start l4db; sleep 3; systemctl is-active l4db; fi' >> "$R" 2>&1 ;;
             l4db-stop|l4db-restart) vps "systemctl ${ACTION#l4db-} l4db; sleep 2; systemctl is-active l4db" >> "$R" 2>&1 ;;
-            l4db-console)
-              vps 'sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; sleep 1; tail -n 40 /home/tf2/l4db-console.txt | sed -E "s/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g"; echo "-- processes:"; pgrep -a srcds | grep l4d-b | cut -c1-150' 2>&1 | tail -c 3200 >> "$R" ;;
-            l4db-command)
-              C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .;-')
-              vps "sudo -u tf2 screen -S l4db -X stuff \"$C\$(printf '\\r')\"; sleep 2; sudo -u tf2 screen -S l4db -X hardcopy -h /home/tf2/l4db-console.txt; tail -n 15 /home/tf2/l4db-console.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g'" 2>&1 | tail -c 2500 >> "$R" ;;
-            l4db-log)
-              F=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .-')
-              vps "f=\$(ls -t /home/tf2/l4d-b/left4dead/logs/L*.log 2>/dev/null | head -1); echo \"file: \$f\"; grep -i -- '$F' \"\$f\" | sed -E 's/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/^L //; s/[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]+)?/(ip)/g' | tail -n 80" 2>&1 | tail -c 3500 >> "$R" ;;
             l4db-motd)
               scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d-b/left4dead/motd.txt" >> "$R" 2>&1 \
                 && vps 'cd /home/tf2/l4d-b/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt; grep -o "<h2>[^<]*" motd.txt' >> "$R" 2>&1
@@ -334,11 +307,6 @@ jobs:
               scp $SSHO vps/setup-minecraft.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/setup-minecraft.sh" 2>&1 | tail -c 2500 >> "$R" ;;
             mc-start|mc-stop|mc-restart) vps "systemctl ${ACTION#mc-} mc; sleep 3; systemctl is-active mc; free -m | sed -n 2p" >> "$R" 2>&1 ;;
-            mc-console)
-              vps 'sudo -u tf2 screen -S mc -X hardcopy -h /home/tf2/mc-console.txt; sleep 1; tail -n 40 /home/tf2/mc-console.txt; systemctl is-active mc; ps -o rss=,pcpu= -C java' 2>&1 | tail -c 3200 >> "$R" ;;
-            mc-command)
-              C=$(printf '%s' "$COMMAND" | tr -cd 'A-Za-z0-9_ .:-')
-              vps "sudo -u tf2 screen -S mc -X stuff \"$C\$(printf '\\r')\"; sleep 2; tail -n 12 /home/tf2/mc/logs/latest.log" 2>&1 | tail -c 2500 >> "$R" ;;
             mc-set)   # box: key=value for server.properties (applies on next mc restart)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z.-]{2,50}=[A-Za-z0-9_.-]{0,40}$'; then
                 k=${COMMAND%%=*}
@@ -346,7 +314,6 @@ jobs:
               else echo "Give key=value." >> "$R"; fi ;;
             mc-motd)   # fixed server description; applies on next mc restart
               vps 'f=/home/tf2/mc/server.properties; sed -i "s|^motd=.*|motd=\\\\u00a7d~*~88x31 cLuB~*~\\\\u00a7r mInEcRaFt VaNiLLa|" $f; grep ^motd= $f; echo players:; sudo -u tf2 screen -S mc -X stuff "list$(printf "\r")"; sleep 1; tail -n 1 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
-            mc-log) vps 'tail -n 60 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 3500 >> "$R" ;;
             mc-discord-install)
               CH=$(printf '%s' "$COMMAND" | tr -cd '0-9')
               if [ -z "$MC_DISCORD_TOKEN" ] || [ -z "$CH" ]; then echo "Needs the MC_DISCORD_TOKEN secret and a channel ID in the box." >> "$R"
