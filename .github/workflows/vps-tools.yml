@@ -10,23 +10,14 @@ name: VPS tools (manual only)
 #   status   shows the service state and disk space
 #   logs     prints the last lines of the server's screen/journal output and the newest SourceMod error log
 #   command  sends one console command to the running server (goes in the "command" box)
-#   install-package  apt-get installs one package (name in the box; letters, digits, . + - : only)
 #   l4d-setup        installs Left 4 Dead 1 next to TF2 (service "l4d", port 27016). Takes a few minutes.
 #   l4d-start / l4d-stop / l4d-restart   control the l4d service; l4d-console shows its console screen
 #   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
-#   list-maps        lists installed maps; snow/winter/event ones, or ones matching a filter in the box (like cp_|koth_)
-#   list-navs        for every map in mapcycle.txt, says whether it has a bot navigation file (.nav); bots stand still on maps without one
-#   map-history      shows the last 15 map changes from the SourceMod logs
-#   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with show-file)
+#   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with run: tail -n 50 /home/tf2/navgen.log)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
-#   console-view     shows what is on the game server's console screen right now (last 40 lines)
-#   show-file        prints the last 250 lines (up to 8000 characters) of a file under /home/tf2 or /etc (path in the box)
-#   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
-#   open-port        allows a port through the firewall, like 27015/udp (ufw, only if ufw is on)
 #   system-check     OS, uptime, load, memory, disk, listening ports, firewall
 #   discord-install  uploads vps/discord-status.py and discord-status-setup.sh and runs the setup (a timer that posts both servers' status to Discord every minute). The webhook links and RCON passwords stay on the VPS, never here.
 #   discord-feed-install  uploads vps/discord-feed.py and discord-feed-setup.sh and starts the live TF2 feed (chat, kills, joins, round wins) once /home/tf2/discord/tf2-feed.url exists on the VPS
-#   discord-feed-check    shows whether the feed is running and its last log lines (counts only, no chat text)
 #   relay-install    downloads and installs sp-discordrelay with its three requirements (ripext, SteamWorks, discord-api). Stops without changing anything if a download is missing. Does not restart the server or touch settings.
 #   relay-install-l4d  the same install for the Left 4 Dead 1 server (its own addons/sourcemod folder). No restart, no settings.
 #   l4d-log-on       turns on the L4D game log live (joins, leaves, chat, kills, friendly fire) and saves it in server.cfg. Does NOT restart.
@@ -53,17 +44,14 @@ name: VPS tools (manual only)
 #   l4dc-start / l4dc-stop / l4dc-restart   control the l4dc service (l4dc-start refuses if less than 900 MB of memory is free); l4dc-console shows its console; l4dc-log shows the newest game log (filter word in the box; IPs and Steam IDs removed)
 #   tf2-pause        stops the tf2 service and keeps it from starting at boot (nothing is deleted); tf2-resume undoes it
 #   leaderboard-ignore  leaves one Steam ID out of the leaderboards (box: STEAM_0:1:12345). The list stays on the VPS, not in the repo.
-#   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. console-view and show-file print the token as (hidden).
+#   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. run hides the token as (hidden).
 #   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
 #   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
 #   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
-#   disk-usage       shows how big each folder under /home/tf2 is (and the TF2 server's biggest folders), plus free space
 #   map-https        installs Caddy (apt) and puts vps/Caddyfile in place on ports 80/443: https://map.88x31.app (BlueMap) and logs.88x31.app (log page)
 #   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
 #   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
-#   mc-import-cleanup  deletes /root/world2.zip after a finished import (only if /home/tf2/mc/world exists)
 #   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
-#   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 #   backup-install  installs restic + rclone and a nightly encrypted backup of configs, logs, Minecraft world and tools to pCloud (not the game installs). Needs repo secrets PCLOUD_RCLONE_TOKEN (output of `rclone authorize "pcloud"`), RESTIC_PASSWORD, and PCLOUD_HOST only for the EU region (eapi.pcloud.com). Secrets go to private files on the VPS, never printed. Does not run a backup.
 #   backup-run      runs the backup now (can take a while the first time) and shows the result. Box "keep" (or "keep SNAPSHOTID") instead tags the newest (or that) snapshot so cleanup never deletes it.
 #   backup-status   lists the latest backup snapshots and how much is stored in pCloud
@@ -79,9 +67,9 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, start, stop, restart, status, logs, command, install-package, console-view, show-file, list-dir, open-port, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, list-maps, install-maps, list-navs, map-history, generate-navs, discord-install, discord-check, discord-feed-install, discord-feed-check, relay-install, relay-install-l4d, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-toolz-find, l4d-motd, l4d-command, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4dvs-leaderboard-install, l4db-motd, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-leaderboard-install, discord-urls-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-import-cleanup, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, disk-usage, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, host-remove, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, start, stop, restart, status, logs, command, system-check, l4d-setup, l4d-start, l4d-stop, l4d-restart, l4d-console, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-log-on, l4d-log, l4d-feed-status-channel, l4d-log-kinds, tf2-log-on, logweb-install, l4d-toolz-find, l4d-motd, l4d-command, l4db-setup, l4db-start, l4db-stop, l4db-restart, l4dvs-leaderboard-install, l4db-motd, l4dc-setup, l4dc-start, l4dc-stop, l4dc-restart, l4dc-leaderboard-install, discord-urls-install, stats-install, l4d-sessions, tf2-pause, tf2-resume, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-start, mc-stop, mc-restart, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, host-remove, l4dc-private, l4dc-public, l4dc-unlock]
       command:
-        description: "command: a TF2 console command. install-package: a package name (apt). show-file / list-dir: a path under /home/tf2 or /etc. open-port: like 27015/udp"
+        description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
         default: ""
 
@@ -136,10 +124,6 @@ jobs:
             command)
               [ -n "$COMMAND" ] || { echo "No command was given." >> "$R"; }
               [ -z "$COMMAND" ] || { printf '%s' "$COMMAND" | vps 'c=$(cat); sudo -u tf2 screen -S tf2 -X stuff "$c$(printf "\r")"' >> "$R" 2>&1 && echo "sent: $COMMAND" >> "$R"; } ;;
-            install-package)
-              if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9][a-z0-9.+:-]{0,60}$'; then
-                vps "DEBIAN_FRONTEND=noninteractive apt-get install -y $COMMAND" 2>&1 | tail -n 15 >> "$R"
-              else echo "Give one package name (lowercase letters, digits, . + - :)." >> "$R"; fi ;;
             l4d-deploy)
               # box: classic, versus or vintage, optionally followed by "clean" (fresh MetaMod/SourceMod install)
               ARGS=$(printf '%s' "$COMMAND" | tr -cd 'a-z ')
@@ -171,51 +155,25 @@ jobs:
               if printf '%s' "$SID" | grep -Eq '^STEAM_[0-5]:[01]:[0-9]{1,12}$'; then
                 vps "f=/home/tf2/server/tf/addons/sourcemod/configs/admins_simple.ini; if grep -qF '\"$SID\"' \$f 2>/dev/null; then echo 'already an admin'; else printf '\"%s\" \"z\"\n' '$SID' >> \$f; echo 'added'; fi; chown tf2:tf2 \$f; sudo -u tf2 screen -S tf2 -X stuff \"sm_reloadadmins\$(printf '\\r')\"; tail -n 3 \$f" >> "$R" 2>&1
               else echo "Give a Steam ID like STEAM_0:1:12345 or a 17-digit SteamID64." >> "$R"; fi ;;
-            console-view)
-              vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | hide | tail -c 3200 >> "$R" ;;
-            show-file)
-              if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
-                vps "tail -n 250 -- $COMMAND" 2>&1 | hide | tail -c 8000 >> "$R"
-              else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
             install-maps)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
                 vps "command -v bzip2 >/dev/null || apt-get install -y -qq bzip2 >/dev/null 2>&1; cd /home/tf2/server/tf/maps && for m in $COMMAND; do if [ -f \$m.bsp ]; then echo \$m: already there; elif curl -fsSL -m 120 -o \$m.bsp.bz2 https://fastdl.serveme.tf/maps/\$m.bsp.bz2 && bzip2 -df \$m.bsp.bz2; then chown tf2:tf2 \$m.bsp; echo \$m: installed; else rm -f \$m.bsp.bz2; echo \$m: not found; fi; done" 2>&1 | tail -c 3000 >> "$R"
               else echo "Give map names like koth_coldline cp_glacier (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
-            list-maps)
-              F='snow|frost|winter|xmas|ice|cold|event|polar'
-              printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_|]{1,60}$' && F="$COMMAND"   # optional filter, like cp_|koth_
-              vps "ls /home/tf2/server/tf/maps | grep -iE '\\.bsp$' | sed 's/\\.bsp$//' | grep -E '$F' | tr '\\n' ' '" 2>&1 | tail -c 3000 >> "$R" ;;
-            list-navs)
-              vps "python3 -" < vps/nav-check.py 2>&1 | tail -c 3000 >> "$R" ;;
-            map-history)
-              vps "grep -h 'Mapchange to' /home/tf2/server/tf/addons/sourcemod/logs/L*.log | tail -n 15" 2>&1 | tail -c 3000 >> "$R" ;;
             generate-navs)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
                 scp $SSHO vps/generate-navs.sh "$VPS_USER@$VPS_HOST:/root/generate-navs.sh" >> "$R" 2>&1 \
                   && vps "systemctl stop navgen 2>/dev/null; systemctl reset-failed navgen 2>/dev/null; systemd-run --unit navgen --collect /bin/bash /root/generate-navs.sh $COMMAND" 2>&1 | tail -n 5 >> "$R"
               else echo "Give map names like koth_snowtower cp_frostwatch (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
-            list-dir)
-              if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)(/[A-Za-z0-9_./-]*)?$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
-                vps "ls -lAh --group-directories-first -- $COMMAND" 2>&1 | head -n 60 | tail -c 3000 >> "$R"
-              else echo "Give a folder under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
-            open-port)
-              if printf '%s' "$COMMAND" | grep -Eq '^[0-9]{1,5}/(tcp|udp)$'; then
-                vps "if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow $COMMAND; else echo 'ufw is not active, nothing to open (any firewall is at the VPS provider)'; fi" 2>&1 | tail -n 5 >> "$R"
-              else echo "Give a port like 27015/udp." >> "$R"; fi ;;
             system-check)
               vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5); echo "-- ssh login rules:"; (sshd -T 2>/dev/null | grep -E "^(passwordauthentication|permitrootlogin|pubkeyauthentication|kbdinteractiveauthentication) "); echo "-- fail2ban:"; (systemctl is-active fail2ban; fail2ban-client status sshd 2>&1 | grep -E "Currently|Total|Jail|Error|error")' 2>&1 | tail -c 3000 >> "$R" ;;
             discord-install)
               scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
                 && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
                 && vps "bash /root/discord-status-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            discord-check)
-              vps 'systemctl is-active discord-status.timer; systemctl list-timers discord-status.timer --no-pager | head -3; journalctl -u discord-status.service -n 6 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
             discord-feed-install)
               scp $SSHO vps/discord-feed.py vps/discord-feed-l4d.py "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
                 && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            discord-feed-check)
-              vps 'systemctl is-active discord-feed-tf2.service; journalctl -u discord-feed-tf2.service -n 8 --no-pager -o cat; echo -- l4d:; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 8 --no-pager -o cat' 2>&1 | tail -c 2500 >> "$R" ;;
             relay-install)
               scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
                 && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
@@ -335,7 +293,6 @@ jobs:
                 sed -i -e "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%<reset>%reply% » %message%\"|" -e "s|^DiscordToMinecraftChatMessageFormatNoRole:.*|DiscordToMinecraftChatMessageFormatNoRole: \"%name%%reply% » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormat:.*|MinecraftChatToDiscordMessageFormat: \"**%displayname%** » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormatNoPrimaryGroup:.*|MinecraftChatToDiscordMessageFormatNoPrimaryGroup: \"**%displayname%** » %message%\"|" $M
                 echo after:; grep -n "^DiscordToMinecraftChatMessageFormat\|^MinecraftChatToDiscordMessageFormat" $M
                 sudo -u tf2 screen -S mc -X stuff "discord reload$(printf "\r")"; sleep 4; tail -n 4 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
-            mc-import-cleanup) vps '[ -d /home/tf2/mc/world ] || { echo "no world folder, not deleting"; exit 0; }; rm -fv /root/world2.zip; df -h / | tail -1' 2>&1 | tail -c 800 >> "$R" ;;
             mc-bluemap-install)
               vps "P=/home/tf2/mc/plugins
                 U=\$(curl -fsS -A '88x31-mc-setup (ryan)' 'https://api.modrinth.com/v2/project/bluemap/version?loaders=%5B%22paper%22%5D&game_versions=%5B%2226.3%22%5D' | python3 -c 'import json,sys;v=json.load(sys.stdin)[0];print(v[\"version_number\"],v[\"files\"][0][\"url\"])')
@@ -395,7 +352,6 @@ jobs:
                   && vps 'bash /root/discord-bot-setup.sh' 2>&1 | tail -c 2000 >> "$R"
               fi ;;
             bot-status) vps 'systemctl is-active discord-bot; journalctl -u discord-bot -n 25 --no-pager -o cat | sed -E "s/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}/(token)/g"' 2>&1 | tail -c 2500 >> "$R" ;;
-            disk-usage) vps 'du -sh /home/tf2/* 2>/dev/null | sort -h; echo "-- TF2 server:"; du -sh /home/tf2/server/* /home/tf2/server/tf/* 2>/dev/null | sort -h | tail -n 12; df -h / | tail -1' 2>&1 | tail -c 2500 >> "$R" ;;
             map-https)
               scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;

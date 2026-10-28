@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Removed:** 12 more workflow actions that `run` replaces: `install-package`, `list-maps`, `list-navs`, `map-history`, `console-view`, `list-dir`, `show-file`, `open-port`, `discord-check`, `discord-feed-check`, `disk-usage`, `mc-import-cleanup`.
 - **Removed:** 12 workflow actions that `run` replaces: `l4db-console`, `l4db-command`, `l4db-log`, `l4dc-console`, `l4dc-command`, `l4dc-log`, `mc-console`, `mc-command`, `mc-log`, `mem-use`, `cpu-use`, `net-check`. Use `run` with a command instead (for example `free -m`, `ss -tulnp`, `tail -n 60 /home/tf2/mc/logs/latest.log`).
 - **Added:** `run` action in `vps-tools.yml`: runs one command as root on the VPS (box: the command). Output is public, so no passwords, tokens, IPs or Steam IDs.
 - **Changed:** Reverse FF ban rule: 120 friendly damage in one map (survivors) gets a 24 hour ban (`reverseff_survivormaxdmg 120`, `reverseff_banduration 1440` in `l4d/base/reverse_ff.cfg`).
