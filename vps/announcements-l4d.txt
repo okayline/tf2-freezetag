@@ -1,16 +1,14 @@
 // One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
 // Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
-Type !afk to take a break (a bot plays for you) and !back to come back.
-The welcome screen shows the top players of the past 5 days.
-After the finale the server picks the next campaign for you.
-Reminder: the zombies are not your friends. Your teammates are. Mostly.
-Tip: the Tank can't hurt you if you're not there.
+The zombies are not your friends. Your teammates are. Mostly.
+The Tank can't hurt you if you're not there.
 Aim at the zombies. They're the ones with the bad skin.
-The pills are for you, not for hiding in the safe room.
-Fun fact: 100% of players who stand in the fire take damage.
-A Witch is a sleeping giant with a bad attitude. Walk around her.
-Your bot teammates are doing their best. Their best is not great.
+Pills are for you, not for hiding in the safe room.
+100% of players who stand in the fire take damage.
+A Witch is a sleeping giant with a bad attitude.
+Your bots are doing their best. Their best is not great.
 Please hydrate. The zombies can't, and look at them.
-Close the safe room door, but wait for your friends first.
-If you're reading this, you're not shooting. Just saying.
-Reverse friendly fire is on in co-op: hurt a teammate and it hurts you back.
+Wait for your friends before closing the door.
+If you're reading this, you're not shooting.
+Need a break? Type !afk. Back? Type !back.
+Hurt a teammate and it hurts you back.
