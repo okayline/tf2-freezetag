@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Discord bot: /map is TF2 only
+**Tue Oct 27, 2026**
+- **Changed:** `/map` in `vps/discord-bot.py` now refuses L4D servers ("use /campaign"). It sent any map name straight to the server, so a co-op name on the versus server (or the reverse) put it on the wrong map. `/campaign` already picks the right name for each server. The versus server was found on `l4d_farm03_bridge` with nobody playing.
+- **Changed:** versus has reverse friendly fire on (`l4d/servers/versus.conf`). TF2 welcome page `tf/cfg/motd.txt` is smaller (2,015 → 1,572 bytes before the stats) in case it was too long. TF2 maps nobody plays were removed (`tf2-prune-maps`, 219 maps, 9.9 GB). New action `ban-player` (ban by exact name on every running L4D server; the Steam ID is looked up in the logs and not shown).
+
 ## L4D rebuild: one shared base, one deploy
 **Tue Oct 27, 2026**
 - **Added:** `l4d/base/` (shared config, plugin list, announcements), `l4d/servers/` (one small file per server: classic, versus, vintage) and `l4d/deploy.sh`, run by the `l4d-deploy` action. All three L4D servers were reinstalled from it (fresh MetaMod, SourceMod and l4dtoolz). New rcon passwords were generated on the VPS and are not in the repo.

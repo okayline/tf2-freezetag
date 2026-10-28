@@ -290,8 +290,10 @@ async def players_cmd(interaction: discord.Interaction, server: str):
 
 
 @server_cmd("map", "Change the map")
-@app_commands.describe(map="Map name, like cp_gravelpit_snowy or l4d_hospital01_apartment")
+@app_commands.describe(map="TF2 map name, like cp_gravelpit_snowy (for L4D use /campaign)")
 async def map_cmd(interaction: discord.Interaction, server: str, map: str):
+    if SERVERS[server]["game"] != "tf2":   # L4D map names differ between co-op and versus: /campaign picks the right one
+        return await interaction.response.send_message("For L4D servers use /campaign.", ephemeral=True)
     if not re.fullmatch(r"[A-Za-z0-9_]{1,64}", map):
         return await interaction.response.send_message("That isn't a valid map name.", ephemeral=True)
     await interaction.response.defer()
