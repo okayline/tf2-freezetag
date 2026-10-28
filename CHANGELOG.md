@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Added:** `run` action in `vps-tools.yml`: runs one command as root on the VPS (box: the command). Output is public, so no passwords, tokens, IPs or Steam IDs.
 - **Changed:** Reverse FF ban rule: 120 friendly damage in one map (survivors) gets a 24 hour ban (`reverseff_survivormaxdmg 120`, `reverseff_banduration 1440` in `l4d/base/reverse_ff.cfg`).
 - **Changed:** the Reverse FF plugin no longer posts chat messages when damage is reversed (`reverseff_chatmsg 0` in `l4d/base/reverse_ff.cfg`).
 - **Changed:** shooting a bot teammate now hurts the shooter too (`reverseff_bot 1`, new file `l4d/base/reverse_ff.cfg`, copied by `deploy.sh`). Admins now take reversed damage too (`reverseff_admin 1`). On classic both were also set live; versus and vintage get it at their next deploy.
