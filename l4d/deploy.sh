@@ -136,4 +136,4 @@ systemctl daemon-reload
 systemctl enable "$SERVICE" >/dev/null 2>&1
 
 echo "== done: $KEY. Plugins: $(echo "$WANT" | tr '\n' ' ')"
-echo "Not started. Start it with the l4d-start action when ready."
+echo "Not started. Start it only when the owner says so (run: systemctl start <service>)."
