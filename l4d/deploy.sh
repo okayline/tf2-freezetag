@@ -107,6 +107,9 @@ if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); ech
   [ -n "$DIFFICULTY" ] && echo "z_difficulty $DIFFICULTY"
 } > "$CFG/server.cfg"
 chown tf2:tf2 "$CFG/server.cfg"
+if [ "$REVERSE_FF" = 1 ]; then   # the plugin adds every setting we leave out, with its default
+  mkdir -p "$CFG/sourcemod"; install -m 644 "$HERE/base/reverse_ff.cfg" "$CFG/sourcemod/l4d2_reverse_ff.cfg"
+fi
 chown -R tf2:tf2 "$G/addons" "$CFG/sourcemod" 2>/dev/null || true
 
 echo "-- service"
