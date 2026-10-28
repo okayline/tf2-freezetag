@@ -17,5 +17,5 @@ p{margin:0 0 8px}b{color:#f0a8c8}.hi{font-size:18px;font-weight:bold;color:#f6d4
 <div class="sep"></div>
 <!--LEADERBOARD-->
 <div class="sep"></div>
-<p>Friendly fire is <b>ON</b> &nbsp; Have fun!! &#10047;</p>
+<p>Reverse friendly fire is <b>ON</b> &nbsp; Have fun!! &#10047;</p>
 </div></body></html>

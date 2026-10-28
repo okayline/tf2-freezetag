@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Welcome pages: TF2 without stats, versus says reverse friendly fire
+**Tue Oct 27, 2026**
+- **Changed:** `tf/cfg/motd.txt` no longer has the stats board (1,507 bytes). `l4d/motd/motd-vs.txt` now says "Reverse friendly fire is ON" like the co-op page.
+
 ## Discord bot: /map is TF2 only
 **Tue Oct 27, 2026**
 - **Changed:** `/map` in `vps/discord-bot.py` now refuses L4D servers ("use /campaign"). It sent any map name straight to the server, so a co-op name on the versus server (or the reverse) put it on the wrong map. `/campaign` already picks the right name for each server. The versus server was found on `l4d_farm03_bridge` with nobody playing.
