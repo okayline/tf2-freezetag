@@ -16,7 +16,7 @@ ADJ = ["Quiet", "Restless", "Steady", "Lucky", "Iron", "Silent", "Wild", "Patien
 NOUN = ["Wanderer", "Watcher", "Drifter", "Stranger", "Hunter", "Medic", "Sentinel", "Runner",
         "Survivor", "Pilgrim", "Ghost", "Guardian", "Outlaw", "Scout", "Keeper", "Rider",
         "Mechanic", "Preacher", "Gambler", "Saint", "Traveler", "Sniper", "Shepherd", "Nomad",
-        "Lantern", "Hermit", "Sparrow", "Wolf", "Raven", "Fox", "Anchor", "Ember"]
+        "Lantern", "Falcon", "Sparrow", "Wolf", "Raven", "Fox", "Anchor", "Ember"]
 
 
 def key():
