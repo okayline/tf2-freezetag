@@ -44,6 +44,14 @@ def new_round(m, at):
 
 def main(path):
     ids, rounds, cur, mapname = {}, [], None, None   # ids: name -> Steam ID (only kept in memory)
+    # a round can start before this log file does: take the map from the newest earlier log that names one
+    here = os.path.abspath(path)
+    older = sorted(f for f in os.listdir(os.path.dirname(here)) if f.endswith(".log") and os.path.join(os.path.dirname(here), f) < here)
+    for f in reversed(older[-5:]):
+        found = re.findall(r'Started map "([^"]+)"', open(os.path.join(os.path.dirname(here), f), errors="ignore").read())
+        if found:
+            mapname = found[-1]
+            break
     for line in open(path, errors="ignore"):
         t = TIME.match(line.strip())
         if not t:
