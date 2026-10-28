@@ -4,7 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
-- **Added:** the Discord bot posts one random chat line per server every 30 minutes while someone is on (`say`, no plugin). Lines are in `vps/announcements-l4d.txt` and `vps/announcements-tf2.txt`. **Removed:** the unused L4D announcement file and `ANNOUNCE` settings (no plugin ever read them). Takes effect after a push and the `discord` action, job `bot`.
+- **Added:** the Discord bot posts one random chat line per server every 30 minutes while someone is on (`say`, no plugin). Each server has its own file, `vps/announcements-<tf2|l4d|l4db|l4dc>.txt`, with its own tone. **Removed:** the unused L4D announcement file and `ANNOUNCE` settings (no plugin ever read them). Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord bot keeps a small SQLite file (`/home/tf2/discord/bot.db`, already in the nightly backup): kicks and bans (`/history`), playtime per player name (`/seen`) and player counts every 5 minutes. Names only, no Steam IDs or IPs. Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord `/backup keep [id]` tags a restic snapshot so cleanup never deletes it (sudoers line added in `discord-bot-setup.sh`). `/backup status` already lists the latest snapshots. Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord `/status` now ends with a VPS line (free memory, disk, load, uptime). Takes effect after a push and the `discord` action, job `bot`.

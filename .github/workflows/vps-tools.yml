@@ -191,7 +191,7 @@ jobs:
               if [ -z "$DISCORD_BOT_TOKEN" ]; then echo "Add repo secret DISCORD_BOT_TOKEN first." >> "$R"
               else
                 printf '%s' "$DISCORD_BOT_TOKEN" | vps 'umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/bot.token; chown tf2:tf2 /home/tf2/discord /home/tf2/discord/bot.token; chmod 700 /home/tf2/discord'
-                scp $SSHO vps/discord-bot.py vps/discord-status.py vps/leaderboard.py vps/announcements-l4d.txt vps/announcements-tf2.txt vps/discord-bot-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                scp $SSHO vps/discord-bot.py vps/discord-status.py vps/leaderboard.py vps/announcements-*.txt vps/discord-bot-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                   && vps 'bash /root/discord-bot-setup.sh' 2>&1 | tail -c 2000 >> "$R"
               fi ;;
               bot-status) vps 'systemctl is-active discord-bot; journalctl -u discord-bot -n 25 --no-pager -o cat | sed -E "s/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}/(token)/g"' 2>&1 | tail -c 2500 >> "$R" ;;

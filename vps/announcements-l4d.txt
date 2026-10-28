@@ -1,14 +1,12 @@
 // One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
 // Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
+Group hug in the safe room. Then close the door.
+Nobody gets left behind. Except Bill. He knows what he did.
+Snacks are not provided. Pills are.
 The zombies are not your friends. Your teammates are. Mostly.
-The Tank can't hurt you if you're not there.
-Aim at the zombies. They're the ones with the bad skin.
-Pills are for you, not for hiding in the safe room.
-100% of players who stand in the fire take damage.
-A Witch is a sleeping giant with a bad attitude.
 Your bots are doing their best. Their best is not great.
 Please hydrate. The zombies can't, and look at them.
 Wait for your friends before closing the door.
-If you're reading this, you're not shooting.
+Pills are for you, not for hiding in the safe room.
+A Witch is a sleeping giant with a bad attitude.
 Need a break? Type !afk. Back? Type !back.
-Hurt a teammate and it hurts you back.

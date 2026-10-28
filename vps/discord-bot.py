@@ -195,14 +195,13 @@ class Bot(discord.Client):
             await c.send(text, allowed_mentions=discord.AllowedMentions.none())
 
     async def advert(self, key, humans):
-        """Every AD_EVERY seconds, one random line from announcements-<game>.txt goes to that server's chat (only while someone is on)."""
+        """Every AD_EVERY seconds, one random line from announcements-<server>.txt goes to that server's chat (only while someone is on)."""
         now = time.time()
         last = self.last_ad.setdefault(key, now)    # first sight: start the clock, don't post right after a bot restart
         if humans == 0 or now - last < AD_EVERY:
             return
-        game = "tf2" if SERVERS[key]["game"] == "tf2" else "l4d"
         try:
-            lines = [l.strip() for l in open(os.path.join(D, "announcements-%s.txt" % game), encoding="utf-8")
+            lines = [l.strip() for l in open(os.path.join(D, "announcements-%s.txt" % key), encoding="utf-8")
                      if l.strip() and not l.startswith("//")]
         except OSError:
             return

@@ -1,0 +1,12 @@
+// One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
+// Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
+Be the Tank you wish to see in the world.
+Smokers: it's not rude if it's strategic.
+Boomer main? We see you. We see all of you.
+Hunters: it's called a pounce, not a hug.
+Spitter puddles are a lifestyle choice.
+Good game is free. Say it.
+Your team is only as good as its worst player. Choose wisely.
+The Tank can't hurt you if you're not there.
+If you're reading this, you're not shooting.
+Need a break? Type !afk. Back? Type !back.

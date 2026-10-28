@@ -1,0 +1,12 @@
+// One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
+// Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
+Welcome to the information superhighway. Mind the zombies.
+Please do not feed the Witch. Or do. We're not your dad.
+You've got zombies!
+Now loading... zombies.
+This server is best viewed in Netscape Navigator.
+Please wait 4-6 weeks for your friends to revive you.
+a/s/l? Alive, still, looting.
+Remember when cheat codes were just a button combo? Be the combo.
+Please do not unplug the server. Or the zombies.
+Need a break? Type !afk. Back? Type !back.
