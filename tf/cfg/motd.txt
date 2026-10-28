@@ -1,58 +1,33 @@
-<html>
-<head>
 <style>
-body { margin:0; padding:84px 34px 26px 34px; background:#564f80; color:#f6ecff; font-family:Verdana,Arial,sans-serif; font-size:16px; }
-h2 { margin:0 0 20px 0; text-align:center; font-size:19px; line-height:1.35; color:#ffa0d6; }
-.lead { font-size:19px; margin-bottom:12px; }
-.big { font-size:30px; font-weight:bold; }
-.deco { text-align:center; color:#c4b8e8; font-size:18px; letter-spacing:6px; margin:0 0 10px 0; }
-.box { background:#6a6398; border:2px solid #b8acde; border-radius:14px; padding:14px 22px; margin:0 auto; max-width:620px; }
-p { margin:0 0 10px 0; text-align:center; color:#ece3ff; }
-table { width:100%; border-collapse:collapse; }
-td { vertical-align:top; width:50%; padding:0 6px; }
-td:first-child { padding-left:106px; }
-ul { margin:0; padding-left:20px; }
-li { margin:4px 0; color:#cdeee6; }
-li:nth-child(odd) { color:#ff93cb; }
-.rules { margin:14px 0 0 0; color:#cdeee6; font-size:15px; }
-.board { margin:14px 0 0 0; color:#cdeee6; font-size:15px; line-height:1.5; }
-.board b { color:#ffa0d6; }
-.sep { width:25%; margin:12px auto 0 auto; border-top:1px solid #b8acde; }
-.fun { text-align:center; margin:16px 0 4px 0; font-size:15px; color:#ffa0d6; }
+body{margin:0;padding:84px 34px 26px;background:#564f80;color:#f6ecff;font:16px Verdana,Arial,sans-serif}
+h2{margin:0 0 20px;text-align:center;font-size:19px;line-height:1.35;color:#ffa0d6}
+.g{font-size:30px}
+.d{text-align:center;color:#c4b8e8;font-size:18px;letter-spacing:6px;margin:0 0 10px}
+.x{background:#6a6398;border:2px solid #b8acde;border-radius:14px;padding:14px 22px;margin:0 auto;max-width:620px}
+p{margin:0 0 10px;text-align:center;color:#ece3ff}
+.l{font-size:19px;margin-bottom:12px}
+table{width:100%}
+td{vertical-align:top;width:50%}
+td:first-child{padding-left:106px}
+ul{margin:0;padding-left:20px}
+li{margin:4px 0;color:#cdeee6}
+li:nth-child(odd){color:#ff93cb}
+.r,.board{margin:14px 0 0;color:#cdeee6;font-size:15px;line-height:1.5}
+.board b{color:#ffa0d6}
+.s{width:25%;margin:12px auto 0;border:0;border-top:1px solid #b8acde}
+.f{margin:16px 0 4px;font-size:15px;color:#ffa0d6}
 </style>
-</head>
-<body>
-<p class="deco">* . ~ * . ~ * . ~ *</p>
-<h2>~*~88x31 cLuB~*~<br><span class="big">FrEEze tAg SeRveR:&nbsp; ICEY COLD Edition!</span></h2>
-<div class="box">
-<p class="lead"><b>Freeze Tag</b> mod with a <b>snowy</b> map pool:</p>
-<table>
-<tr>
-<td>
-<ul>
-<li>cp_gravelpit_snowy</li>
-<li>cp_coldfront</li>
-<li>cp_yukon_final</li>
-<li>cp_vanguard</li>
-<li>cp_process_final</li>
-</ul>
-</td>
-<td>
-<ul>
-<li>koth_snowtower</li>
-<li>koth_winter_ridge</li>
-<li>koth_highpass</li>
-<li>koth_overcast_final</li>
-</ul>
-</td>
-</tr>
-</table>
-<div class="sep"></div>
+<p class="d">* . ~ * . ~ * . ~ *</p>
+<h2>~*~88x31 cLuB~*~<br><b class="g">FrEEze tAg SeRveR:&nbsp; ICEY COLD Edition!</b></h2>
+<div class="x">
+<p class="l"><b>Freeze Tag</b> mod with a <b>snowy</b> map pool:</p>
+<table><tr><td><ul><li>cp_gravelpit_snowy<li>cp_coldfront<li>cp_yukon_final<li>cp_vanguard<li>cp_process_final</ul>
+<td><ul><li>koth_snowtower<li>koth_winter_ridge<li>koth_highpass<li>koth_overcast_final</ul></table>
+<hr class="s">
 <!--LEADERBOARD-->
-<div class="sep"></div>
-<p class="rules">&bull; No random crits &nbsp; &bull; No damage spread &nbsp; &bull; Big heads</p>
+<hr class="s">
+<p class="r">&bull; No random crits &nbsp; &bull; No damage spread &nbsp; &bull; Big heads</p>
 </div>
-<p class="fun">Have fun, Stay Frosty</p>
-<p class="deco">* . ~ * . ~ * . ~ *</p>
-</body>
-</html>
+<p class="f">Have fun, Stay Frosty</p>
+<p class="d">* . ~ * . ~ * . ~ *</p>
+
