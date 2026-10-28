@@ -13,6 +13,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-discord >/dev/null
 python3 -c "import discord; print('discord.py', discord.__version__)"
 
 install -o tf2 -g tf2 -m 755 /root/discord-bot.py $D/discord-bot.py
+install -o tf2 -g tf2 -m 644 /root/leaderboard.py $D/leaderboard.py
 install -o tf2 -g tf2 -m 755 /root/discord-status.py $D/discord-status.py
 chown tf2:tf2 $D/bot.token; chmod 600 $D/bot.token
 

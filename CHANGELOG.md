@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Added:** Discord bot `/ban` (pick a live player, reason, confirm button; uses `sm_ban` permanent, posts no Steam ID), connected time in `/players`, and a weekly stats post (Sunday 18:00 VPS time, once per server channel: totals only, no names) using `week_summary` in `vps/leaderboard.py`. Takes effect after a push and the `discord` action, job `bot`.
 - **Changed:** the nightly backup now includes `/home/tf2/uptime-kuma/data` (Uptime Kuma monitors, Discord alert and admin login). Takes effect after a push and the `backup` action (job `install`).
 - **Added:** Uptime Kuma 2.x on the VPS (`vps/kuma-setup.sh`, service `uptime-kuma`, 127.0.0.1:3001, runs as tf2, memory capped at 400 MB). `vps/Caddyfile` has a `status.88x31.app` entry; it goes live after the `web` action (job `https`) runs and a DNS record for `status` exists in Cloudflare. Monitors and the Discord webhook are set in its web page.
 - **Changed:** TF2 server name in `tf/cfg/88x31.cfg` is now "~*~88x31~*~ TF2 FrEEze tAg SeRveR:  ICEY COLD Edition" (also set live). Needs a push to stick after a restart.

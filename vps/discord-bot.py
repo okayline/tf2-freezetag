@@ -48,6 +48,17 @@ ds = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ds)
 
 
+LB_IGNORE = "/home/tf2/leaderboard-ignore.txt"
+LB_KIND = {"tf2": "tf2", "l4d": "l4d", "l4db": "l4dvs", "l4dc": "l4d"}
+
+
+def _load_leaderboard():
+    spec = importlib.util.spec_from_file_location("lb", os.path.join(D, "leaderboard.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def rcon(key, command):
     s = SERVERS[key]
     pw = ds.read_password(s["cfg"])
@@ -61,9 +72,12 @@ def players(key):
     text = rcon(key, "status")
     info = ds.parse(text)
     out = []
-    for m in re.finditer(r'^#\s*(\d+)(?:\s+\d+)?\s+"(.*)"\s+(\[U:\S+\]|STEAM_\S+|BOT)', text, re.M):
+    info["times"] = {}
+    for m in re.finditer(r'^#\s*(\d+)(?:\s+\d+)?\s+"(.*)"\s+(\[U:\S+\]|STEAM_\S+|BOT)(?:\s+(\d+(?::\d+)+))?', text, re.M):
         if m.group(3) != "BOT":
             out.append((m.group(1), m.group(2)))
+            if m.group(4):
+                info["times"][m.group(2)] = m.group(4)
     return out, info
 
 
@@ -143,6 +157,35 @@ class Bot(discord.Client):
         if c:
             await c.send(text, allowed_mentions=discord.AllowedMentions.none())
 
+    async def weekly(self, now):
+        """Sunday 18:00+ (VPS time): post each server's 7-day totals once a week. A marker file keeps it to one post."""
+        t = datetime.datetime.fromtimestamp(now)
+        if t.weekday() != 6 or t.hour < 18:
+            return
+        week = t.strftime("%G-W%V")
+        marker = os.path.join(D, "weekly-posted.txt")
+        try:
+            done = open(marker).read().split()
+        except OSError:
+            done = []
+        for key, s in SERVERS.items():
+            if "%s:%s" % (week, key) in done:
+                continue
+            try:
+                lb = _load_leaderboard()
+                game = LB_KIND[key]
+                rows, people = await asyncio.to_thread(lb.week_summary, game, s["logs"], LB_IGNORE)
+            except Exception as e:
+                print("weekly error:", key, type(e).__name__, e, flush=True)
+                continue
+            done.append("%s:%s" % (week, key))
+            with open(marker, "w") as f:
+                f.write("\n".join(done[-40:]))
+            if not people:
+                continue
+            body = "\n".join("%s: **%s**" % (n, format(v, ",")) for n, v in rows)
+            await self.say(s["channel"], "**%s, this past week** (%d players)\n%s" % (s["label"], people, body))
+
     async def watch(self):
         """Every 30 s: server up/down changes, low memory/disk, finished backups."""
         await self.wait_until_ready()
@@ -174,6 +217,7 @@ class Bot(discord.Client):
                 if du.used / du.total > 0.90 and now - self.last_alert.get("disk", 0) > 6 * 3600:
                     self.last_alert["disk"] = now
                     await self.say(ALERT_CHANNEL, "*the VPS disk is %d%% full*" % (100 * du.used / du.total))
+                await self.weekly(now)
                 out = subprocess.run(["systemctl", "show", "vps-backup.service", "-p", "Result", "-p", "ExecMainExitTimestamp"],
                                      capture_output=True, text=True).stdout
                 kv = dict(l.split("=", 1) for l in out.splitlines() if "=" in l)
@@ -285,7 +329,8 @@ async def players_cmd(interaction: discord.Interaction, server: str):
         names, info = await asyncio.to_thread(players, server)
     except Exception:
         return await interaction.followup.send("%s isn't answering." % SERVERS[server]["label"])
-    body = "\n".join("\u2022 " + esc(n) for _, n in names) or "nobody"
+    t = info.get("times", {})
+    body = "\n".join("\u2022 " + esc(n) + (" (%s)" % t[n] if n in t else "") for _, n in names) or "nobody"
     await interaction.followup.send("**%s**, `%s`\n%s" % (SERVERS[server]["label"], info["map"], body))
 
 
@@ -332,6 +377,28 @@ async def kick_cmd(interaction: discord.Interaction, server: str, player: str, r
     await asyncio.to_thread(rcon, server, 'kickid %s "%s"' % (hits[0], safe_text(reason, 80)))
     await interaction.followup.send("Done.", ephemeral=True)
     await interaction.channel.send(me(interaction.user, "kicked %s from %s" % (esc(player), SERVERS[server]["label"])),
+                                   allowed_mentions=discord.AllowedMentions.none())
+
+
+@server_cmd("ban", "Permanently ban a player (asks to confirm)")
+@app_commands.describe(player="Pick from the live player list", reason="Shown to the player")
+@app_commands.autocomplete(player=player_choices)
+async def ban_cmd(interaction: discord.Interaction, server: str, player: str, reason: str = "banned by an admin"):
+    try:
+        names, _ = await asyncio.to_thread(players, server)
+    except Exception:
+        return await interaction.response.send_message("%s isn't answering." % SERVERS[server]["label"], ephemeral=True)
+    hits = [uid for uid, n in names if n == player]
+    if len(hits) != 1:
+        return await interaction.response.send_message("Couldn't find exactly one player named that right now.", ephemeral=True)
+    if not await confirm(interaction, "Permanently ban **%s** from %s?" % (esc(player), SERVERS[server]["label"])):
+        return
+    try:
+        await asyncio.to_thread(rcon, server, 'sm_ban #%s 0 "%s"' % (hits[0], safe_text(reason, 80)))
+    except Exception:
+        return await interaction.followup.send("%s isn't answering." % SERVERS[server]["label"], ephemeral=True)
+    await interaction.followup.send("Banned.", ephemeral=True)
+    await interaction.channel.send(me(interaction.user, "banned %s from %s (%s)" % (esc(player), SERVERS[server]["label"], esc(safe_text(reason, 80)))),
                                    allowed_mentions=discord.AllowedMentions.none())
 
 

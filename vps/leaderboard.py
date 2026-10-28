@@ -161,6 +161,22 @@ def board_html(game, totals, days, top, extras=()):
     return out + "</p>"
 
 
+def week_summary(game, log_dir, ignore, days=7):
+    """Plain-text totals for the last `days` days (used by the Discord weekly post). No names, no Steam IDs."""
+    since = datetime.now() - timedelta(days=days)
+    ignored = read_ignored(ignore)
+    totals = count_kills(game, log_dir, since, ignored)
+    rows = [(GAMES[game][2], sum(c for c, _ in totals.values()))]
+    if game == "l4d":
+        rows.append(("Tanks killed", count_tanks(log_dir, since, ignored)))
+    if game == "l4dvs":
+        rows.append(("Survivors incapacitated", count_incaps(log_dir, since, ignored)))
+        rows.append(("Tank damage", count_tank_damage(log_dir, since)))
+    if game in ("l4d", "l4dvs"):
+        rows.append(("Campaigns finished", count_campaigns(log_dir, since)))
+    return rows, len(totals)
+
+
 def main():
     if len(sys.argv) < 5 or sys.argv[1] not in GAMES:
         sys.exit(__doc__)
