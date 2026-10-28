@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Fixed:** the deploy workflow no longer copies `tf/cfg/motd.txt`. It was putting the raw template (with the empty `<!--LEADERBOARD-->` spot) over the page the leaderboard timer builds, so the stats board showed blank after every push. Only `tf2-leaderboard-install` and its timer write that file now.
 - **Changed:** `tf/cfg/motd.txt` no longer has the stats board (1,507 bytes). `l4d/motd/motd-vs.txt` now says "Reverse friendly fire is ON" like the co-op page.
 
 ## Discord bot: /map is TF2 only

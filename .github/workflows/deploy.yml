@@ -32,7 +32,6 @@ on:
       - tf/cfg/88x31.cfg
       - tf/cfg/mapcycle.txt
       - tf/cfg/mapcycle_tactical.txt
-      - tf/cfg/motd.txt
       - tf/cfg/motd_text.txt
       - .github/workflows/deploy.yml
   workflow_dispatch:
@@ -142,7 +141,6 @@ jobs:
             tf/cfg/88x31.cfg \
             tf/cfg/mapcycle.txt \
             tf/cfg/mapcycle_tactical.txt \
-            tf/cfg/motd.txt \
             tf/cfg/motd_text.txt
           do
             # rsync -c compares checksums, so a file is only "OK" if the copy on the server matches
