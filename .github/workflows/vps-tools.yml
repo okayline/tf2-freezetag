@@ -7,7 +7,7 @@ name: VPS tools (manual only)
 #   ban-player  permanent ban on every running L4D server (box: the exact player name; the Steam ID is looked up in the logs and never shown). A server that is off is skipped.
 #   setup    uploads vps/setup.sh to the VPS and runs it (installs steamcmd, TF2, Metamod, SourceMod, the "tf2" service), then puts the login token back (same as tf2-gslt). Takes a while.
 #   status   shows the service state and disk space
-#   l4d-setup        installs Left 4 Dead 1 next to TF2 (service "l4d", port 27016). Takes a few minutes.
+#   l4d-setup        installs or copies an L4D server (box: classic = installs Left 4 Dead 1, service "l4d", port 27016; versus = copy in /home/tf2/l4d-b, port 27017; vintage = copy in /home/tf2/l4d-c, port 27018, co-op). Big game files are hard links. Starts nothing; run l4d-deploy after.
 #   add-admin        gives a Steam ID full SourceMod admin (put STEAM_0:x:y or a 17-digit SteamID64 in the box); reloads admins
 #   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with run: tail -n 50 /home/tf2/navgen.log)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
@@ -24,8 +24,6 @@ name: VPS tools (manual only)
 #   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
 #   l4dc-private     makes the ViNtaGe server (l4d-c) private: password from the box (letters and digits only), and takes its welcome screen off (motd.txt moved to motd.txt.off, leaderboard timer stopped). l4dc-public undoes both. The password is not stored in the repo.
 #   l4dc-unlock      takes the password off the ViNtaGe server only (config and live); the welcome screen stays as it is. Also prints the size of the picture the VPS serves for the banner.
-#   l4db-setup       makes the second L4D server: a copy of the first in /home/tf2/l4d-b (big game files are hard links, so little extra disk), service "l4db", port 27017, starting in versus. Does NOT start it.
-#   l4dc-setup       makes a third L4D server (the second co-op): a copy of the first in /home/tf2/l4d-c (big game files are hard links), service "l4dc", port 27018, name ~*~88x31~*~ L4D ViNtaGe Edition, starting in co-op on No Mercy. Does NOT start it.
 #   l4d-sessions     lists when humans joined and left, on all three L4D servers, from the last 3 hours of game logs (bots, IPs and Steam IDs left out; names and times only)
 #   discord-urls-install  copies the four GitHub secrets DISCORD_L4DB_STATUS_URL, DISCORD_L4DB_FEED_URL, DISCORD_L4DC_STATUS_URL and DISCORD_L4DC_FEED_URL onto the VPS as private files in /home/tf2/discord (l4db.url, l4db-feed.url, l4dc.url, l4dc-feed.url) and says which were found. Never prints them. Then run discord-install and discord-feed-install to start the status messages and live feeds for the Versus and ViNtaGe Edition servers.
 #   stats-install  installs the public stats page: uploads vps/stats.py, vps/discord-status.py, vps/stats-setup.sh and vps/Caddyfile, installs a timer that rebuilds the page every 5 minutes (names only; your ignore list is honored), and reloads Caddy so stats.88x31.app serves it. Live, no game restart. Needs the stats.88x31.app DNS record (already added in Cloudflare).
@@ -53,7 +51,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-setup, l4db-motd, l4dc-setup, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-motd, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
       command:
         description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
@@ -122,8 +120,16 @@ jobs:
               [ -z "$N" ] || { scp $SSHO vps/ban-player.sh "$VPS_USER@$VPS_HOST:/root/ban-player.sh" >> "$R" 2>&1 \
                 && vps "bash /root/ban-player.sh '$N'" 2>&1 | tail -c 1500 >> "$R"; } ;;
             l4d-setup)
-              scp $SSHO vps/setup-l4d.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d.sh" >> "$R" 2>&1 \
-                && vps "bash /root/setup-l4d.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+              # box: classic (installs the game), versus or vintage (a copy of classic). Starts nothing.
+              A=""
+              case "$COMMAND" in
+                classic) S=setup-l4d.sh ;;
+                versus) S=setup-l4d-b.sh ;;
+                vintage) S=setup-l4d-extra.sh; A="c 27018 coop l4d_hospital01_apartment '~*~88x31~*~ L4D ViNtaGe Edition'" ;;
+                *) S=""; echo "Box: classic, versus or vintage." >> "$R" ;;
+              esac
+              [ -z "$S" ] || { scp $SSHO "vps/$S" "$VPS_USER@$VPS_HOST:/root/$S" >> "$R" 2>&1 \
+                && vps "bash /root/$S $A" 2>&1 | tail -c 2500 >> "$R"; } ;;
             add-admin)
               SID="$COMMAND"
               if printf '%s' "$SID" | grep -Eq '^7656[0-9]{13}$'; then   # SteamID64 -> STEAM_0:y:z
@@ -189,12 +195,6 @@ jobs:
               else
                 vps "F=/home/tf2/leaderboard-ignore.txt; touch \$F; if grep -qF '$ID' \$F; then echo 'already ignored'; else echo '$ID' >> \$F; echo 'added to the ignore list'; fi; chown tf2:tf2 \$F; chmod 600 \$F; wc -l < \$F | sed 's/^/ignored accounts: /'; for g in l4d tf2 l4dvs l4dc; do if [ -d /home/tf2/leaderboard-\$g ]; then systemctl start leaderboard-\$g.service && echo \"\$g leaderboard rebuilt\"; fi; done" >> "$R" 2>&1
               fi ;;
-            l4db-setup)
-              scp $SSHO vps/setup-l4d-b.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d-b.sh" >> "$R" 2>&1 \
-                && vps "bash /root/setup-l4d-b.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            l4dc-setup)
-              scp $SSHO vps/setup-l4d-extra.sh "$VPS_USER@$VPS_HOST:/root/setup-l4d-extra.sh" >> "$R" 2>&1 \
-                && vps "bash /root/setup-l4d-extra.sh c 27018 coop l4d_hospital01_apartment '~*~88x31~*~ L4D ViNtaGe Edition'" 2>&1 | tail -c 2500 >> "$R" ;;
             l4dc-private)
               if printf '%s' "$COMMAND" | grep -Eq '^[A-Za-z0-9]{1,32}$'; then
                 printf '%s' "$COMMAND" | vps 'P=$(cat); C=/home/tf2/l4d-c/left4dead/cfg/server.cfg; G=/home/tf2/l4d-c/left4dead; sed -i "/^sv_password /d" $C; echo "sv_password \"$P\"" >> $C; chown tf2:tf2 $C; sudo -u tf2 screen -S l4dc -X stuff "sv_password $P$(printf "\r")"; systemctl disable --now leaderboard-l4dc.timer >/dev/null 2>&1; [ -f $G/motd.txt ] && mv $G/motd.txt $G/motd.txt.off; echo "password set (not shown); motd: $(ls $G/motd.txt* 2>/dev/null | tr "\n" " ")"; echo "leaderboard timer: $(systemctl is-active leaderboard-l4dc.timer)"' >> "$R" 2>&1
