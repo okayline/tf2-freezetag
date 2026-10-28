@@ -26,7 +26,7 @@ from discord import app_commands
 ROLE = "teal"
 D = "/home/tf2/discord"
 CHANNELS = {"l4d-classic", "l4d-vintage", "l4d-vs", "tf2-freezetag"}
-AD_EVERY = 30 * 60                       # seconds between chat announcements per server
+AD_EVERY = 60 * 60                       # seconds between chat announcements per server
 ALERT_CHANNEL = "tf2-freezetag"          # low memory / disk warnings and the nightly backup result
 
 # key: label, game, service, rcon port, server.cfg, log folder, channel for its up/down posts
