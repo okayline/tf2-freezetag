@@ -25,6 +25,7 @@ cat > /usr/local/bin/vps-backup <<'SH'
 #!/usr/bin/env bash
 # Nightly backup to pCloud with restic. "vps-backup" runs it; "vps-backup status" lists snapshots.
 export RESTIC_REPOSITORY=rclone:pcloud:vps-backup RESTIC_PASSWORD_FILE=/root/restic-password
+if [ "${1:-}" = keep ]; then restic tag --add keep "${2:-latest}" 2>&1 | tail -n 3; restic snapshots --tag keep --compact | tail -n 6; exit 0; fi   # "keep": tag a snapshot (default: the newest) so cleanup never deletes it
 if [ "${1:-}" = status ]; then restic snapshots --compact | tail -n 15; restic stats --mode raw-data 2>&1 | tail -n 3; exit 0; fi
 restic cat config >/dev/null 2>&1 || restic init
 P=()
@@ -37,7 +38,7 @@ for d in /home/tf2/discord /home/tf2/mc /home/tf2/leaderboard-ignore.txt /home/t
   [ -e "$d" ] && P+=("$d")
 done
 restic backup --one-file-system --exclude '*.jar' --exclude '/home/tf2/mc/cache' --exclude '/home/tf2/mc/logs' --exclude '*/world-old' --exclude '*.console.txt' "${P[@]}" || exit 1
-restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 3 >/dev/null
+restic forget --keep-tag keep --keep-daily 7 --keep-weekly 4 --keep-monthly 3 >/dev/null
 [ "$(date +%u)" = 7 ] && restic prune --max-unused 5% >/dev/null 2>&1
 exit 0
 SH

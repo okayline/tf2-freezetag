@@ -69,7 +69,7 @@ name: VPS tools (manual only)
 #   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
 #   discord-check    shows whether the Discord timer is running and the last lines of what it posted (no links or passwords)
 #   backup-install  installs restic + rclone and a nightly encrypted backup of configs, logs, Minecraft world and tools to pCloud (not the game installs). Needs repo secrets PCLOUD_RCLONE_TOKEN (output of `rclone authorize "pcloud"`), RESTIC_PASSWORD, and PCLOUD_HOST only for the EU region (eapi.pcloud.com). Secrets go to private files on the VPS, never printed. Does not run a backup.
-#   backup-run      runs the backup now (can take a while the first time) and shows the result
+#   backup-run      runs the backup now (can take a while the first time) and shows the result. Box "keep" (or "keep SNAPSHOTID") instead tags the newest (or that) snapshot so cleanup never deletes it.
 #   backup-status   lists the latest backup snapshots and how much is stored in pCloud
 #   backup-restore  installs restic/rclone with the saved secrets if needed (so it works on a brand new VPS), then restores the newest backup. Box empty = restore into /root/restore for a look, nothing is overwritten. Box "apply" = put the files back in their real places over the current ones (stop the game servers first with stop, l4d-stop, l4db-stop, l4dc-stop, mc-stop; on a new VPS run setup first so the game files exist). A snapshot id can follow, like "apply 025a040d".
 #   bot-install     installs (or updates) the Discord control bot: python3-discord from apt, vps/discord-bot.py as the "discord-bot" service (user tf2), and a sudoers file that lets it only start/stop/restart the four game services and run the backup. The token comes from repo secret DISCORD_BOT_TOKEN and goes to a private file on the VPS, never printed. Needs the Discord status poster files (discord-status-setup) on the VPS.
@@ -401,7 +401,9 @@ jobs:
                 scp $SSHO vps/backup-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                   && vps 'bash /root/backup-setup.sh' 2>&1 | tail -c 2000 >> "$R"
               fi ;;
-            backup-run) vps 'systemctl start --no-block vps-backup.service; sleep 60; systemctl is-active vps-backup.service; journalctl -u vps-backup -n 15 --no-pager -o cat | tail -n 15' 2>&1 | tail -c 2500 >> "$R" ;;
+            backup-run)
+              if printf '%s' "$COMMAND" | grep -Eq '^keep( [0-9a-f]{8})?$'; then vps "/usr/local/bin/vps-backup $COMMAND" 2>&1 | tail -c 1500 >> "$R"
+              else vps 'systemctl start --no-block vps-backup.service; sleep 60; systemctl is-active vps-backup.service; journalctl -u vps-backup -n 15 --no-pager -o cat | tail -n 15' 2>&1 | tail -c 2500 >> "$R" ; fi ;;
             backup-status) vps '/usr/local/bin/vps-backup status; systemctl list-timers vps-backup.timer --no-legend' 2>&1 | tail -c 2500 >> "$R" ;;
             backup-restore)
               if [ -z "$PCLOUD_RCLONE_TOKEN" ] || [ -z "$RESTIC_PASSWORD" ]; then echo "Add repo secrets PCLOUD_RCLONE_TOKEN and RESTIC_PASSWORD first." >> "$R"
