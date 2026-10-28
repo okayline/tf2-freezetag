@@ -583,6 +583,20 @@ async def backup_status(interaction: discord.Interaction):
     await interaction.followup.send("```\n%s\n```" % (r.stdout or r.stderr)[-1800:], ephemeral=True)
 
 
+@backup.command(name="keep", description="Protect a backup so cleanup never deletes it (newest one if no ID)")
+@app_commands.describe(snapshot_id="The 8-character ID from /backup status (leave empty for the newest)")
+@allowed()
+async def backup_keep(interaction: discord.Interaction, snapshot_id: str = ""):
+    snapshot_id = snapshot_id.strip().lower()
+    if snapshot_id and not re.fullmatch(r"[0-9a-f]{8}", snapshot_id):
+        return await interaction.response.send_message("The ID is 8 letters/numbers, like `a1b2c3d4`.", ephemeral=True)
+    await interaction.response.defer(ephemeral=True)
+    cmd = ["sudo", "-n", "/usr/local/bin/vps-backup", "keep"] + ([snapshot_id] if snapshot_id else [])
+    r = await asyncio.to_thread(subprocess.run, cmd, capture_output=True, text=True, timeout=120)
+    await interaction.followup.send("```\n%s\n```\nTagging changes the ID, so run `/backup status` to see the new one." % (r.stdout or r.stderr)[-1500:], ephemeral=True)
+    await interaction.channel.send(me(interaction.user, "marked a backup to keep forever"), allowed_mentions=discord.AllowedMentions.none())
+
+
 tree.add_command(backup)
 
 if __name__ == "__main__":

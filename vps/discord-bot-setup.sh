@@ -26,6 +26,7 @@ chown tf2:tf2 $D/bot.token; chmod 600 $D/bot.token
   done
   echo "tf2 ALL=(root) NOPASSWD: /usr/bin/systemctl start --no-block vps-backup.service"
   echo "tf2 ALL=(root) NOPASSWD: /usr/local/bin/vps-backup status"
+  echo "tf2 ALL=(root) NOPASSWD: /usr/local/bin/vps-backup keep, /usr/local/bin/vps-backup keep [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]"
 } > /etc/sudoers.d/discord-bot.tmp
 chmod 440 /etc/sudoers.d/discord-bot.tmp
 visudo -cf /etc/sudoers.d/discord-bot.tmp >/dev/null || { rm -f /etc/sudoers.d/discord-bot.tmp; echo "sudoers check failed"; exit 1; }
