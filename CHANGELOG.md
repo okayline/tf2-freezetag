@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Added:** Discord bot keeps a small SQLite file (`/home/tf2/discord/bot.db`, already in the nightly backup): kicks and bans (`/history`), playtime per player name (`/seen`) and player counts every 5 minutes. Names only, no Steam IDs or IPs. Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord `/backup keep [id]` tags a restic snapshot so cleanup never deletes it (sudoers line added in `discord-bot-setup.sh`). `/backup status` already lists the latest snapshots. Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord `/status` now ends with a VPS line (free memory, disk, load, uptime). Takes effect after a push and the `discord` action, job `bot`.
 - **Added:** Discord bot `/ban` (pick a live player, reason, confirm button; uses `sm_ban` permanent, posts no Steam ID), connected time in `/players`, and a weekly stats post (Sunday 18:00 VPS time, once per server channel: totals only, no names) using `week_summary` in `vps/leaderboard.py`. Takes effect after a push and the `discord` action, job `bot`.

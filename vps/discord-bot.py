@@ -15,6 +15,7 @@ import importlib.util
 import os
 import re
 import shutil
+import sqlite3
 import subprocess
 import time
 
@@ -46,6 +47,37 @@ DIFFICULTIES = ["Easy", "Normal", "Hard", "Impossible"]
 _spec = importlib.util.spec_from_file_location("ds", os.path.join(D, "discord-status.py"))
 ds = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ds)
+
+
+DB = os.path.join(D, "bot.db")   # moderation log, playtime and player counts. Names only, no Steam IDs or IPs.
+
+
+def db():
+    c = sqlite3.connect(DB, timeout=10)
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS actions (at INTEGER, server TEXT, by TEXT, what TEXT, target TEXT, reason TEXT);
+        CREATE TABLE IF NOT EXISTS playtime (server TEXT, name TEXT, seconds INTEGER, last_seen INTEGER, PRIMARY KEY (server, name));
+        CREATE TABLE IF NOT EXISTS samples (at INTEGER, server TEXT, humans INTEGER);
+    """)
+    return c
+
+
+def log_action(server, by, what, target, reason=""):
+    try:
+        with db() as c:
+            c.execute("INSERT INTO actions VALUES (?,?,?,?,?,?)", (int(time.time()), server, by, what, target, reason))
+    except Exception as e:
+        print("db error:", e, flush=True)
+
+
+def record_players(key, names, seconds, sample):
+    now = int(time.time())
+    with db() as c:
+        for n in names:
+            c.execute("INSERT INTO playtime VALUES (?,?,?,?) ON CONFLICT(server,name) DO UPDATE SET seconds=seconds+?, last_seen=?",
+                      (key, n, seconds, now, seconds, now))
+        if sample:
+            c.execute("INSERT INTO samples VALUES (?,?,?)", (now, key, len(names)))
 
 
 LB_IGNORE = "/home/tf2/leaderboard-ignore.txt"
@@ -136,6 +168,7 @@ class Bot(discord.Client):
         self.state = {}        # key -> consecutive failures / last known up
         self.last_alert = {}
         self.last_backup = None
+        self.last_sample = {}
 
     async def setup_hook(self):
         self.loop.create_task(self.watch())
@@ -194,9 +227,18 @@ class Bot(discord.Client):
                 for key, s in SERVERS.items():
                     up = True
                     try:
-                        await asyncio.to_thread(rcon, key, "status")
+                        names, _ = await asyncio.to_thread(players, key)
                     except Exception:
                         up = False
+                        names = None
+                    if names is not None:
+                        try:
+                            tick = time.time()
+                            await asyncio.to_thread(record_players, key, [n for _, n in names], 30, tick - self.last_sample.get(key, 0) >= 300)
+                            if tick - self.last_sample.get(key, 0) >= 300:
+                                self.last_sample[key] = tick
+                        except Exception as e:
+                            print("db error:", e, flush=True)
                     st = self.state.setdefault(key, {"up": None, "fails": 0})
                     st["fails"] = 0 if up else st["fails"] + 1
                     if up and st["up"] is False:
@@ -383,6 +425,7 @@ async def kick_cmd(interaction: discord.Interaction, server: str, player: str, r
     if len(hits) != 1:
         return await interaction.followup.send("Couldn't find exactly one player named that right now.", ephemeral=True)
     await asyncio.to_thread(rcon, server, 'kickid %s "%s"' % (hits[0], safe_text(reason, 80)))
+    log_action(server, interaction.user.display_name, "kick", player, reason)
     await interaction.followup.send("Done.", ephemeral=True)
     await interaction.channel.send(me(interaction.user, "kicked %s from %s" % (esc(player), SERVERS[server]["label"])),
                                    allowed_mentions=discord.AllowedMentions.none())
@@ -405,6 +448,7 @@ async def ban_cmd(interaction: discord.Interaction, server: str, player: str, re
         await asyncio.to_thread(rcon, server, 'sm_ban #%s 0 "%s"' % (hits[0], safe_text(reason, 80)))
     except Exception:
         return await interaction.followup.send("%s isn't answering." % SERVERS[server]["label"], ephemeral=True)
+    log_action(server, interaction.user.display_name, "ban", player, reason)
     await interaction.followup.send("Banned.", ephemeral=True)
     await interaction.channel.send(me(interaction.user, "banned %s from %s (%s)" % (esc(player), SERVERS[server]["label"], esc(safe_text(reason, 80)))),
                                    allowed_mentions=discord.AllowedMentions.none())
@@ -564,6 +608,35 @@ async def health_cmd(interaction: discord.Interaction):
 
 
 backup = app_commands.Group(name="backup", description="The nightly pCloud backup")
+
+
+@tree.command(name="history", description="Recent kicks and bans")
+@allowed()
+async def history_cmd(interaction: discord.Interaction):
+    def fetch():
+        with db() as c:
+            return c.execute("SELECT at, server, by, what, target, reason FROM actions ORDER BY at DESC LIMIT 10").fetchall()
+    rows = await asyncio.to_thread(fetch)
+    if not rows:
+        return await interaction.response.send_message("Nothing logged yet.", ephemeral=True)
+    out = ["<t:%d:R> %s: %s %s on %s (%s)" % (at, esc(by), what, esc(target), SERVERS[sv]["label"] if sv in SERVERS else sv, esc(safe_text(r or "no reason", 60)))
+           for at, sv, by, what, target, r in rows]
+    await interaction.response.send_message("\n".join(out), ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+
+
+@server_cmd("seen", "When a player was last here and their total playtime")
+@app_commands.describe(player="Part of the name")
+async def seen_cmd(interaction: discord.Interaction, server: str, player: str):
+    def fetch():
+        with db() as c:
+            return c.execute("SELECT name, seconds, last_seen FROM playtime WHERE server=? AND name LIKE ? ORDER BY last_seen DESC LIMIT 5",
+                             (server, "%" + player.replace("%", "").replace("_", "") + "%")).fetchall()
+    rows = await asyncio.to_thread(fetch)
+    if not rows:
+        return await interaction.response.send_message("Nobody by that name yet (tracking started when this was added).", ephemeral=True)
+    out = ["%s: last seen <t:%d:R>, %.1f hours total" % (esc(n), ls, sec / 3600) for n, sec, ls in rows]
+    await interaction.response.send_message("**%s**\n%s" % (SERVERS[server]["label"], "\n".join(out)), ephemeral=True,
+                                            allowed_mentions=discord.AllowedMentions.none())
 
 
 @backup.command(name="now", description="Run the backup now")
