@@ -4,7 +4,7 @@
 # Run as root. Re-running is safe.
 # Arg 1: l4d (zombies killed), l4dc (zombies killed, third L4D server), tf2 (freezes) or l4dvs (damage, second L4D server; needs the l4d_damagelog plugin). Arg 2: days in the window (default 5). Arg 3: players shown (default 3).
 # Needs /root/leaderboard.py and /root/<game>-motd-template.html (the actions upload both).
-# Players in /home/tf2/leaderboard-ignore.txt (leaderboard-ignore action) are left out.
+# Players in /home/tf2/leaderboard-ignore.txt (leaderboard action, job ignore) are left out.
 set -euo pipefail
 
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }

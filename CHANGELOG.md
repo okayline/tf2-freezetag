@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Changed:** 9 more actions merged into three: `backup` (install, run, status, restore), `vintage` (private, public, unlock) and `leaderboard` (install, ignore; replaces `leaderboard-install` and `leaderboard-ignore`). The menu is now 20 actions. The box starts with the job. Not run since the merge.
 - **Removed:** `vps/nav-check.py` and 11 unused Python wheel files (4.3 MB) at the repo root; nothing referred to them. The stale `/var/www/banner` test page was deleted from the VPS. `CLAUDE.md` now describes the `run` action and the owner's rules (no restarts or pushes unless asked, 2-minute limit).
 - **Changed:** 14 more actions merged into three. `discord` (jobs: status, feed, urls, l4d-feed-channel, relay, relay-l4d, bot, bot-status), `web` (stats, logs, https) and `motd` (classic, versus, host). The box starts with the job. Not run since the merge.
 - **Changed:** the nine Minecraft install and setting actions are now one: `mc` (box: the job, then its own text, like `set ...` or `plugin-install <name>`). Jobs: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import. Not run since the merge; Minecraft is off.

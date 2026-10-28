@@ -25,8 +25,8 @@ request became its own script or workflow action. These rules keep it simple.
 - **Root control is the `run` action** in `vps-tools.yml` (box: a command, runs as root, output is public).
   It hides IP addresses and Steam IDs, and Claude still keeps passwords, tokens, IPs and Steam IDs out of
   anything printed. Use `run` for one-off jobs. The other actions are only for work that needs repo files or
-  secrets: `l4d-deploy`, `l4d-setup`, `setup`, `leaderboard-install`, `discord`, `web`, `motd`, `mc`, backups,
-  maps and bans. The `discord`, `web`, `motd` and `mc` actions take the job as the first word in the box.
+  secrets: `l4d-deploy`, `l4d-setup`, `setup`, `leaderboard`, `discord`, `web`, `motd`, `mc`, `backup`, `vintage`,
+  maps and bans. The `discord`, `web`, `motd`, `mc`, `backup`, `vintage` and `leaderboard` actions take the job as the first word in the box.
 - **Never stop, start, restart or redeploy a game server unless the owner asks.** The owner decides when
   servers are up or down so players can join. Make config changes in the repo and tell the owner what is
   waiting, then deploy once when they say so.

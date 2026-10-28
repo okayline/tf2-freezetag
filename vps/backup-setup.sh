@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Installs restic + rclone and a nightly encrypted backup to pCloud (restic repo at rclone remote "pcloud:" folder Backups/vps-backup).
 # Run as root. Re-running is safe. Needs /root/pcloud-token (JSON from `rclone authorize "pcloud"`), optional /root/pcloud-host,
-# and /root/restic-password. The workflow action backup-install puts those three files there. Nothing here is printed.
+# and /root/restic-password. The workflow action "backup" (job install) puts those three files there. Nothing here is printed.
 # Backs up configs, logs, plugins, maps (with .nav files), Minecraft world, service files, SSH/firewall settings and the small tools.
 # NOT the rest of the TF2/L4D game installs (steamcmd re-downloads them).
 set -euo pipefail
