@@ -154,7 +154,7 @@ def board_html(game, totals, days, top, extras=()):
     """Server totals only: no names, no ranking, no player count. `days` and `top` are kept so existing callers still
     work (days is still the counting window; top is not used). `extras`: more (label, number) lines under the main one."""
     total = sum(e[0] for e in totals.values())
-    span = "Past day" if days == 1 else "Past %d days" % days
+    span = "Over the past day:" if days == 1 else "Over the past %d days:" % days
     out = '<p class="board"><b>%s</b><br>%s: %d' % (span, GAMES[game][2], total)
     for label, n in extras:
         out += '<br>%s: %d' % (label, n)
