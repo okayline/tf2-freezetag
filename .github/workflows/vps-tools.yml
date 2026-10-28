@@ -19,16 +19,13 @@ name: VPS tools (manual only)
 #   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
 #   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
 #   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
-#   l4d-leaderboard-install  puts the "Most Zombies Killed in the Past N Days" top players (names only) into the L4D welcome screen, rebuilt every 5 minutes from the game logs (box: days and how many players, like 5 3; empty = 5 3)
-#   tf2-leaderboard-install  the same for the TF2 welcome screen: "Most Freezes in the Past N Days" (box: days and how many players, empty = 5 3)
-#   l4dvs-leaderboard-install  puts "Most Damage in the Past N Days" (top players, names only, from the damage log lines) into the second L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). Install l4db-damagelog-install first; the board starts empty and counts from then on.
+#   leaderboard-install  builds a welcome page with the stats board and starts its 5-minute timer (box: tf2, l4d, l4dvs, l4dc or all, then optional days, like "tf2 5"). l4dvs needs the l4d_damagelog plugin. Totals only, no player names.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
 #   l4dc-private     makes the ViNtaGe server (l4d-c) private: password from the box (letters and digits only), and takes its welcome screen off (motd.txt moved to motd.txt.off, leaderboard timer stopped). l4dc-public undoes both. The password is not stored in the repo.
 #   l4dc-unlock      takes the password off the ViNtaGe server only (config and live); the welcome screen stays as it is. Also prints the size of the picture the VPS serves for the banner.
 #   l4db-setup       makes the second L4D server: a copy of the first in /home/tf2/l4d-b (big game files are hard links, so little extra disk), service "l4db", port 27017, starting in versus. Does NOT start it.
 #   l4dc-setup       makes a third L4D server (the second co-op): a copy of the first in /home/tf2/l4d-c (big game files are hard links), service "l4dc", port 27018, name ~*~88x31~*~ L4D ViNtaGe Edition, starting in co-op on No Mercy. Does NOT start it.
-#   l4dc-leaderboard-install  puts "Most Zombies Killed in the Past N Days" (top players, names only) into the third L4D server's welcome screen, rebuilt every 5 minutes (box: days and how many players, empty = 5 3). The ignore list applies. The board counts the server's game logs from the start.
 #   l4d-sessions     lists when humans joined and left, on all three L4D servers, from the last 3 hours of game logs (bots, IPs and Steam IDs left out; names and times only)
 #   discord-urls-install  copies the four GitHub secrets DISCORD_L4DB_STATUS_URL, DISCORD_L4DB_FEED_URL, DISCORD_L4DC_STATUS_URL and DISCORD_L4DC_FEED_URL onto the VPS as private files in /home/tf2/discord (l4db.url, l4db-feed.url, l4dc.url, l4dc-feed.url) and says which were found. Never prints them. Then run discord-install and discord-feed-install to start the status messages and live feeds for the Versus and ViNtaGe Edition servers.
 #   stats-install  installs the public stats page: uploads vps/stats.py, vps/discord-status.py, vps/stats-setup.sh and vps/Caddyfile, installs a timer that rebuilds the page every 5 minutes (names only; your ignore list is honored), and reloads Caddy so stats.88x31.app serves it. Live, no game restart. Needs the stats.88x31.app DNS record (already added in Cloudflare).
@@ -56,7 +53,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-setup, l4dvs-leaderboard-install, l4db-motd, l4dc-setup, l4dc-leaderboard-install, discord-urls-install, stats-install, l4d-sessions, l4d-leaderboard-install, tf2-leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-setup, l4db-motd, l4dc-setup, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
       command:
         description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
@@ -89,7 +86,7 @@ jobs:
           mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
           SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20 -o LogLevel=ERROR"
           vps() { ssh $SSHO "$VPS_USER@$VPS_HOST" "$@"; }
-          hide() { sed -E 's/(sv_setsteamaccount )[A-Fa-f0-9]+/\1(hidden)/g'; }   # the repo is public: never show the login token
+          hide() { sed -E 's/(sv_setsteamaccount )[A-Fa-f0-9]+/\1(hidden)/g; s/[0-9]{1,3}(\.[0-9]{1,3}){3}/(ip)/g; s/STEAM_[0-5]:[01]:[0-9]+/(steamid)/g; s/\[U:1:[0-9]+\]/(steamid)/g; s/7656119[0-9]{10}/(steamid)/g'; }   # the repo is public: never show the login token
           gslt() {   # puts the login token (TF2_GSLT) in the tf2 service launch line, before +map; any old one is replaced
             T=$(printf '%s' "$TF2_GSLT" | tr -cd 'A-Fa-f0-9')
             if [ -z "$T" ]; then echo "No TF2_GSLT repo secret, so no login token was set." >> "$R"
@@ -174,14 +171,18 @@ jobs:
                 && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt' >> "$R" 2>&1
               scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/root/l4d-motd-template.html" >> "$R" 2>&1 \
                 && vps 'D=/home/tf2/leaderboard-l4d; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4d-motd-template.html $D/template.html && systemctl start leaderboard-l4d.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
-            l4d-leaderboard-install|tf2-leaderboard-install|l4dvs-leaderboard-install|l4dc-leaderboard-install)
-              G=${ACTION%%-*}
-              D=$(printf '%s' "$COMMAND" | grep -Eo '^[0-9]+( [0-9]+)?$' || true)
-              T=l4d/motd/motd.txt; [ "$G" = tf2 ] && T=tf/cfg/motd.txt; [ "$G" = l4dvs ] && T=l4d/motd/motd-vs.txt
-              if [ "$G" = l4dc ]; then sed 's|<h2>[^<]*</h2>|<h2>~*~88x31~*~ L4D ViNtaGe Edition</h2>|' l4d/motd/motd.txt > /tmp/motd-l4dc.html; T=/tmp/motd-l4dc.html; fi
-              scp $SSHO vps/leaderboard.py vps/leaderboard-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && scp $SSHO "$T" "$VPS_USER@$VPS_HOST:/root/$G-motd-template.html" >> "$R" 2>&1 \
-                && vps "bash /root/leaderboard-setup.sh $G $D" 2>&1 | tail -c 1500 >> "$R" ;;
+            leaderboard-install)
+              # box: tf2, l4d, l4dvs, l4dc or all, then optional days (default 5). Example: "tf2 5". Builds the welcome page with the stats board and starts its 5-minute timer.
+              W=$(printf '%s' "$COMMAND" | awk '{print $1}'); D=$(printf '%s' "$COMMAND" | awk '{print $2}' | grep -E '^[0-9]+$' || true)
+              [ "$W" = all ] && W="l4d l4dvs l4dc tf2"
+              case "$W" in l4d|l4dvs|l4dc|tf2|"l4d l4dvs l4dc tf2") ;; *) echo "Box: tf2, l4d, l4dvs, l4dc or all, then optional days." >> "$R"; W="" ;; esac
+              for G in $W; do
+                T=l4d/motd/motd.txt; [ "$G" = tf2 ] && T=tf/cfg/motd.txt; [ "$G" = l4dvs ] && T=l4d/motd/motd-vs.txt
+                if [ "$G" = l4dc ]; then sed 's|<h2>[^<]*</h2>|<h2>~*~88x31~*~ L4D ViNtaGe Edition</h2>|' l4d/motd/motd.txt > /tmp/motd-l4dc.html; T=/tmp/motd-l4dc.html; fi
+                scp $SSHO vps/leaderboard.py vps/leaderboard-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                  && scp $SSHO "$T" "$VPS_USER@$VPS_HOST:/root/$G-motd-template.html" >> "$R" 2>&1 \
+                  && vps "bash /root/leaderboard-setup.sh $G $D" 2>&1 | tail -c 1500 >> "$R"
+              done ;;
             leaderboard-ignore)
               ID=$(printf '%s' "$COMMAND" | grep -Eo '^STEAM_[0-5]:[01]:[0-9]{1,12}$' || true)
               if [ -z "$ID" ]; then echo "Give a Steam ID like STEAM_0:1:12345." >> "$R"

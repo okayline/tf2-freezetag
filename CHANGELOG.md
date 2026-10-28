@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Changed:** the four leaderboard install actions are now one: `leaderboard-install` (box: `tf2`, `l4d`, `l4dvs`, `l4dc` or `all`, then optional days). `run` now hides IP addresses and Steam IDs in its output (`(ip)`, `(steamid)`). Not run yet after the merge.
 - **Removed:** 27 more workflow actions that `run` replaces: start/stop/restart for TF2, classic, versus, vintage and Minecraft; `tf2-pause`, `tf2-resume`; `logs`, `command`, `l4d-console`, `l4d-command`, `l4d-log`, `l4d-log-on`, `l4d-log-kinds`, `tf2-log-on`, `l4d-toolz-find`, `host-remove`. `status` stays as the default. For versus and vintage, check free memory before starting (they used to refuse under 900 MB).
 - **Removed:** 12 more workflow actions that `run` replaces: `install-package`, `list-maps`, `list-navs`, `map-history`, `console-view`, `list-dir`, `show-file`, `open-port`, `discord-check`, `discord-feed-check`, `disk-usage`, `mc-import-cleanup`.
 - **Removed:** 12 workflow actions that `run` replaces: `l4db-console`, `l4db-command`, `l4db-log`, `l4dc-console`, `l4dc-command`, `l4dc-log`, `mc-console`, `mc-command`, `mc-log`, `mem-use`, `cpu-use`, `net-check`. Use `run` with a command instead (for example `free -m`, `ss -tulnp`, `tail -n 60 /home/tf2/mc/logs/latest.log`).
