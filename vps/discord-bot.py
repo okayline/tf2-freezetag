@@ -319,6 +319,14 @@ async def status(interaction: discord.Interaction):
             lines.append("**%s**: online, `%s`, %s players%s" % (s["label"], info["map"], info["humans"], bots))
         except Exception:
             lines.append("**%s**: %s" % (s["label"], "stopped" if not is_active(s["service"]) else "not answering"))
+    du = shutil.disk_usage("/")
+    try:
+        up = float(open("/proc/uptime").read().split()[0]) / 86400
+        load = os.getloadavg()[0]
+    except OSError:
+        up, load = 0, 0
+    lines.append("**VPS**: %d MB free memory, disk %d%% full (%d GB free), load %.1f, up %.0f days"
+                 % (mem_free_mb(), 100 * du.used / du.total, du.free // 2**30, load, up))
     await interaction.followup.send("\n".join(lines))
 
 
