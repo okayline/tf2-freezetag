@@ -1,0 +1,20 @@
+# Plugins on EVERY L4D server. One name per line.
+# Stock SourceMod plugins (everything else that SourceMod ships is switched off):
+admin-flatfile
+adminhelp
+adminmenu
+antiflood
+basebans
+basechat
+basecommands
+basecomm
+basetriggers
+basevotes
+clientprefs
+# Our own plugins (source in l4d/scripting/):
+l4d_admintools
+l4d_afk
+l4d_campaign_rotate
+l4d_reserve
+l4d_scorekeeper
+# Per-server extras are switched on in l4d/servers/<name>.conf (REVERSE_FF, DAMAGELOG).
