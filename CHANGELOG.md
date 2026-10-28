@@ -4,7 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
-- **Changed:** shooting a bot teammate now hurts the shooter too (`reverseff_bot 1`, new file `l4d/base/reverse_ff.cfg`, copied by `deploy.sh`). Admins are still exempt. On classic it was also set live; versus and vintage get it at their next deploy.
+- **Changed:** shooting a bot teammate now hurts the shooter too (`reverseff_bot 1`, new file `l4d/base/reverse_ff.cfg`, copied by `deploy.sh`). Admins now take reversed damage too (`reverseff_admin 1`). On classic both were also set live; versus and vintage get it at their next deploy.
 - **Changed:** the backup repository moved inside the owner's pCloud "Backups" folder (`pcloud:Backups/vps-backup`), in `vps/backup-setup.sh` and the `backup-restore` action.
 - **Added:** backups can be kept forever: `backup-run` with "keep" in the box tags the newest snapshot (or "keep ID"), and the nightly cleanup skips tagged snapshots (`vps/backup-setup.sh`). No new action.
 - **Fixed:** the deploy workflow no longer copies `tf/cfg/motd.txt`. It was putting the raw template (with the empty `<!--LEADERBOARD-->` spot) over the page the leaderboard timer builds, so the stats board showed blank after every push. Only `tf2-leaderboard-install` and its timer write that file now.
