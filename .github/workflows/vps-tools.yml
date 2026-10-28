@@ -204,7 +204,7 @@ jobs:
                 vps "if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow $COMMAND; else echo 'ufw is not active, nothing to open (any firewall is at the VPS provider)'; fi" 2>&1 | tail -n 5 >> "$R"
               else echo "Give a port like 27015/udp." >> "$R"; fi ;;
             system-check)
-              vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5); echo "-- fail2ban:"; (systemctl is-active fail2ban; fail2ban-client status sshd 2>&1 | grep -E "Currently|Total|Jail|Error|error")' 2>&1 | tail -c 3000 >> "$R" ;;
+              vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5); echo "-- ssh login rules:"; (sshd -T 2>/dev/null | grep -E "^(passwordauthentication|permitrootlogin|pubkeyauthentication|kbdinteractiveauthentication) "); echo "-- fail2ban:"; (systemctl is-active fail2ban; fail2ban-client status sshd 2>&1 | grep -E "Currently|Total|Jail|Error|error")' 2>&1 | tail -c 3000 >> "$R" ;;
             discord-install)
               scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
                 && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
