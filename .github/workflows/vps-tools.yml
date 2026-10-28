@@ -19,7 +19,7 @@ name: VPS tools (manual only)
 #   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with show-file)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   console-view     shows what is on the game server's console screen right now (last 40 lines)
-#   show-file        prints the last 100 lines of a file under /home/tf2 or /etc (path in the box)
+#   show-file        prints the last 250 lines (up to 8000 characters) of a file under /home/tf2 or /etc (path in the box)
 #   list-dir         lists a folder under /home/tf2 or /etc with sizes (path in the box)
 #   open-port        allows a port through the firewall, like 27015/udp (ufw, only if ufw is on)
 #   system-check     OS, uptime, load, memory, disk, listening ports, firewall
@@ -176,7 +176,7 @@ jobs:
               vps 'sudo -u tf2 screen -S tf2 -X hardcopy -h /home/tf2/console.txt; sleep 1; tail -n 40 /home/tf2/console.txt; echo "-- processes:"; pgrep -a srcds | cut -c1-150' 2>&1 | hide | tail -c 3200 >> "$R" ;;
             show-file)
               if printf '%s' "$COMMAND" | grep -Eq '^/(home/tf2|etc)/[A-Za-z0-9_./-]*$' && ! printf '%s' "$COMMAND" | grep -q '\.\.'; then
-                vps "tail -n 100 -- $COMMAND" 2>&1 | hide | tail -c 8000 >> "$R"
+                vps "tail -n 250 -- $COMMAND" 2>&1 | hide | tail -c 8000 >> "$R"
               else echo "Give a path under /home/tf2/ or /etc/ (no ..)." >> "$R"; fi ;;
             install-maps)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z0-9_]{3,60}( [a-z0-9_]{3,60}){0,19}$'; then
