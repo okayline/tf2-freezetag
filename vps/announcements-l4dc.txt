@@ -1,26 +1,12 @@
-// One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
-// Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
 Welcome to the information superhighway. Mind the zombies.
 Please do not feed the Witch. Or do. We're not your mom.
 You've got Zombies!
 Now loading... Zombies.
-Best viewed in Netscape Navigator.
+This server is best viewed in Netscape Navigator.
 a/s/l? Alive, still, looting.
-Be the cheat code combo.
+Remember when cheat codes were just a button combo? Be the combo.
 Pills!
 Pills here!
 Grabbin Pills.
 ~*~88x31 cLuB~*~ sErVeRs: L4D cLaSSiC - L4D VeRsUs - TF2 FrEEze tAg - ??
 Need a break? Type !afk. Back? Type !back.
-Connecting you to the apocalypse...
-Please rewind the tape before returning zombies.
-Blow on the cartridge. Then run.
-Your call is important to the Tank.
-Best viewed with a strong sense of dread.
-You are visitor 000001 to the end of the world.
-Under construction. So is your health bar.
-Dial-up detected. Zombies detected. Both slow.
-Remember to save. Oh wait, you can't.
-Press any key to continue. Not that one. Run.
-Keep your friends close and your pipe bombs closer.
-Millennium bug? Never heard of it.
