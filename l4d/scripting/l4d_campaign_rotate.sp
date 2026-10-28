@@ -10,7 +10,7 @@ public Plugin myinfo = {
     name = "88x31 campaign rotation",
     author = "88x31",
     description = "Next campaign after a finale, keeps players together",
-    version = "1.3",
+    version = "1.4",
     url = ""
 };
 
@@ -58,6 +58,27 @@ public void OnMapStart()
     g_vsRounds = 0;
     g_lastRoundEnd = 0.0;
     CreateTimer(3.0, LogMap, _, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(5.0, CheckModeMatch, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+// a versus server on a co-op map (or the other way round) never rotates: the rescue and round_end triggers both miss.
+// If the map does not match the game mode, go to the matching version of the same chapter.
+public Action CheckModeMatch(Handle t)
+{
+    char map[64], fixed[64];
+    GetCurrentMap(map, sizeof(map));
+    bool vsMap = StrContains(map, "l4d_vs_", false) == 0;
+    if (IsVersus() && !vsMap && StrContains(map, "l4d_", false) == 0) {
+        Format(fixed, sizeof(fixed), "l4d_vs_%s", map[4]);
+    } else if (IsCoop() && vsMap) {
+        Format(fixed, sizeof(fixed), "l4d_%s", map[7]);
+    } else {
+        return Plugin_Stop;
+    }
+    if (!IsMapValid(fixed)) return Plugin_Stop;
+    LogMessage("map %s does not match the game mode, changing to %s", map, fixed);
+    ServerCommand("changelevel %s", fixed);
+    return Plugin_Stop;
 }
 
 // L4D does not write the map name into its game log, so the Discord feed can't see map changes
