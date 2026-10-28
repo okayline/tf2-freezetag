@@ -1,5 +1,0 @@
-// One message per line. Lines starting with // and blank lines are skipped. Colors can't be used here. Up to 20 lines.
-// Read again at every map change, or with sm_announce_reload (admin). Seconds between messages: l4d_announce_interval (default 240).
-Type !afk to take a break (a bot plays for you) and !back to come back.
-The welcome screen shows the top players of the past 5 days.
-After the finale the server picks the next campaign for you.

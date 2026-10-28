@@ -13,6 +13,7 @@ import datetime
 import glob
 import importlib.util
 import os
+import random
 import re
 import shutil
 import sqlite3
@@ -25,6 +26,7 @@ from discord import app_commands
 ROLE = "teal"
 D = "/home/tf2/discord"
 CHANNELS = {"l4d-classic", "l4d-vintage", "l4d-vs", "tf2-freezetag"}
+AD_EVERY = 30 * 60                       # seconds between chat announcements per server
 ALERT_CHANNEL = "tf2-freezetag"          # low memory / disk warnings and the nightly backup result
 
 # key: label, game, service, rcon port, server.cfg, log folder, channel for its up/down posts
@@ -169,6 +171,8 @@ class Bot(discord.Client):
         self.last_alert = {}
         self.last_backup = None
         self.last_sample = {}
+        self.last_ad = {}
+        self.last_line = {}
 
     async def setup_hook(self):
         self.loop.create_task(self.watch())
@@ -189,6 +193,25 @@ class Bot(discord.Client):
         c = self.channel(channel_name)
         if c:
             await c.send(text, allowed_mentions=discord.AllowedMentions.none())
+
+    async def advert(self, key, humans):
+        """Every AD_EVERY seconds, one random line from announcements-<game>.txt goes to that server's chat (only while someone is on)."""
+        now = time.time()
+        last = self.last_ad.setdefault(key, now)    # first sight: start the clock, don't post right after a bot restart
+        if humans == 0 or now - last < AD_EVERY:
+            return
+        game = "tf2" if SERVERS[key]["game"] == "tf2" else "l4d"
+        try:
+            lines = [l.strip() for l in open(os.path.join(D, "announcements-%s.txt" % game), encoding="utf-8")
+                     if l.strip() and not l.startswith("//")]
+        except OSError:
+            return
+        if not lines:
+            return
+        pick = random.choice([l for l in lines if l != self.last_line.get(key)] or lines)
+        self.last_line[key] = pick
+        self.last_ad[key] = now
+        await asyncio.to_thread(rcon, key, 'say "[88x31] %s"' % safe_text(pick, 200))
 
     async def weekly(self, now):
         """Sunday 18:00+ (VPS time): post each server's 7-day totals once a week. A marker file keeps it to one post."""
@@ -239,6 +262,10 @@ class Bot(discord.Client):
                                 self.last_sample[key] = tick
                         except Exception as e:
                             print("db error:", e, flush=True)
+                        try:
+                            await self.advert(key, len(names))
+                        except Exception as e:
+                            print("advert error:", type(e).__name__, e, flush=True)
                     st = self.state.setdefault(key, {"up": None, "fails": 0})
                     st["fails"] = 0 if up else st["fails"] + 1
                     if up and st["up"] is False:

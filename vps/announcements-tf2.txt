@@ -1,0 +1,10 @@
+// One chat line per message, picked at random by the Discord bot every 30 minutes while someone is on the server.
+// Lines starting with // and blank lines are skipped. No quotes or semicolons. Changes need a push and the discord action, job bot.
+Reminder: you are frozen, not dead. Your team can still save you.
+Tip: a frozen teammate is a happy teammate once you thaw them.
+Please do not stand still in the open. The snipers are watching.
+If you're reading this, you're not freezing anyone. Just saying.
+Fun fact: 100% of players who run in alone get frozen.
+Thawing is a team sport. Be a team sport.
+The enemy team is not your friend. Your teammates are. Mostly.
+Hydrate. Stretch. Freeze somebody.

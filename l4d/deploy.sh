@@ -93,8 +93,6 @@ done
 
 echo "-- settings"
 install -o tf2 -g tf2 -m 644 "$HERE/base/adminmenu_maplist.ini" "$SM/configs/adminmenu_maplist.ini"
-{ cat "$HERE/base/announcements.txt"; echo "$ANNOUNCE"; } > "$SM/configs/88x31_announcements.txt"
-chown tf2:tf2 "$SM/configs/88x31_announcements.txt"
 # rcon password: keep the old one unless it is missing or the old default
 OLD=$(sed -n 's/^rcon_password "\(.*\)".*/\1/p' "$CFG/server.cfg" 2>/dev/null | head -n 1 || true)
 if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); echo "(new rcon password made, not shown)"; fi
