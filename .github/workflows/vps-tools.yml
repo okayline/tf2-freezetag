@@ -12,30 +12,20 @@ name: VPS tools (manual only)
 #   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with run: tail -n 50 /home/tf2/navgen.log)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   system-check     OS, uptime, load, memory, disk, listening ports, firewall
-#   discord-install  uploads vps/discord-status.py and discord-status-setup.sh and runs the setup (a timer that posts both servers' status to Discord every minute). The webhook links and RCON passwords stay on the VPS, never here.
-#   discord-feed-install  uploads vps/discord-feed.py and discord-feed-setup.sh and starts the live TF2 feed (chat, kills, joins, round wins) once /home/tf2/discord/tf2-feed.url exists on the VPS
-#   relay-install    downloads and installs sp-discordrelay with its three requirements (ripext, SteamWorks, discord-api). Stops without changing anything if a download is missing. Does not restart the server or touch settings.
-#   relay-install-l4d  the same install for the Left 4 Dead 1 server (its own addons/sourcemod folder). No restart, no settings.
-#   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
-#   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
+#   discord          Discord jobs: status (status timer), feed (live TF2 feed), urls (copies the Discord secrets), l4d-feed-channel, relay (sp-discordrelay for TF2), relay-l4d, bot (control bot), bot-status.
+#   web              Web jobs: stats (public stats page), logs (password-protected log page; box: its password), https (Caddy on ports 80/443).
 #   mc               Minecraft jobs. The box starts with the job: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import; the rest of the box is that job's own text (for example "set ..." or "plugin <modrinth name>"). Details are in the comments of each job in the workflow.
 #   leaderboard-install  builds a welcome page with the stats board and starts its 5-minute timer (box: tf2, l4d, l4dvs, l4dc or all, then optional days, like "tf2 5"). l4dvs needs the l4d_damagelog plugin. Totals only, no player names.
-#   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
-#   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
+#   motd             Welcome-screen jobs: classic (l4d/motd/motd.txt on the first L4D server), versus (motd-vs.txt on the second), host (host.txt on all three L4D servers). Players see them when they join.
 #   l4dc-private     makes the ViNtaGe server (l4d-c) private: password from the box (letters and digits only), and takes its welcome screen off (motd.txt moved to motd.txt.off, leaderboard timer stopped). l4dc-public undoes both. The password is not stored in the repo.
 #   l4dc-unlock      takes the password off the ViNtaGe server only (config and live); the welcome screen stays as it is. Also prints the size of the picture the VPS serves for the banner.
 #   l4d-sessions     lists when humans joined and left, on all three L4D servers, from the last 3 hours of game logs (bots, IPs and Steam IDs left out; names and times only)
-#   discord-urls-install  copies the four GitHub secrets DISCORD_L4DB_STATUS_URL, DISCORD_L4DB_FEED_URL, DISCORD_L4DC_STATUS_URL and DISCORD_L4DC_FEED_URL onto the VPS as private files in /home/tf2/discord (l4db.url, l4db-feed.url, l4dc.url, l4dc-feed.url) and says which were found. Never prints them. Then run discord-install and discord-feed-install to start the status messages and live feeds for the Versus and ViNtaGe Edition servers.
-#   stats-install  installs the public stats page: uploads vps/stats.py, vps/discord-status.py, vps/stats-setup.sh and vps/Caddyfile, installs a timer that rebuilds the page every 5 minutes (names only; your ignore list is honored), and reloads Caddy so stats.88x31.app serves it. Live, no game restart. Needs the stats.88x31.app DNS record (already added in Cloudflare).
 #   leaderboard-ignore  leaves one Steam ID out of the leaderboards (box: STEAM_0:1:12345). The list stays on the VPS, not in the repo.
 #   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. run hides the token as (hidden).
-#   map-https        installs Caddy (apt) and puts vps/Caddyfile in place on ports 80/443: https://map.88x31.app (BlueMap) and logs.88x31.app (log page)
 #   backup-install  installs restic + rclone and a nightly encrypted backup of configs, logs, Minecraft world and tools to pCloud (not the game installs). Needs repo secrets PCLOUD_RCLONE_TOKEN (output of `rclone authorize "pcloud"`), RESTIC_PASSWORD, and PCLOUD_HOST only for the EU region (eapi.pcloud.com). Secrets go to private files on the VPS, never printed. Does not run a backup.
 #   backup-run      runs the backup now (can take a while the first time) and shows the result. Box "keep" (or "keep SNAPSHOTID") instead tags the newest (or that) snapshot so cleanup never deletes it.
 #   backup-status   lists the latest backup snapshots and how much is stored in pCloud
 #   backup-restore  installs restic/rclone with the saved secrets if needed (so it works on a brand new VPS), then restores the newest backup. Box empty = restore into /root/restore for a look, nothing is overwritten. Box "apply" = put the files back in their real places over the current ones (stop the game servers first with stop, l4d-stop, l4db-stop, l4dc-stop, mc-stop; on a new VPS run setup first so the game files exist). A snapshot id can follow, like "apply 025a040d".
-#   bot-install     installs (or updates) the Discord control bot: python3-discord from apt, vps/discord-bot.py as the "discord-bot" service (user tf2), and a sudoers file that lets it only start/stop/restart the four game services and run the backup. The token comes from repo secret DISCORD_BOT_TOKEN and goes to a private file on the VPS, never printed. Needs the Discord status poster files (discord-status-setup) on the VPS.
-#   bot-status      shows whether the bot is running and its last log lines (tokens hidden)
 # Needs repo secrets: VPS_HOST, VPS_USER (root), VPS_SSH_KEY.
 on:
   workflow_dispatch:
@@ -45,7 +35,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-motd, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, map-https, mc, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord, web, motd, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, mc, backup-install, backup-run, backup-status, backup-restore, l4dc-private, l4dc-public, l4dc-unlock]
       command:
         description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
@@ -143,34 +133,75 @@ jobs:
               else echo "Give map names like koth_snowtower cp_frostwatch (letters, digits, _ only, up to 20)." >> "$R"; fi ;;
             system-check)
               vps 'cat /etc/os-release | head -2; uptime; free -m | sed -n 1,2p; df -h / | tail -1; echo "-- listening:"; ss -tulnp | head -15; echo "-- ufw:"; (ufw status 2>&1 | head -5); echo "-- ssh login rules:"; (sshd -T 2>/dev/null | grep -E "^(passwordauthentication|permitrootlogin|pubkeyauthentication|kbdinteractiveauthentication) "); echo "-- fail2ban:"; (systemctl is-active fail2ban; fail2ban-client status sshd 2>&1 | grep -E "Currently|Total|Jail|Error|error")' 2>&1 | tail -c 3000 >> "$R" ;;
-            discord-install)
-              scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
-                && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
-                && vps "bash /root/discord-status-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            discord-feed-install)
-              scp $SSHO vps/discord-feed.py vps/discord-feed-l4d.py "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
-                && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            relay-install)
-              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
-                && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
-            relay-install-l4d)
-              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
-                && vps "bash /root/install-discordrelay.sh /home/tf2/l4d/left4dead" 2>&1 | tail -c 2800 >> "$R" ;;
-            l4d-feed-status-channel)
-              vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
-            logweb-install)
-              H=$(printf '%s' "$COMMAND" | grep -E '^[A-Za-z0-9]{4,40}:[0-9a-f]{64}$' || true)
-              scp $SSHO vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && vps "bash /root/logweb-setup.sh '$H'" 2>&1 | tail -c 1500 >> "$R" ;;
-            host-install)
+            motd)
+              # box: the job, then its own text. Jobs: classic, versus, host.
+              SUB=${COMMAND%% *}; COMMAND=${COMMAND#"$SUB"}; COMMAND=${COMMAND# }
+              case "$SUB" in
+              host)
               scp $SSHO l4d/motd/host.txt "$VPS_USER@$VPS_HOST:/root/host.txt" >> "$R" 2>&1 \
                 && vps 'for d in l4d l4d-b l4d-c; do G=/home/tf2/$d/left4dead; if [ -d $G ]; then install -o tf2 -g tf2 -m 644 /root/host.txt $G/host.txt && echo "$d: $(cat $G/host.txt)"; else echo "$d: no folder"; fi; done' >> "$R" 2>&1 ;;
-            l4d-motd)
+              classic)
               scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d/left4dead/" >> "$R" 2>&1 \
                 && vps 'cd /home/tf2/l4d/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt' >> "$R" 2>&1
               scp $SSHO l4d/motd/motd.txt "$VPS_USER@$VPS_HOST:/root/l4d-motd-template.html" >> "$R" 2>&1 \
                 && vps 'D=/home/tf2/leaderboard-l4d; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4d-motd-template.html $D/template.html && systemctl start leaderboard-l4d.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
+              versus)
+              scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d-b/left4dead/motd.txt" >> "$R" 2>&1 \
+                && vps 'cd /home/tf2/l4d-b/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt; grep -o "<h2>[^<]*" motd.txt' >> "$R" 2>&1
+              scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/root/l4dvs-motd-template.html" >> "$R" 2>&1 \
+                && vps 'D=/home/tf2/leaderboard-l4dvs; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4dvs-motd-template.html $D/template.html && systemctl start leaderboard-l4dvs.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
+                *) echo "Box: one of: classic versus host" >> "$R" ;;
+              esac ;;
+            web)
+              # box: the job, then its own text. Jobs: stats, logs, https.
+              SUB=${COMMAND%% *}; COMMAND=${COMMAND#"$SUB"}; COMMAND=${COMMAND# }
+              case "$SUB" in
+              logs)
+              H=$(printf '%s' "$COMMAND" | grep -E '^[A-Za-z0-9]{4,40}:[0-9a-f]{64}$' || true)
+              scp $SSHO vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps "bash /root/logweb-setup.sh '$H'" 2>&1 | tail -c 1500 >> "$R" ;;
+              stats)
+              scp $SSHO vps/stats.py vps/discord-status.py vps/stats-setup.sh vps/Caddyfile "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps 'bash /root/stats-setup.sh 2>&1 | tail -n 4; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 1; systemctl reload caddy; sleep 8; curl -s -o /dev/null -w "stats via caddy: HTTP %{http_code}\n" --resolve stats.88x31.app:443:127.0.0.1 -k https://stats.88x31.app/' 2>&1 | tail -c 2000 >> "$R" ;;
+              https)
+              scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
+                *) echo "Box: one of: stats logs https" >> "$R" ;;
+              esac ;;
+            discord)
+              # box: the job, then its own text. Jobs: status, feed, urls, l4d-feed-channel, relay, relay-l4d, bot, bot-status.
+              SUB=${COMMAND%% *}; COMMAND=${COMMAND#"$SUB"}; COMMAND=${COMMAND# }
+              case "$SUB" in
+              status)
+              scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
+                && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
+                && vps "bash /root/discord-status-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+              feed)
+              scp $SSHO vps/discord-feed.py vps/discord-feed-l4d.py "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
+                && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
+              relay)
+              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
+                && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
+              relay-l4d)
+              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
+                && vps "bash /root/install-discordrelay.sh /home/tf2/l4d/left4dead" 2>&1 | tail -c 2800 >> "$R" ;;
+              l4d-feed-channel)
+              vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
+              urls)
+              put() { if [ -n "$2" ]; then printf '%s\n' "$2" | vps "umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/$1; chown tf2:tf2 /home/tf2/discord/$1 /home/tf2/discord; chmod 700 /home/tf2/discord" >> "$R" 2>&1 && echo "$1: written" >> "$R"; else echo "$1: secret not set, skipped" >> "$R"; fi; }
+              put l4db.url "$DISCORD_L4DB_STATUS_URL"; put l4db-feed.url "$DISCORD_L4DB_FEED_URL"
+              put l4dc.url "$DISCORD_L4DC_STATUS_URL"; put l4dc-feed.url "$DISCORD_L4DC_FEED_URL" ;;
+              bot)
+              if [ -z "$DISCORD_BOT_TOKEN" ]; then echo "Add repo secret DISCORD_BOT_TOKEN first." >> "$R"
+              else
+                printf '%s' "$DISCORD_BOT_TOKEN" | vps 'umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/bot.token; chown tf2:tf2 /home/tf2/discord /home/tf2/discord/bot.token; chmod 700 /home/tf2/discord'
+                scp $SSHO vps/discord-bot.py vps/discord-status.py vps/discord-bot-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
+                  && vps 'bash /root/discord-bot-setup.sh' 2>&1 | tail -c 2000 >> "$R"
+              fi ;;
+              bot-status) vps 'systemctl is-active discord-bot; journalctl -u discord-bot -n 25 --no-pager -o cat | sed -E "s/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}/(token)/g"' 2>&1 | tail -c 2500 >> "$R" ;;
+                *) echo "Box: one of: status feed urls l4d-feed-channel relay relay-l4d bot bot-status" >> "$R" ;;
+              esac ;;
             leaderboard-install)
               # box: tf2, l4d, l4dvs, l4dc or all, then optional days (default 5). Example: "tf2 5". Builds the welcome page with the stats board and starts its 5-minute timer.
               W=$(printf '%s' "$COMMAND" | awk '{print $1}'); D=$(printf '%s' "$COMMAND" | awk '{print $2}' | grep -E '^[0-9]+$' || true)
@@ -199,18 +230,6 @@ jobs:
               vps 'C=/home/tf2/l4d-c/left4dead/cfg/server.cfg; sed -i "/^sv_password /d" $C; sudo -u tf2 screen -S l4dc -X stuff "sv_password \"\"$(printf "\r")"; echo "password lines left in server.cfg: $(grep -c "^sv_password" $C)"; echo "banner picture served (width, height):"; curl -s http://127.0.0.1/banner/banner.png | python3 -c "import sys,struct;d=sys.stdin.buffer.read();print(struct.unpack(\">II\",d[16:24]),len(d),\"bytes\")"' >> "$R" 2>&1 ;;
             l4d-sessions)
               vps 'for d in l4d l4d-b l4d-c; do echo "== $d"; find /home/tf2/$d/left4dead/logs -name "L*.log" -mmin -180 | sort | xargs -r cat | grep -E "\" (connected|disconnected)" | grep -v "<BOT>" | sed -E "s/<[0-9]+><STEAM_[0-9:]+>//g; s/STEAM_[0-9]:[0-9]:[0-9]+/(id)/g; s/\[U:1:[0-9]+\]/(id)/g; s/, address \"[^\"]*\"//; s/^L //; s/^[0-9\/]+ - //" | sort -u | tail -n 40; done' 2>&1 | tail -c 3500 >> "$R" ;;
-            discord-urls-install)
-              put() { if [ -n "$2" ]; then printf '%s\n' "$2" | vps "umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/$1; chown tf2:tf2 /home/tf2/discord/$1 /home/tf2/discord; chmod 700 /home/tf2/discord" >> "$R" 2>&1 && echo "$1: written" >> "$R"; else echo "$1: secret not set, skipped" >> "$R"; fi; }
-              put l4db.url "$DISCORD_L4DB_STATUS_URL"; put l4db-feed.url "$DISCORD_L4DB_FEED_URL"
-              put l4dc.url "$DISCORD_L4DC_STATUS_URL"; put l4dc-feed.url "$DISCORD_L4DC_FEED_URL" ;;
-            stats-install)
-              scp $SSHO vps/stats.py vps/discord-status.py vps/stats-setup.sh vps/Caddyfile "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && vps 'bash /root/stats-setup.sh 2>&1 | tail -n 4; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 1; systemctl reload caddy; sleep 8; curl -s -o /dev/null -w "stats via caddy: HTTP %{http_code}\n" --resolve stats.88x31.app:443:127.0.0.1 -k https://stats.88x31.app/' 2>&1 | tail -c 2000 >> "$R" ;;
-            l4db-motd)
-              scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/home/tf2/l4d-b/left4dead/motd.txt" >> "$R" 2>&1 \
-                && vps 'cd /home/tf2/l4d-b/left4dead && chown tf2:tf2 motd.txt; sed -i "s/<!--LEADERBOARD-->//" motd.txt; ls -l motd.txt; grep -o "<h2>[^<]*" motd.txt' >> "$R" 2>&1
-              scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/root/l4dvs-motd-template.html" >> "$R" 2>&1 \
-                && vps 'D=/home/tf2/leaderboard-l4dvs; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4dvs-motd-template.html $D/template.html && systemctl start leaderboard-l4dvs.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
             tf2-gslt) gslt ;;
             mc)
               # Minecraft jobs. Box: <job> then that job's own text. Jobs: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import.
@@ -311,17 +330,6 @@ jobs:
                 scp $SSHO vps/backup-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                   && vps "bash /root/backup-setup.sh >/dev/null 2>&1; export RESTIC_REPOSITORY=rclone:pcloud:Backups/vps-backup RESTIC_PASSWORD_FILE=/root/restic-password HOME=/root; T=/root/restore; [ $MODE = apply ] && T=/; restic restore $SNAP --target \$T 2>&1 | tail -n 4; echo \"restored $SNAP into \$T\"; [ $MODE = apply ] || du -sh /root/restore" 2>&1 | tail -c 2000 >> "$R"
               fi ;;
-            bot-install)
-              if [ -z "$DISCORD_BOT_TOKEN" ]; then echo "Add repo secret DISCORD_BOT_TOKEN first." >> "$R"
-              else
-                printf '%s' "$DISCORD_BOT_TOKEN" | vps 'umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/bot.token; chown tf2:tf2 /home/tf2/discord /home/tf2/discord/bot.token; chmod 700 /home/tf2/discord'
-                scp $SSHO vps/discord-bot.py vps/discord-status.py vps/discord-bot-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                  && vps 'bash /root/discord-bot-setup.sh' 2>&1 | tail -c 2000 >> "$R"
-              fi ;;
-            bot-status) vps 'systemctl is-active discord-bot; journalctl -u discord-bot -n 25 --no-pager -o cat | sed -E "s/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}/(token)/g"' 2>&1 | tail -c 2500 >> "$R" ;;
-            map-https)
-              scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
           m=$(tail -c 7000 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')

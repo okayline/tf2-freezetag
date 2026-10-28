@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Changed:** 14 more actions merged into three. `discord` (jobs: status, feed, urls, l4d-feed-channel, relay, relay-l4d, bot, bot-status), `web` (stats, logs, https) and `motd` (classic, versus, host). The box starts with the job. Not run since the merge.
 - **Changed:** the nine Minecraft install and setting actions are now one: `mc` (box: the job, then its own text, like `set ...` or `plugin-install <name>`). Jobs: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import. Not run since the merge; Minecraft is off.
 - **Changed:** `l4d-setup`, `l4db-setup` and `l4dc-setup` are now one: `l4d-setup` (box: `classic`, `versus` or `vintage`). Not run since the merge.
 - **Changed:** the four leaderboard install actions are now one: `leaderboard-install` (box: `tf2`, `l4d`, `l4dvs`, `l4dc` or `all`, then optional days). `run` now hides IP addresses and Steam IDs in its output (`(ip)`, `(steamid)`). Not run yet after the merge.
