@@ -1,6 +1,0 @@
-<html>
-<head><title>88x31 cLuB</title></head>
-<body style="margin:0px;padding:1px;background:#000000;">
-<img src="https://raw.githubusercontent.com/okayline/tf2-freezetag/main/l4d/motd/test/banner.png" style="width:100%;height:100%;" />
-</body>
-</html>
