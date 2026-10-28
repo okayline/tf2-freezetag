@@ -4,6 +4,7 @@
 
 ## Welcome pages: TF2 without stats, versus says reverse friendly fire
 **Tue Oct 27, 2026**
+- **Changed:** the nine Minecraft install and setting actions are now one: `mc` (box: the job, then its own text, like `set ...` or `plugin-install <name>`). Jobs: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import. Not run since the merge; Minecraft is off.
 - **Changed:** `l4d-setup`, `l4db-setup` and `l4dc-setup` are now one: `l4d-setup` (box: `classic`, `versus` or `vintage`). Not run since the merge.
 - **Changed:** the four leaderboard install actions are now one: `leaderboard-install` (box: `tf2`, `l4d`, `l4dvs`, `l4dc` or `all`, then optional days). `run` now hides IP addresses and Steam IDs in its output (`(ip)`, `(steamid)`). Not run yet after the merge.
 - **Removed:** 27 more workflow actions that `run` replaces: start/stop/restart for TF2, classic, versus, vintage and Minecraft; `tf2-pause`, `tf2-resume`; `logs`, `command`, `l4d-console`, `l4d-command`, `l4d-log`, `l4d-log-on`, `l4d-log-kinds`, `tf2-log-on`, `l4d-toolz-find`, `host-remove`. `status` stays as the default. For versus and vintage, check free memory before starting (they used to refuse under 900 MB).

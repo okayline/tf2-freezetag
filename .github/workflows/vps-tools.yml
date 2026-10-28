@@ -18,7 +18,7 @@ name: VPS tools (manual only)
 #   relay-install-l4d  the same install for the Left 4 Dead 1 server (its own addons/sourcemod folder). No restart, no settings.
 #   l4d-feed-status-channel  points the L4D live feed at the existing L4D status channel webhook (copies l4d.url to l4d-feed.url on the VPS) and starts it
 #   logweb-install   installs the password-protected log web page (inside the server on 8090; Caddy from map-https puts it on 80/443) (box: salt:sha256 password hash, or empty to keep the old one)
-#   mc-setup         installs Minecraft (Paper + Geyser/Floodgate so Bedrock can join), service mc, ports 25565/tcp + 19132/udp, memory capped. No start.
+#   mc               Minecraft jobs. The box starts with the job: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import; the rest of the box is that job's own text (for example "set ..." or "plugin <modrinth name>"). Details are in the comments of each job in the workflow.
 #   leaderboard-install  builds a welcome page with the stats board and starts its 5-minute timer (box: tf2, l4d, l4dvs, l4dc or all, then optional days, like "tf2 5"). l4dvs needs the l4d_damagelog plugin. Totals only, no player names.
 #   l4db-motd        puts l4d/motd/motd-vs.txt (the second L4D server's welcome screen) on the second L4D server. No restart; the game reads it when a player joins.
 #   host-install     puts l4d/motd/host.txt (the orange name in "This third-party server provided by:") on all three L4D servers. Plain text; no restart; the game reads it when a player joins.
@@ -29,13 +29,7 @@ name: VPS tools (manual only)
 #   stats-install  installs the public stats page: uploads vps/stats.py, vps/discord-status.py, vps/stats-setup.sh and vps/Caddyfile, installs a timer that rebuilds the page every 5 minutes (names only; your ignore list is honored), and reloads Caddy so stats.88x31.app serves it. Live, no game restart. Needs the stats.88x31.app DNS record (already added in Cloudflare).
 #   leaderboard-ignore  leaves one Steam ID out of the leaderboards (box: STEAM_0:1:12345). The list stays on the VPS, not in the repo.
 #   tf2-gslt         puts the TF2 server login token (repo secret TF2_GSLT, never printed) into the tf2 service launch line. Does NOT restart; run restart afterwards. setup does this on its own too. run hides the token as (hidden).
-#   mc-discord-install  installs the newest DiscordSRV (from Modrinth) into Minecraft, sets the bot token (repo secret MC_DISCORD_TOKEN, never printed) and the channel in the box, restarts mc
-#   mc-discord-format  sets how Discord messages look in Minecraft chat: the role-colored name, then » and the message (no [Discord | role] tag); in Discord, the Minecraft name in bold; reloads DiscordSRV
-#   mc-bluemap-render  turns BlueMap on (accepts its download, render threads: 4th number, default 1) and limits all maps to a square around a spot (box: X Z RADIUS [THREADS], like -330 73 1000 2; the Nether gets RADIUS/8 around X/8 Z/8); reloads BlueMap
 #   map-https        installs Caddy (apt) and puts vps/Caddyfile in place on ports 80/443: https://map.88x31.app (BlueMap) and logs.88x31.app (log page)
-#   mc-plugin-install  installs one Paper plugin from Modrinth for Minecraft 26.3 (its Modrinth name in the box, like coreprotect) and restarts mc; stops if there is no 26.3 build
-#   mc-bluemap-install  puts the newest BlueMap for Paper 26.3 (from Modrinth) in the Minecraft plugins and restarts mc. BlueMap stays idle (no render, no web page) until its download is accepted in core.conf
-#   mc-import        swaps in /root/world2.zip as the Minecraft world: checks the zip, stops mc, renames world to world-old (stops if world-old exists), unzips, starts mc
 #   backup-install  installs restic + rclone and a nightly encrypted backup of configs, logs, Minecraft world and tools to pCloud (not the game installs). Needs repo secrets PCLOUD_RCLONE_TOKEN (output of `rclone authorize "pcloud"`), RESTIC_PASSWORD, and PCLOUD_HOST only for the EU region (eapi.pcloud.com). Secrets go to private files on the VPS, never printed. Does not run a backup.
 #   backup-run      runs the backup now (can take a while the first time) and shows the result. Box "keep" (or "keep SNAPSHOTID") instead tags the newest (or that) snapshot so cleanup never deletes it.
 #   backup-status   lists the latest backup snapshots and how much is stored in pCloud
@@ -51,7 +45,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-motd, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, mc-setup, mc-set, mc-motd, mc-import, mc-discord-install, mc-discord-format, mc-bluemap-install, mc-plugin-install, mc-bluemap-render, map-https, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord-install, discord-feed-install, relay-install, relay-install-l4d, l4d-feed-status-channel, logweb-install, l4d-motd, l4db-motd, discord-urls-install, stats-install, l4d-sessions, leaderboard-install, leaderboard-ignore, tf2-gslt, map-https, mc, backup-install, backup-run, backup-status, backup-restore, bot-install, bot-status, host-install, l4dc-private, l4dc-public, l4dc-unlock]
       command:
         description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
@@ -218,17 +212,21 @@ jobs:
               scp $SSHO l4d/motd/motd-vs.txt "$VPS_USER@$VPS_HOST:/root/l4dvs-motd-template.html" >> "$R" 2>&1 \
                 && vps 'D=/home/tf2/leaderboard-l4dvs; if [ -d $D ]; then install -o tf2 -g tf2 -m 644 /root/l4dvs-motd-template.html $D/template.html && systemctl start leaderboard-l4dvs.service && echo "leaderboard rebuilt"; fi' >> "$R" 2>&1 ;;
             tf2-gslt) gslt ;;
-            mc-setup)
+            mc)
+              # Minecraft jobs. Box: <job> then that job's own text. Jobs: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import.
+              SUB=${COMMAND%% *}; COMMAND=${COMMAND#"$SUB"}; COMMAND=${COMMAND# }
+              case "$SUB" in
+              setup)
               scp $SSHO vps/setup-minecraft.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps "bash /root/setup-minecraft.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-            mc-set)   # box: key=value for server.properties (applies on next mc restart)
+              set)   # box: key=value for server.properties (applies on next mc restart)
               if printf '%s' "$COMMAND" | grep -Eq '^[a-z.-]{2,50}=[A-Za-z0-9_.-]{0,40}$'; then
                 k=${COMMAND%%=*}
                 vps "f=/home/tf2/mc/server.properties; if grep -q '^$k=' \$f; then sed -i 's|^$k=.*|$COMMAND|' \$f; else echo '$COMMAND' >> \$f; fi; grep '^$k=' \$f; echo players:; sudo -u tf2 screen -S mc -X stuff \"list\$(printf '\\r')\"; sleep 1; tail -n 2 /home/tf2/mc/logs/latest.log" 2>&1 | tail -c 1500 >> "$R"
               else echo "Give key=value." >> "$R"; fi ;;
-            mc-motd)   # fixed server description; applies on next mc restart
+              motd)   # fixed server description; applies on next mc restart
               vps 'f=/home/tf2/mc/server.properties; sed -i "s|^motd=.*|motd=\\\\u00a7d~*~88x31 cLuB~*~\\\\u00a7r mInEcRaFt VaNiLLa|" $f; grep ^motd= $f; echo players:; sudo -u tf2 screen -S mc -X stuff "list$(printf "\r")"; sleep 1; tail -n 1 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
-            mc-discord-install)
+              discord-install)
               CH=$(printf '%s' "$COMMAND" | tr -cd '0-9')
               if [ -z "$MC_DISCORD_TOKEN" ] || [ -z "$CH" ]; then echo "Needs the MC_DISCORD_TOKEN secret and a channel ID in the box." >> "$R"
               else
@@ -244,19 +242,19 @@ jobs:
                   rm -f /root/mc-discord-token; chown tf2:tf2 \$C; systemctl restart mc; sleep 40
                   grep -i 'discordsrv' /home/tf2/mc/logs/latest.log | grep -iv token | tail -n 12" 2>&1 | tail -c 2500 >> "$R"
               fi ;;
-            mc-discord-format)
+              discord-format)
               vps 'M=/home/tf2/mc/plugins/DiscordSRV/messages.yml; echo before:; grep -n "^DiscordToMinecraftChatMessageFormat\|^MinecraftChatToDiscordMessageFormat" $M
                 sed -i -e "s|^DiscordToMinecraftChatMessageFormat:.*|DiscordToMinecraftChatMessageFormat: \"%toprolecolor%%name%<reset>%reply% » %message%\"|" -e "s|^DiscordToMinecraftChatMessageFormatNoRole:.*|DiscordToMinecraftChatMessageFormatNoRole: \"%name%%reply% » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormat:.*|MinecraftChatToDiscordMessageFormat: \"**%displayname%** » %message%\"|" -e "s|^MinecraftChatToDiscordMessageFormatNoPrimaryGroup:.*|MinecraftChatToDiscordMessageFormatNoPrimaryGroup: \"**%displayname%** » %message%\"|" $M
                 echo after:; grep -n "^DiscordToMinecraftChatMessageFormat\|^MinecraftChatToDiscordMessageFormat" $M
                 sudo -u tf2 screen -S mc -X stuff "discord reload$(printf "\r")"; sleep 4; tail -n 4 /home/tf2/mc/logs/latest.log' 2>&1 | tail -c 1500 >> "$R" ;;
-            mc-bluemap-install)
+              bluemap-install)
               vps "P=/home/tf2/mc/plugins
                 U=\$(curl -fsS -A '88x31-mc-setup (ryan)' 'https://api.modrinth.com/v2/project/bluemap/version?loaders=%5B%22paper%22%5D&game_versions=%5B%2226.3%22%5D' | python3 -c 'import json,sys;v=json.load(sys.stdin)[0];print(v[\"version_number\"],v[\"files\"][0][\"url\"])')
                 [ -n \"\$U\" ] || { echo 'could not find BlueMap for 26.3 on Modrinth'; exit 0; }
                 echo \"BlueMap \${U%% *}\"; curl -fsSL -o \$P/BlueMap.jar.new \"\${U#* }\" && mv \$P/BlueMap.jar.new \$P/BlueMap.jar || { echo 'download failed'; exit 0; }
                 chown tf2:tf2 \$P/BlueMap.jar; systemctl restart mc; sleep 50
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8; grep -n 'accept-download' \$P/BlueMap/core.conf 2>/dev/null" 2>&1 | tail -c 2000 >> "$R" ;;
-            mc-plugin-install)
+              plugin-install)
               S=$(printf '%s' "$COMMAND" | tr -cd 'a-z0-9_-')
               if [ -z "$S" ]; then echo "Put the plugin's Modrinth name in the box." >> "$R"; else
               vps "P=/home/tf2/mc/plugins
@@ -265,7 +263,7 @@ jobs:
                 echo \"$S \${U%% *}\"; curl -fsSL -o \$P/$S.jar.new \"\${U#* }\" && mv \$P/$S.jar.new \$P/$S.jar || { echo 'download failed'; exit 0; }
                 chown tf2:tf2 \$P/$S.jar; systemctl restart mc; sleep 50
                 grep -i '$S' /home/tf2/mc/logs/latest.log | tail -n 6" 2>&1 | tail -c 2000 >> "$R"; fi ;;
-            mc-bluemap-render)
+              bluemap-render)
               set -- $(printf '%s' "$COMMAND" | tr -cd '0-9 -')
               if [ $# -lt 3 ]; then echo "Give X Z RADIUS [THREADS], like -330 73 1000 or -330 73 1000 2." >> "$R"; else
               vps "B=/home/tf2/mc/plugins/BlueMap; X=$1; Z=$2; R=$3; N=${4:-1}
@@ -276,6 +274,19 @@ jobs:
                 chown -R tf2:tf2 \$B; grep -n '^accept-download\|^render-thread-count' \$B/core.conf; tail -n 1 \$B/maps/world.conf
                 sudo -u tf2 screen -S mc -X stuff \"bluemap reload\$(printf '\\r')\"; sleep 25
                 grep -i 'bluemap' /home/tf2/mc/logs/latest.log | tail -n 8" 2>&1 | tail -c 2000 >> "$R"; fi ;;
+              import)
+              vps 'Z=/root/world2.zip; D=/home/tf2/mc; T=$D/import-tmp
+                [ -f $Z ] || { echo "no $Z"; exit 0; }
+                command -v unzip >/dev/null || { echo "unzip is not installed"; exit 0; }
+                unzip -tq $Z >/dev/null || { echo "zip is incomplete or broken (still uploading?)"; exit 0; }
+                [ -e $D/world-old ] && { echo "$D/world-old already exists, not touching anything"; exit 0; }
+                rm -rf $T; mkdir -p $T; unzip -q $Z -d $T || { echo "unzip failed"; rm -rf $T; exit 0; }
+                L=$(find $T -maxdepth 3 -name level.dat | head -1); [ -n "$L" ] || { echo "no level.dat in the zip"; rm -rf $T; exit 0; }
+                systemctl stop mc; [ -d $D/world ] && mv $D/world $D/world-old
+                mv "$(dirname "$L")" $D/world; rm -rf $T; rm -f $D/world/session.lock; chown -R tf2:tf2 $D/world
+                systemctl start mc; sleep 3; systemctl is-active mc; du -sh $D/world $D/world-old 2>/dev/null; df -h /home | tail -1' 2>&1 | tail -c 1500 >> "$R" ;;
+                *) echo "Box: one of: setup set motd discord-install discord-format bluemap-install plugin-install bluemap-render import, then its own text." >> "$R" ;;
+              esac ;;
             backup-install)
               if [ -z "$PCLOUD_RCLONE_TOKEN" ] || [ -z "$RESTIC_PASSWORD" ]; then echo "Add repo secrets PCLOUD_RCLONE_TOKEN and RESTIC_PASSWORD first." >> "$R"
               else
@@ -311,17 +322,6 @@ jobs:
             map-https)
               scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
-            mc-import)
-              vps 'Z=/root/world2.zip; D=/home/tf2/mc; T=$D/import-tmp
-                [ -f $Z ] || { echo "no $Z"; exit 0; }
-                command -v unzip >/dev/null || { echo "unzip is not installed"; exit 0; }
-                unzip -tq $Z >/dev/null || { echo "zip is incomplete or broken (still uploading?)"; exit 0; }
-                [ -e $D/world-old ] && { echo "$D/world-old already exists, not touching anything"; exit 0; }
-                rm -rf $T; mkdir -p $T; unzip -q $Z -d $T || { echo "unzip failed"; rm -rf $T; exit 0; }
-                L=$(find $T -maxdepth 3 -name level.dat | head -1); [ -n "$L" ] || { echo "no level.dat in the zip"; rm -rf $T; exit 0; }
-                systemctl stop mc; [ -d $D/world ] && mv $D/world $D/world-old
-                mv "$(dirname "$L")" $D/world; rm -rf $T; rm -f $D/world/session.lock; chown -R tf2:tf2 $D/world
-                systemctl start mc; sleep 3; systemctl is-active mc; du -sh $D/world $D/world-old 2>/dev/null; df -h /home | tail -1' 2>&1 | tail -c 1500 >> "$R" ;;
           esac
           [ -s "$R" ] || echo "(no output)" >> "$R"
           m=$(tail -c 7000 "$R" | sed -e 's/%/%25/g' -e ':a;N;$!ba;s/\n/ | /g')
