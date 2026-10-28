@@ -9,11 +9,10 @@ import hashlib, hmac, os, secrets, sys
 
 KEY_FILE = "/etc/l4d-story/title.key"
 
-ADJ = ["Quiet", "Restless", "Steady", "Lucky", "Iron", "Silent", "Wild", "Patient",
-       "Last", "Lonely", "Brave", "Grim", "Swift", "Stubborn", "Gentle", "Hollow",
-       "Burning", "Faithful", "Weary", "Sharp", "Wandering", "Careful", "Reckless", "Calm",
-       "Midnight", "Rusty", "Bright", "Broken", "Golden", "Distant", "Fearless", "Lost"]
-NOUN = ["Wanderer", "Watcher", "Drifter", "Stranger", "Hunter", "Medic", "Sentinel", "Runner",
+ADJ = ["Quiet", "Restless", "Steady", "Lucky", "Iron", "Patient", "Brave", "Swift", "Gentle", "Burning", "Faithful",
+       "Sharp", "Wandering", "Careful", "Reckless", "Calm", "Midnight", "Rusty", "Bright", "Golden", "Fearless", "Valiant",
+       "Radiant", "Loyal", "Clever", "Daring", "Hopeful", "Noble", "Mighty", "Merry", "Gallant", "Dauntless"]
+NOUN = ["Wanderer", "Watcher", "Drifter", "Hunter", "Medic", "Sentinel", "Runner",
         "Survivor", "Pilgrim", "Ghost", "Guardian", "Outlaw", "Scout", "Keeper", "Rider",
         "Mechanic", "Preacher", "Gambler", "Saint", "Traveler", "Sniper", "Shepherd", "Nomad",
         "Lantern", "Falcon", "Sparrow", "Wolf", "Raven", "Fox", "Anchor", "Ember"]
