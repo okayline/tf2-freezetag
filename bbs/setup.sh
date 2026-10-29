@@ -77,12 +77,12 @@ if [ -n "$H" ] && ! grep -q 'bigterm' "$H"; then
 body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
-#fTelnetContainer:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
+#ftwrap:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
 </style>
-<div style="text-align:right;margin-bottom:6px"><button class="btn btn-default btn-xs" onclick="var e=document.getElementById('fTelnetContainer');(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">Fullscreen</button></div>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
+  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">\xe2\x9b\xb6</button></div>#' "$H"
   rm -f /tmp/bigterm.html
 fi
 chown -R $U:$U $D
