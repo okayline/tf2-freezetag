@@ -66,7 +66,7 @@ jobs:
           mkdir -p ~/.ssh && umask 077 && printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
           SSHO="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=20 -o LogLevel=ERROR"
           vps() { ssh $SSHO "$VPS_USER@$VPS_HOST" "$@"; }
-          hide() { sed -E 's/(sv_setsteamaccount )[A-Fa-f0-9]+/\1(hidden)/g; s/[0-9]{1,3}(\.[0-9]{1,3}){3}/(ip)/g; s/STEAM_[0-5]:[01]:[0-9]+/(steamid)/g; s/\[U:1:[0-9]+\]/(steamid)/g; s/7656119[0-9]{10}/(steamid)/g'; }   # the repo is public: never show the login token
+          hide() { sed -E 's/(sv_setsteamaccount )[A-Fa-f0-9]+/\1(hidden)/g; s/[0-9]{1,3}(\.[0-9]{1,3}){3}/(ip)/g; s/([0-9a-fA-F]{0,4}:){3,7}[0-9a-fA-F]{1,4}/(ip)/g; s/STEAM_[0-5]:[01]:[0-9]+/(steamid)/g; s/\[U:1:[0-9]+\]/(steamid)/g; s/7656119[0-9]{10}/(steamid)/g'; }   # the repo is public: never show the login token
           gslt() {   # puts the login token (TF2_GSLT) in the tf2 service launch line, before +map; any old one is replaced
             T=$(printf '%s' "$TF2_GSLT" | tr -cd 'A-Fa-f0-9')
             if [ -z "$T" ]; then echo "No TF2_GSLT repo secret, so no login token was set." >> "$R"
