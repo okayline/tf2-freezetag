@@ -63,6 +63,8 @@ X
   echo "NetHack door added to section $SEC (settings $S)"
 fi
 chown -R $U:$U $D
+# the web site (browser terminal) needs a Guest account
+(cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
 cat > /etc/systemd/system/sbbs.service <<S
