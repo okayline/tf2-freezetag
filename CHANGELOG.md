@@ -9,6 +9,7 @@
 - **Changed:** dark mode is on by default and the Dark/Light switch is hidden (`css/custom.css`). On phones the Sidebar button and the sliding sidebar are hidden.
 - **Removed:** the Recent Visitors block from the sidebar (files kept in `/sbbs/webv4-sidebar-removed`).
 - **Added:** page version **v0.1**, shown in the footer next to the year.
+- **Removed:** the Fullscreen icon and its scripts (`bbs/setup.sh`), at the owner's request. The page keeps the big terminal, black page and no scrollbars.
 - **Applied:** `bbs/setup.sh` with `SKIPBUILD=1` through the `run` action. No game server or BBS restart.
 
 ## 88x31 BBS at bbs.88x31.app
