@@ -113,6 +113,9 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 if [ -n "$CSSD" ] && ! grep -qs 'v0.1' $CSSD/custom.css; then echo 'footer p::after{content:" \00b7  v0.1"}' >> $CSSD/custom.css; fi
+# take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
+mkdir -p $D/webv4-sidebar-removed
+for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D/webv4-sidebar-removed/; done
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
