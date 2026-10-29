@@ -126,6 +126,8 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
+  # a taller terminal: 40 lines instead of 25 (still 80 columns)
+  sed -i -E 's/(Options\.ScreenRows *= *)25;/\140;/' "$H"
   rm -f /tmp/bigterm.html
 fi
 # web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are

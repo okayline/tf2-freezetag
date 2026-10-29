@@ -2,11 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## BBS: spinning cursor for everyone, v0.19
+## BBS: spinning cursor for everyone, 40-line terminal, v0.19
 **Thu Oct 29, 2026 · 6:24 AM HST** (waiting for "push")
 
 - **Changed:** the spinning cursor is on for every user and for new users (user setting "spinning cursor", `main.ini` new-user settings `0x6910` → `0x6930`). Rolled accounts were made with it off, so they saw no spinner. The footer is v0.19.
-- **Removed:** new users starting with the spinning cursor off, and the footer's v0.18.
+- **Changed:** the web terminal is 40 lines tall instead of 25 (still 80 columns).
+- **Removed:** new users starting with the spinning cursor off, the 25-line terminal, and the footer's v0.18.
 
 ## BBS: no Home link, v0.18
 **Thu Oct 29, 2026 · 6:17 AM HST** (waiting for "push")
