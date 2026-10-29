@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: tap anywhere at [Hit a key], v0.77
+**Thu Oct 29, 2026 · 10:12 AM HST** (committed, not pushed)
+
+- **Added:** in the tap script: when the cursor's line shows Synchronet's [Hit a key] pause, a tap or click anywhere on the terminal continues (sends Enter), on phones and desktop. Owner: "for the two [Hit a key] screens when you log in, could it be click anywhere to continue?". Footer v0.77.
+
 ## BBS: phone keyboard no longer pushes the terminal out of view, v0.76
 **Thu Oct 29, 2026 · 10:10 AM HST** (committed, not pushed)
 
