@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: click the menu letters in the web terminal, v0.35
+**Thu Oct 29, 2026 · 7:31 AM HST** (not pushed)
+
+- **Added:** bbs/menu/main.40col.msg, Synchronet's 40-column main menu with a click spot on each key letter; setup.sh copies it over the stock one.
+- **Added:** the mouse flag (MOUSE) is on for every user and for new users, next to the spinning cursor.
+- **Removed:** nothing. Other screens stay keyboard-only. Footer v0.35.
+
 ## BBS: 24-hour time, v0.34
 **Thu Oct 29, 2026 · 7:25 AM HST** (not pushed)
 
