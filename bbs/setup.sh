@@ -156,8 +156,8 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# The user name, Link passkey and Log out are on the User page. Home (and the name) do nothing while you are already on the
-# page with the terminal, so it does not reload and reconnect.
+# The user name, Link passkey and Log out are on the User page. On the terminal page, Forum and User open in a panel and the
+# terminal stays connected out of sight; Home brings it back without a reload.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
@@ -165,9 +165,23 @@ cat > $NB <<'NAV'
 	// 88x31: three text links instead of the menu bar: Home, Forum, User (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
-	<a href="<? write(settings.brand_link || './'); ?>" onclick="return !document.getElementById('fTelnetContainer')"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./" onclick="return !document.getElementById('fTelnetContainer')">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-user.xjs">User</a>
+	<a href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
+	<a href="./" onclick="return tlGo(this)">Home</a> <a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a> <a href="./?page=900-user.xjs" onclick="return tlGo(this)">User</a>
 </div>
+<script>
+// On the terminal page, Forum and User open in a panel in its place and the terminal is only moved out of sight, so its
+// connection stays open; Home puts the terminal back. Inside the panel the page has no top links or footer.
+if (window !== window.top) document.documentElement.className += ' inframe';
+function tlGo(a) {
+ var term = document.getElementById('fTelnetContainer'); if (!term || window !== window.top) return true;
+ var box = term.parentNode, home = a.getAttribute('href') == './', fr = document.getElementById('tlpanel');
+ if (home) { if (fr) fr.style.display = 'none'; box.style.position = ''; box.style.left = ''; return false; }
+ if (!fr) { fr = document.createElement('iframe'); fr.id = 'tlpanel'; box.parentNode.insertBefore(fr, box); }
+ fr.src = a.getAttribute('href'); fr.style.display = 'block';
+ box.style.position = 'absolute'; box.style.left = '-10000px';
+ return false;
+}
+</script>
 <script>
 function pkSignIn(el){
  var b=function(s){return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});};
@@ -216,8 +230,9 @@ cat > $D/webv4/pages/900-user.xjs <<'STUFF'
 <div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
 STUFF
 rm -f $D/webv4/pages/900-user.xjs.ssjs
-if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px}' >> $CSSD/custom.css
+if [ -n "$CSSD" ] && ! grep -qs 'tlpanel' $CSSD/custom.css; then
+  sed -i '/toplinks/d' $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
