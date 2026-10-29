@@ -2,6 +2,10 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## OpenRA Red Alert server
+**Thu Oct 29, 2026 · HST**
+- **Added:** `openra/setup.sh`: installs the OpenRA Red Alert dedicated server (latest release, unpacked AppImage) in `/home/tf2/openra`, service `openra`, port 1234/tcp, named "88x31 | Red Alert | US West", listed on the public OpenRA server list. No game files needed. Runs at lower priority (nice 5) with a 400 MB memory cap so TF2 and L4D stay smooth. Install: `run` action with `curl -fsSL https://raw.githubusercontent.com/okayline/tf2-freezetag/main/openra/setup.sh | bash`.
+
 ## TF2 sleeps when empty
 **Thu Oct 29, 2026 · HST**
 - **Changed:** TF2 is named "88x31 | Freeze Tag | US West | Snow Maps". It runs 8 bots (4v4), and they only join once a real player is on (`tf_bot_join_after_player 1`).
