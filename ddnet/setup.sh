@@ -12,8 +12,10 @@ echo "== $VER =="
 T=$(mktemp -d); curl -fsSL -o "$T/dd.tar.xz" "https://ddnet.org/downloads/$VER"
 tar -xJf "$T/dd.tar.xz" -C "$T"; mkdir -p "$D/logs"
 cp -a "$T"/DDNet-*/. "$D"/; rm -rf "$T"
-curl -fsSL -o "$D/autoexec_server.cfg" "$RAW/autoexec_server.cfg"
-chown -R $U:$U "$D"
+# DDNet reads the first autoexec_server.cfg it finds: the user folder comes before data/ (which has its default)
+C=/home/$U/.local/share/ddnet; mkdir -p "$C"
+curl -fsSL -o "$C/autoexec_server.cfg" "$RAW/autoexec_server.cfg"
+chown -R $U:$U "$D" "/home/$U/.local"
 cat > /etc/systemd/system/ddnet.service <<UNIT
 [Unit]
 Description=DDNet (DDRace) server
