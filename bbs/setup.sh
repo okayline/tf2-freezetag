@@ -64,6 +64,26 @@ if ! grep -qi '^\[prog:.*NETHACK\]' $X; then
 X
   echo "NetHack door added to section $SEC (settings $S)"
 fi
+
+# web page: full-width layout, big terminal (no sidebar on the home page), Fullscreen button
+sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
+H=$(ls -d $D/webv4/pages/000-home.xjs 2>/dev/null || true)
+if [ -n "$H" ] && ! grep -q 'bigterm' "$H"; then
+  cp "$H" $D/webv4-home.xjs.bak
+  cat > /tmp/bigterm.html <<'X'
+<!-- bigterm -->
+<style>
+#sidebar{display:none}
+.col-sm-9{width:100%}
+.fTelnetContainer{width:100%}
+#fTelnetContainer:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
+</style>
+<div style="text-align:right;margin-bottom:6px"><button class="btn btn-default btn-xs" onclick="var e=document.getElementById('fTelnetContainer');(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">Fullscreen</button></div>
+<!-- end bigterm -->
+X
+  sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
+  rm -f /tmp/bigterm.html
+fi
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
