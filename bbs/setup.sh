@@ -225,6 +225,16 @@ rm -f $NB.ssjs; fi
 if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
   echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #toplinks-right{float:right} #toplinks-right a{margin:0 0 0 14px}' >> $CSSD/custom.css
 fi
+# page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
+# CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
+WF=$D/webv4/root/fonts
+if [ ! -s $WF/Web437_IBM_VGA_8x16.woff ]; then
+  mkdir -p $WF; curl -fsSL -m 60 -o /tmp/fontpack.zip https://int10h.org/oldschool-pc-fonts/download/oldschool_pc_font_pack_v2.2_web.zip \
+    && unzip -o -j -q /tmp/fontpack.zip 'woff - Web (webfonts)/Web437_IBM_VGA_8x16.woff' LICENSE.TXT -d $WF; rm -f /tmp/fontpack.zip
+fi
+if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
+  echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
+fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
 BBS_VERSION=0.13
