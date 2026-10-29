@@ -152,7 +152,7 @@ function tapKey(row, x) {
 		var cv = C.Canvas, d = null;
 		// phones: the phone's own keyboard instead of fTelnet's on-screen one. An invisible text field gets focus when you tap the
 		// terminal (not on a menu letter); what you type in it is sent on as keys. Key events stop at the field so fTelnet does not get them twice.
-		var ta = null, mob = (window.DetectMobileBrowser && DetectMobileBrowser.IsMobile) || (window.matchMedia && matchMedia('(pointer:coarse)').matches);
+		var wantKb = false, ta = null, mob = (window.DetectMobileBrowser && DetectMobileBrowser.IsMobile) || (window.matchMedia && matchMedia('(pointer:coarse)').matches);
 		if (mob) {
 			ta = document.createElement('textarea');
 			ta.setAttribute('autocapitalize', 'off'); ta.setAttribute('autocomplete', 'off'); ta.setAttribute('autocorrect', 'off'); ta.setAttribute('spellcheck', 'false'); ta.setAttribute('aria-hidden', 'true');
@@ -160,6 +160,9 @@ function tapKey(row, x) {
 			document.body.appendChild(ta);
 			var key = function (c) { C.PushKeyPress(c, 0, false, false, false); }, reset = function () { ta.value = ' '; ta.setSelectionRange(1, 1); };
 			reset();
+			// open it on the tap's last event (click): focusing earlier, on pointerup, lost the focus to the mousedown that phones fire after a tap
+			cv.addEventListener('mousedown', function (e) { e.preventDefault(); });
+			cv.addEventListener('click', function () { if (wantKb) { wantKb = false; ta.focus(); } });
 			['keydown', 'keypress', 'keyup'].forEach(function (n) { ta.addEventListener(n, function (e) { e.stopPropagation(); }); });
 			ta.addEventListener('keydown', function (e) {
 				if (e.keyCode === 13) { e.preventDefault(); key(13); }
@@ -185,7 +188,7 @@ function tapKey(row, x) {
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
 			var k = tapKey(row, x);
 			if (k) C.PushKeyPress(k.charCodeAt(0), 0, false, false, false);
-			else if (ta) ta.focus();
+			else if (ta) wantKb = true;
 		});
 	}
 })();
@@ -314,7 +317,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.73
+BBS_VERSION=0.74
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
