@@ -130,7 +130,7 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
 (function(){
 function tapKey(row, x) {
 	// row: one screen row as [{ch, fg}] (0-based); x: the tapped cell. Returns the key letter to press, or null.
-	var SIDE_L = ' [(<\xB3\xBA|', SIDE_R = ' ])>:.\xB3\xBA|';
+	var SIDE_L = ' [(<\xB3\xBA|\u2502\u2551', SIDE_R = ' ])>:.\xB3\xBA|\u2502\u2551';
 	function isKey(i) {
 		var c = row[i];
 		if (!c || c.fg < 8 || !/^[A-Za-z&!?*#]$/.test(c.ch)) return false;
@@ -141,7 +141,7 @@ function tapKey(row, x) {
 	for (var i = x; i >= 0 && x - i < 40; i--) {
 		var ch = row[i].ch;
 		if (isKey(i)) return ch;
-		if ('\xDA\xC0\xBF\xD9\xC4'.indexOf(ch) >= 0) return null;
+		if ('\xDA\xC0\xBF\xD9\xC4\u250C\u2514\u2510\u2518\u2500'.indexOf(ch) >= 0) return null;
 		if (ch === ' ') { if (++spaces >= 3) return null; } else spaces = 0;
 	}
 	return null;
@@ -171,6 +171,8 @@ X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
   # taller terminal: 40 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\140;/' "$H"
+  # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it
+  sed -i -E "s/(var fTelnet = new fTelnetClient\('fTelnetContainer', Options\);)/\1 window.fTelnet = fTelnet;/" "$H"
   rm -f /tmp/bigterm.html
 fi
 # web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are
@@ -287,7 +289,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.61
+BBS_VERSION=0.62
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
