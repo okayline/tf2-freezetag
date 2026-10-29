@@ -40,6 +40,8 @@ setk('UNIX','User','bbs'); setk('UNIX','Group','bbs')
 open(f,'w').write(t)
 PY
 sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
+# browser terminal behind Caddy (bbs.88x31.app): over https it connects to wss on 443
+grep -q '^\s*wssp\s*=' $D/ctrl/modopts.ini || sed -i -E '/^\[web\]/a\    wssp=443' $D/ctrl/modopts.ini
 # system password (needed to create the sysop account): from repo secret BBS_SYSPASS, put in /root/bbs-syspass by vps-tools
 if [ -s /root/bbs-syspass ]; then python3 -c 'import re,sys;p=open("/root/bbs-syspass").read().strip();f=sys.argv[1];t=open(f).read();open(f,"w").write(re.sub(r"(?m)^password=.*$",lambda m:"password="+p,t,count=1))' $D/ctrl/main.ini; echo "system password set (not shown)"; fi
 
