@@ -65,6 +65,12 @@ X
   echo "NetHack door added to section $SEC (settings $S)"
 fi
 
+# no Bulletins screen at logon: BullsEye stays in the programs menu, but is no longer a logon event (event 1 -> 0)
+python3 - $X <<'PY4'
+import re,sys
+f=sys.argv[1];t=open(f).read()
+open(f,'w').write(re.sub(r'(?ms)(^\[prog:[^\]]*BULLSEYE\][^\[]*?^\s*event\s*=\s*)1\b',r'\g<1>0',t))
+PY4
 # web page: full-width layout, big terminal (no sidebar on the home page)
 sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
 # Guest logon: no "please enter your full name" / e-mail questions (logon.js skips a prompt whose option is false)

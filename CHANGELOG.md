@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no Bulletins screen at logon
+**Thu Oct 29, 2026 · 5:31 AM HST** (waiting for "push")
+
+- **Changed:** after logging in you go straight to the main menu. BullsEye Bulletins is still in the programs menu.
+- **Removed:** the Bulletins screen that showed at every logon (`bbs/setup.sh` sets its logon event off in `xtrn.ini`).
+
 ## BBS: our own web terminal, v0.10
 **Thu Oct 29, 2026 · 5:30 AM HST** (waiting for "push")
 
