@@ -11,7 +11,7 @@ VER=$(curl -fsS https://ddnet.org/downloads/ | grep -oE 'DDNet-[0-9.]+-linux_x86
 echo "== $VER =="
 T=$(mktemp -d); curl -fsSL -o "$T/dd.tar.xz" "https://ddnet.org/downloads/$VER"
 tar -xJf "$T/dd.tar.xz" -C "$T"; mkdir -p "$D/logs"
-cp -a "$T"/DDNet-*/. "$D"/; rm -rf "$T"
+cp -a --remove-destination "$T"/DDNet-*/. "$D"/; rm -rf "$T"
 # DDNet reads data/autoexec_server.cfg (its own default lives there), so ours replaces it
 curl -fsSL -o "$D/data/autoexec_server.cfg" "$RAW/autoexec_server.cfg"; rm -f "$D/autoexec_server.cfg"
 chown -R $U:$U "$D"
