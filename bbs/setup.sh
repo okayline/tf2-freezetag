@@ -161,21 +161,35 @@ if [ -n "$CSSD" ]; then
   # all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
-# top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# The user name, Link passkey and Log out are on the User page. On the terminal page, Forum and User open in a panel and the
-# terminal stays connected out of sight; the BBS name brings it back without a reload.
+# top of the page: one row of plain text links (every page) instead of the menu bar: the BBS name and Forum on the left, the user
+# name on the right with a small menu (Log in with passkey, Link passkey, Log out). On the terminal page, Forum opens in a panel and
+# the terminal stays connected out of sight; the BBS name brings it back without a reload.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: the BBS name and two text links instead of the menu bar: Forum, User (made by bbs/setup.sh; do not edit)
+	// 88x31: the BBS name, Forum and the user menu instead of the menu bar (made by bbs/setup.sh; do not edit)
+	var me = (user.number > 0 && user.alias !== settings.guest);
 ?>
 <div id="toplinks">
 	<a href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a> <a href="./?page=900-user.xjs" onclick="return tlGo(this)">User</a>
+	<a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a>
+	<span id="tlme"><a href="#" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;"><? write(me ? user.alias : 'Guest'); ?> &#9662;</a>
+	<span id="tlmenu">
+		<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
+<?xjs if (me) { ?>
+		<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
+		<a href="#" id="button-logout">Log out</a>
+<?xjs } ?>
+	</span></span>
 </div>
+<?xjs if (me) { ?>
+<script>(function(){ var l=document.getElementById('nav-pklink');
+ fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
+<?xjs } ?>
+<script>document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)) m.classList.remove('open'); });</script>
 <script>
-// On the terminal page, Forum and User open in a panel in its place and the terminal is only moved out of sight, so its
+// On the terminal page, Forum opens in a panel in its place and the terminal is only moved out of sight, so its
 // connection stays open; the BBS name puts the terminal back. Inside the panel the page has no top links or footer.
 if (window !== window.top) document.documentElement.className += ' inframe';
 function tlGo(a) {
@@ -206,10 +220,8 @@ function pkSignIn(el){
 </script>
 NAV
 rm -f $NB.ssjs; fi
-# "User" page (was "Stuff"): who you are logged in as, Link passkey, Sign in with passkey, Log out, then every other page (all but Home
-# and Forum) as text links. Log out goes back to this browser's own account (the one its key finds); a new one is made only if
-# that one is gone.
-rm -f $D/webv4/pages/900-stuff.xjs $D/webv4/pages/900-stuff.xjs.ssjs
+# no User page (its name and links are in the top bar's user menu)
+rm -f $D/webv4/pages/900-user.xjs $D/webv4/pages/900-user.xjs.ssjs $D/webv4/pages/900-stuff.xjs $D/webv4/pages/900-stuff.xjs.ssjs
 # no Games or Files pages (the same door programs and file areas are on the BBS menu: [X]ternal programs, [T]ransfer Files);
 # User List is for the sysop only (level 90)
 rm -f $D/webv4/pages/003-games.xjs $D/webv4/pages/003-games.xjs.ssjs $D/webv4/pages/002-files.xjs $D/webv4/pages/002-files.xjs.ssjs
@@ -218,34 +230,8 @@ import re,sys
 f=sys.argv[1];t=open(f).read()
 open(f,'w').write(re.sub(r'(?ms)(^\[\*userlist\.xjs\]\s*\n\s*AccessRequirements\s*=).*?$',r'\1 level 90',t))
 PY8
-cat > $D/webv4/pages/900-user.xjs <<'STUFF'
-<!--User-->
-<?xjs
-	// 88x31: links to every page except Home, Forum and this one (made by bbs/setup.sh; do not edit)
-	function stuff(arr, path) {
-		arr.forEach(function (e) {
-			if (e.type == 'list') { stuff(e.list, (path || '') + e.title + '/'); return; }
-			var p = (path || '') + e.page;
-			if (/^(000-home|001-forum|900-user)\./.test(p)) return;
-			write('<p><a href="./?page=' + p + '"' + (e.type == 'link' ? ' target="_blank"' : '') + '>' + e.title + '</a></p>');
-		});
-	}
-?>
-<?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
-<p>You are logged in as <a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a></p>
-<p><a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a></p>
-<?xjs } ?>
-<p><a href="#" onclick="return pkSignIn(this)">Sign in with passkey</a></p>
-<?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
-<p><a href="#" id="button-logout">Log out</a></p>
-<script>(function(){ var l=document.getElementById('nav-pklink');
- fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
-<?xjs } ?>
-<div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
-STUFF
-rm -f $D/webv4/pages/900-user.xjs.ssjs
 if [ -n "$CSSD" ]; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #tlme{float:right} #tlme>a{margin-right:0} #tlmenu{display:none;position:absolute;right:15px;top:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
@@ -259,7 +245,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.38
+BBS_VERSION=0.39
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
