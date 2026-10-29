@@ -259,7 +259,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.37
+BBS_VERSION=0.38
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
@@ -501,6 +501,17 @@ m=re.search(r'(?ms)^\[newuser\][^\n]*\n(.*?)(?=^\[|\Z)',t)
 b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<5)|(1<<31)),m.group(1),count=1)
 open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
 PY6
+# DOVE-Net: the VERT hub (stock, already mapped to the DOVE-Net areas) turned on with this BBS's Vertrauen QWK password
+# (repo secret DOVE_PASS, put in /root/dove-pass by vps-tools); calls out 4 times a day
+if [ -s /root/dove-pass ]; then python3 - $D/ctrl/msgs.ini <<'PY9'
+import re,sys
+f=sys.argv[1];t=open(f).read();p=open('/root/dove-pass').read().strip()
+m=re.search(r'(?ms)^\[qhub:VERT\][^\n]*\n(.*?)(?=^\[|\Z)',t)
+b=re.sub(r'(?m)^(\s*enabled\s*=).*$',r'\1true',m.group(1),count=1)
+b=re.sub(r'(?m)^(\s*call\s*=\s*\*qnet-ftp %s dove\.synchro\.net) .*$',lambda x:x.group(1)+' '+p,b,count=1)
+open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
+PY9
+echo "DOVE-Net hub on (password not shown)"; fi
 # 24-hour time everywhere (system setting SM_MILITARY, 1 << 18, the first settings line of main.ini, before any [section])
 python3 - $D/ctrl/main.ini <<'PY7'
 import re,sys
