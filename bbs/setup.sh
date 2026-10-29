@@ -67,6 +67,9 @@ fi
 
 # web page: full-width layout, big terminal (no sidebar on the home page), Fullscreen button
 sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
+# dark mode on for everyone (the switch itself is hidden below)
+if grep -qE '^\s*darkmode_on\s*=' $D/ctrl/modopts.ini; then sed -i -E 's/^(\s*darkmode_on\s*=).*/\1true/' $D/ctrl/modopts.ini
+else sed -i -E '/^\[web\]/a\    darkmode_on=true' $D/ctrl/modopts.ini; fi
 H=$(ls -d $D/webv4/pages/000-home.xjs 2>/dev/null || true)
 if [ -n "$H" ]; then
   [ -f $D/webv4-home.xjs.bak ] && cp $D/webv4-home.xjs.bak "$H" || cp "$H" $D/webv4-home.xjs.bak
