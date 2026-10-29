@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: shorter main menu, v0.40
+**Thu Oct 29, 2026 · 7:59 AM HST** (not pushed)
+
+- **Removed:** [T]ransfer Files, [G]eneral Text File Area, Get [Q]WK and List [U]sers from the 40-column main menu (the keys still work if typed).
+- **Changed:** Log [O]ff moved up a line; the sysop-only [!] menu item is on the Chat line. Footer v0.40.
+
 ## BBS: user menu in the top bar, no User page, v0.39
 **Thu Oct 29, 2026 · 7:56 AM HST** (not pushed)
 
