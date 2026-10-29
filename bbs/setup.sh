@@ -271,6 +271,7 @@ hook="""
 					if (!u.location) u.location = 'Unknown';
 					if (!u.birthdate) u.birthdate = '1970-01-01';
 					if (!u.netmail) u.netmail = u.alias.replace(/ /g, '_') + '@bbs.88x31.app';
+					u.settings &= ~((1 << 14) | (1 << 16));   // ASK_NSCAN, ASK_SSCAN: no "search all groups" questions at logon
 					return bbs.login(u.alias, '', u.security.password);
 			})(String(str).toLowerCase());
 			if (_ok) { bbs.logon(); exit(); }
@@ -284,6 +285,10 @@ find $D/data/pktok -type f -mmin +5 -delete 2>/dev/null || true
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
+# Guest: no "search all groups" questions at logon either (same two flags as the passkey login)
+echo 'var u = new User(system.matchuser("Guest")); if (u.number) u.settings &= ~((1 << 14) | (1 << 16));' > /tmp/guestfix.js && chmod 644 /tmp/guestfix.js
+(cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/guestfix.js 2>&1 | tail -n 1) || true
+rm -f /tmp/guestfix.js
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
 cat > /etc/systemd/system/sbbs.service <<S
