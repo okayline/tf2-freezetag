@@ -156,7 +156,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# Keeps the passkey "Sign in" / "Link passkey" links and the user name with the unread mail badge.
+# Keeps "Sign in" for visitors who are not signed in; the user name, Link passkey and Log out are on the Stuff page.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
@@ -169,9 +169,6 @@ cat > $NB <<'NAV'
 	<span id="toplinks-right">
 	<?xjs if (user.alias === settings.guest || user.number < 1) { ?>
 		<a href="#" onclick="return pkSignIn(this)">Sign in</a>
-	<?xjs } else { ?>
-		<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
-		<a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a>
 	<?xjs } ?>
 	</span>
 </div>
@@ -190,12 +187,11 @@ function pkSignIn(el){
  }catch(x){ el.textContent=label; el.title=(x&&x.message)?x.message:String(x); } })();
  return false;
 }
-(function(){ var l=document.getElementById('nav-pklink'); if(!l)return;
- fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();
 </script>
 NAV
 rm -f $NB.ssjs; fi
-# "Stuff" page: every other page (all but Home and Forum) as a list of text links
+# "Stuff" page: who you are logged in as, Link passkey and Log out (signed-in users), then every other page (all but Home
+# and Forum) as text links. Log out also forgets the browser key, so the home page makes a new rolled account next time.
 cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 <!--Stuff-->
 <?xjs
@@ -209,6 +205,13 @@ cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 		});
 	}
 ?>
+<?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
+<p>You are logged in as <a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a></p>
+<p><a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a></p>
+<p><a href="#" id="button-logout" onclick="try{localStorage.removeItem('bbs88x31key');}catch(e){}">Log out</a></p>
+<script>(function(){ var l=document.getElementById('nav-pklink');
+ fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
+<?xjs } ?>
 <div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
 STUFF
 rm -f $D/webv4/pages/900-stuff.xjs.ssjs
@@ -227,7 +230,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.14
+BBS_VERSION=0.15
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs

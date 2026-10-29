@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Log out, your name on the Stuff page, v0.15
+**Thu Oct 29, 2026 · 6:02 AM HST** (waiting for "push")
+
+- **Added:** a "Log out" link on the Stuff page. It also forgets this browser's key, so the home page gives you a new rolled account next time.
+- **Changed:** the Stuff page starts with "You are logged in as (name)" (with the unread mail count) and the "Link passkey" link. The footer is v0.15.
+- **Removed:** your name, the mail count and "Link passkey" from the top links (the top links keep "Sign in" for visitors who are not signed in), and the footer's v0.14.
+
 ## BBS: one passkey link, v0.14
 **Thu Oct 29, 2026 · 5:58 AM HST** (waiting for "push")
 
