@@ -149,10 +149,10 @@ if [ ! -s $FD/$FJS ] || [ "${FTELNET_REFRESH:-}" = 1 ]; then
   sed -i -e "s#//embed-v2.ftelnet.ca/ftelnet/fonts/#/ftelnet/fonts/#g" -e "s#//embed-v2.ftelnet.ca/proxy-servers.json#/ftelnet/proxy-servers.json#g" $FD/$FJS
   echo "fTelnet copied: $(ls $FD/fonts | wc -l) fonts"
 fi
-[ -n "$H" ] && sed -i "s#<?xjs write(get_url()); ?>#/ftelnet/$FJS?v=$FTV-nocursor#" "$H"   # -nocursor: browsers fetch the patched copy, not an old saved one
-# no terminal cursor: the blink timer only ever hides it, so Synchronet's spinning cursor is the only one
-sed -i 's#case BlinkState.Show:this.onshow.trigger();break;#case BlinkState.Show:this.onhide.trigger();break;#' $FD/$FJS
-grep -q 'case BlinkState.Show:this.onhide.trigger()' $FD/$FJS && echo "terminal cursor off" || echo "terminal cursor: patch did not fit"
+[ -n "$H" ] && sed -i "s#<?xjs write(get_url()); ?>#/ftelnet/$FJS?v=$FTV-nocursor2#" "$H"   # -nocursor2: browsers fetch the patched copy, not an old saved one
+# no terminal cursor: the _ bar is drawn in a see-through colour, so Synchronet's spinning cursor is the only one
+sed -i 's#fillStyle=this._Cursor.Colour#fillStyle="transparent"#g' $FD/$FJS
+grep -q 'fillStyle="transparent"' $FD/$FJS && echo "terminal cursor off" || echo "terminal cursor: patch did not fit"
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
@@ -251,7 +251,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.27
+BBS_VERSION=0.28
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs

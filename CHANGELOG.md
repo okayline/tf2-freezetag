@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no _ cursor in the browser terminal, v0.28
+**Thu Oct 29, 2026 · 7:08 AM HST** (not pushed)
+
+- **Removed:** the old cursor patch (it sent every blink to the wrong handler, so the `_` was drawn and never erased: a frozen `_`).
+- **Added:** the `_` bar is drawn see-through instead, so only Synchronet's spinning cursor shows. Blinking text still blinks.
+- **Changed:** footer v0.28; the terminal script link ends in `-nocursor2` so browsers fetch the new copy.
+
 ## BBS: terminal size tries, back to the full-width look, v0.20 to v0.27
 **Thu Oct 29, 2026 · 6:35 AM – 6:50 AM HST** (commits ceab526 … 049be4d, pushed and applied)
 
