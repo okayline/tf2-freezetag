@@ -103,6 +103,7 @@ body{background:#000;color:#ccc}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #fTelnetContainer canvas{width:100% !important;height:auto !important;image-rendering:pixelated}
+#fTelnetContainer div{max-width:100% !important;width:auto !important;height:auto !important}
 #ftelnet-connect{display:none !important}
 .fTelnetFocusWarning{display:none !important}
 </style>
@@ -251,7 +252,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.24
+BBS_VERSION=0.25
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
