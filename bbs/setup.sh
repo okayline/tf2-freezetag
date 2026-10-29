@@ -77,6 +77,7 @@ if [ -n "$H" ]; then
 body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
+#ftwrap,#fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #ftwrap:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
 </style>
 <script>
