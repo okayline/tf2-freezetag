@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: one-line prompt, menu colors fixed, v0.41
+**Thu Oct 29, 2026 · 8:08 AM HST** (not pushed)
+
+- **Added:** bbs/ctrl/text.ini (custom text for Synchronet's scripts), copied to ctrl/text.ini by setup.sh.
+- **Removed:** "■ Main ■" and the line break from the main prompt; it is now the time left, then group and area on one line.
+- **Changed:** the last two menu lines are bright again (v0.40 left them dim). Footer v0.41.
+
 ## BBS: shorter main menu, v0.40
 **Thu Oct 29, 2026 · 7:59 AM HST** (not pushed)
 

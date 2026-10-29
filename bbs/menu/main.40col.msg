@@ -14,6 +14,6 @@
 N³H BGo ToW N³’HBLog [C~OB]ff
 NÀÄÄÄÄÄÄHÄÙ
 HB [C~CB]hat @Section@N @POS:27@@SYSONLY@HBSysop [C~!B]menuN@SYSONLY@
- [C~XB]ternal programs
+HB [C~XB]ternal programs
  [C~DB]isplay/change your configuration
 Z
