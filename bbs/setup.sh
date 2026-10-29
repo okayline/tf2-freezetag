@@ -158,7 +158,7 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 # custom.css is rewritten from here on every run (one rule per line, each tagged), so a change in the repo reaches the site
 if [ -n "$CSSD" ]; then
   touch $CSSD/custom.css
-  sed -i -E '/dark-switch|allblack|toplinks|dosfont|offcanvas|footerpos|^footer p.*::after/d' $CSSD/custom.css
+  sed -i -E '/dark-switch|allblack|toplinks|dosfont|offcanvas|footerpos|termborder|^footer p.*::after/d' $CSSD/custom.css
   echo '/* darkswitch */ .dark-switch{display:none !important}' >> $CSSD/custom.css
   # all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
@@ -247,10 +247,12 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.58
+BBS_VERSION=0.59
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
+# no border around the terminal (the old one was a thin light line); everything around it is already black
+if [ -n "$CSSD" ]; then echo '/* termborder */ #fTelnetContainer,#fTelnetContainer *,.fTelnetContainer,.fTelnetClientContainer,.fTelnetClientContainer canvas{border:0 !important;outline:0 !important;box-shadow:0 !important}' >> $CSSD/custom.css; fi
 # footer text on the right, right under the line (the stock footer leaves a big gap under it)
 if [ -n "$CSSD" ]; then echo '/* footerpos */ hr{margin:12px 0 4px !important} footer{text-align:right !important;margin:0 !important;padding:0 !important;height:auto !important;min-height:0 !important} footer p{margin:0 !important;padding:0 !important;text-align:right !important}' >> $CSSD/custom.css; fi
 # phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
