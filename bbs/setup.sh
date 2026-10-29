@@ -282,6 +282,38 @@ if k<0: sys.exit("login.js: getstr not found")
 open(sys.argv[2],"w").write("// 88x31: stock exec/login.js plus a one-time code check (made by bbs/setup.sh; do not edit)\n"+src[:e]+hook+src[e:])
 PY3
 find $D/data/pktok -type f -mmin +5 -delete 2>/dev/null || true
+# new users (typing "New"): a rolled two-word name like the games (word lists from scoundrel.exe src/names.js) instead of being
+# asked for one; the terminal questions stay, every other question is filled in. main.ini already points at newuser_prompts.
+cat > $D/mods/newuser_prompts.js <<'JS2'
+// 88x31: a new user gets a rolled two-word name (like the games) instead of being asked for one (made by bbs/setup.sh; do not edit)
+var prompts = bbs.mods.prompts || load(bbs.mods.prompts = {}, "user_info_prompts.js", "new user registration");
+var options = load("modopts.js", "newuser_prompts", {});
+var A = ["Quiet", "Amber", "Early", "Gentle", "Bright", "Sleepy", "Golden", "Misty", "Rosy", "Brisk", "Hushed", "Warm", "Pale", "Slow", "Steady", "Wandering", "Soft", "Silver", "Crisp", "Drowsy", "Humble", "Eager", "Lucky", "Patient", "Little", "Cheerful", "Faint", "Glowing", "Distant", "Tender", "Rested", "Windy", "Dewy", "Calm", "Merry", "Shy", "Nimble", "Sunny", "Mellow", "Dappled"];
+var N = ["Heron", "Lantern", "Sparrow", "Kettle", "Meadow", "Thistle", "Harbor", "Wren", "Compass", "Fern", "Moth", "Orchard", "Ferry", "Pebble", "Robin", "Willow", "Teapot", "Comet", "Lark", "Cedar", "Beacon", "Marmot", "Otter", "Clover", "Ember", "Finch", "Tide", "Bramble", "Lamp", "Poppy", "Swallow", "Sundial", "Quill", "Hedgehog", "Trellis", "Rooster", "Weathervane", "Kingfisher", "Pigeon", "Lighthouse"];
+function roll() {
+	for (var i = 0; i < 200; i++) {
+		var n = A[random(A.length)] + ' ' + N[random(N.length)];
+		if (n.length <= 16 && system.check_name(n) && !system.matchuser(n)) return n;
+	}
+	return null;
+}
+if (options.lang)
+	prompts.get_lang();
+prompts.get_terminal(user, options);
+var name = roll();
+if (!name) {
+	log(LOG_ERR, "New user: could not roll a name");
+	exit(1);
+}
+user.alias = name;
+user.name = name;
+user.handle = name;
+user.location = 'Unknown';
+user.birthdate = '1970-01-01';
+user.netmail = name.replace(/ /g, '_') + '@bbs.88x31.app';
+user.settings &= ~((1 << 14) | (1 << 16));   // ASK_NSCAN, ASK_SSCAN: no "search all groups" questions at logon
+console.print("\r\nYour name here is \1h" + name + "\1n.\r\n");
+JS2
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
