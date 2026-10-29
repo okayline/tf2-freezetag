@@ -129,8 +129,8 @@ X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
   # a taller terminal: 40 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\140;/' "$H"
-  # medium letters (the classic 8x16 VGA font) stretched to the page width, instead of the biggest size that fits
-  sed -i -E "s/(Options\.Font *= *)'CP437';/\1'CP437_8x16';/" "$H"
+  # the biggest letters (12x23), stretched to the page width: same size on screen as any font, but smoother
+  sed -i -E "s/(Options\.Font *= *)'CP437';/\1'CP437_12x23';/" "$H"
   rm -f /tmp/bigterm.html
 fi
 # web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are
@@ -251,7 +251,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.20
+BBS_VERSION=0.21
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
