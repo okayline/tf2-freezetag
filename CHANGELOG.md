@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Reverse FF kicks instead of bans; deploy no longer sets a difficulty
+**Wed Oct 28, 2026 · 7:43 PM – 7:52 PM HST**
+- **Changed:** Reverse FF now kicks at 200 friendly damage per map and never bans (`reverseff_survivormaxdmg "200"`, `reverseff_banduration "-1"` in `l4d/base/reverse_ff.cfg`). A 24 hour ban had split up a lobby group. Applied live on all three servers with the console (no restarts), and that player's ban was lifted. **Removed:** the 120 damage limit and the 24 hour ban.
+- **Removed:** `DIFFICULTY` in `l4d/servers/*.conf` and the `z_difficulty` line deploy wrote into server.cfg (it was Hard on vintage). Lobbies pick their own difficulty. Also taken out of vintage's live server.cfg; the current game keeps its difficulty until the next lobby or restart.
+
 ## Tales from the Safe Room: server logs become written stories; Reverse FF spares infected players
 **Tue Oct 27, 2026 · 9:27 PM – 10:30 PM HST** (commits fcf1331 … 6791235; the story pieces that run on the Worker are in okayline/dungeon-items)
 - **Added:** `vps/story-title.py`: turns a Steam ID into a stable story title like "the Quiet Wanderer" (32 describing words x 31 nouns), using a secret key that is created on first use at `/etc/l4d-story/title.key` and exists only on the server. Nobody can work back from a title to a Steam ID. Words were changed twice at the owner's request (Hermit swapped for Falcon; Silent, Wild, Last, Lonely, Grim, Stubborn, Hollow, Weary, Broken, Distant, Lost and Stranger dropped, 16 friendlier words added). **Removed:** those words.

@@ -105,7 +105,6 @@ if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); ech
   # only take lobbies of this mode, so a co-op lobby can't switch the versus server to a co-op map
   [ "$MODE" = versus ] && echo "sv_gametypes \"versus\""
   echo "l4d_rotate_order \"$ORDER\""
-  [ -n "$DIFFICULTY" ] && echo "z_difficulty $DIFFICULTY"
 } > "$CFG/server.cfg"
 chown tf2:tf2 "$CFG/server.cfg"
 if [ "$REVERSE_FF" = 1 ]; then   # the plugin adds every setting we leave out, with its default
