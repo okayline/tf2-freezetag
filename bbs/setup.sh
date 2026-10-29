@@ -130,8 +130,8 @@ APID=$(dirname "$(ls $D/webv4/*/api/auth.ssjs 2>/dev/null | head -1)")
 if [ -d "$APID" ]; then cat > "$APID/passkey.ssjs" <<'JS'
 // Passkey sign-in for the 88x31 BBS web site, through the shared Accounts service (dungeon-items).
 //   GET  ?action=options                  passkey login options (a challenge from Accounts)
-//   POST ?action=login  {credential}      signs in the BBS user linked to that account; if nobody is linked yet and
-//                                         someone is signed in with their BBS password, links that user to the account.
+//   POST ?action=login  {credential}      signs in the BBS user linked to that account; if nobody is linked yet: links the
+//                                         signed-in user, or (nobody signed in) makes a new BBS user with a random name.
 var settings = load('modopts.js', 'web') || { web_directory: '../webv4' };
 load(settings.web_directory + '/lib/init.js');
 load(settings.web_lib + 'auth.js');
@@ -155,6 +155,15 @@ function call(method, args) {
 	var r = new HTTPRequest(undefined, undefined, { 'x-accounts-key': key() }, 15);
 	var body = r.Post(ACC + method, JSON.stringify(args), undefined, undefined, 'application/json');
 	try { return JSON.parse(body); } catch (e) { return { error: 'Accounts are unavailable right now. Try again in a moment.' }; }
+}
+var W1 = ['Quiet', 'Amber', 'Silver', 'Wandering', 'Hidden', 'Lucky', 'Clever', 'Brave', 'Velvet', 'Neon', 'Mossy', 'Copper'];
+var W2 = ['Fox', 'Owl', 'Lantern', 'Comet', 'Moth', 'Raven', 'Pilgrim', 'Otter', 'Signal', 'Ghost', 'Heron', 'Ember'];
+function freshName() {
+	for (var i = 0; i < 60; i++) {
+		var n = W1[random(W1.length)] + W2[random(W2.length)] + (i >= 10 ? String(random(1000)) : '');
+		if (system.matchuser(n) < 1) return n;
+	}
+	return null;
 }
 function ipOf() {
 	var h = http_request.header || {};
@@ -186,7 +195,16 @@ function ipOf() {
 		if (l && l.linked) return reply({ ok: true, linked: true, name: user.alias });
 		return reply({ error: 'That passkey is already linked to another BBS user.' });
 	}
-	return reply({ error: "This passkey isn't linked to a BBS user yet. Log in with your BBS name and password first, then use the passkey once to link it." });
+	// nobody linked and nobody signed in: make a new BBS user for this account (like the games make a new player)
+	var name = freshName();
+	if (!name) return reply({ error: "Couldn't pick a name. Try again." });
+	var nu = system.new_user(name);
+	if (typeof nu !== 'object' || !nu.number) return reply({ error: "Couldn't make a BBS user. Try again." });
+	var nl = call('link', [r.accountId, GAME, nu.number]);
+	if (!(nl && nl.linked)) { nu.settings |= USER_DELETED; return reply({ error: "Couldn't link the new BBS user. Try again." }); }
+	destroySession(http_request.cookie.synchronet || {});
+	setCookie(nu, randomString(512));
+	return reply({ ok: true, created: true, name: nu.alias });
 })();
 JS
 fi
