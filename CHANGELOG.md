@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: our own web terminal, v0.10
+**Thu Oct 29, 2026 · 5:30 AM HST** (waiting for "push")
+
+- **Added:** a copy of the web terminal (fTelnet: its script, styles and fonts) on our own site at `bbs.88x31.app/ftelnet`, made by `bbs/setup.sh`. The home page loads the terminal from there.
+- **Changed:** the footer is v0.10.
+- **Removed:** loading the terminal, its fonts and its proxy list from `embed-v2.ftelnet.ca`.
+
 ## BBS: no Login on the web page, v0.9
 **Thu Oct 29, 2026 · 5:16 AM HST** (waiting for "push")
 

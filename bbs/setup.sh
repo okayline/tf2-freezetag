@@ -133,12 +133,29 @@ X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
   rm -f /tmp/bigterm.html
 fi
+# web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are
+# copied once into webv4/root/ftelnet; the home page points at our copy. Re-run with FTELNET_REFRESH=1 to download a new copy.
+FTV=2026-01-16; FTU=https://embed-v2.ftelnet.ca/ftelnet; FD=$D/webv4/root/ftelnet; FJS=ftelnet.norip.noxfer.min.js
+if [ ! -s $FD/$FJS ] || [ "${FTELNET_REFRESH:-}" = 1 ]; then
+  mkdir -p $FD/fonts $FD/keyboard
+  curl -fsSL -m 60 -o $FD/$FJS "$FTU/$FJS?v=$FTV"
+  curl -fsSL -m 30 -o $FD/ftelnet.css "$FTU/ftelnet.css" || true
+  for s in 960 800 720 640 560 480 360 320; do curl -fsSL -m 30 -o $FD/keyboard/keyboard-$s.min.css "$FTU/keyboard/keyboard-$s.min.css" || true; done
+  for u in $(cat $FD/ftelnet.css $FD/keyboard/*.css 2>/dev/null | grep -o 'url([^)]*)' | sed -E "s/url\(['\"]?//; s/['\"]?\)$//" | grep -v '^data:' | sort -u); do
+    mkdir -p "$FD/$(dirname "$u")"; curl -fsSL -m 30 -o "$FD/$u" "$FTU/$u" || true; done
+  for f in $(grep -o "_FontNames=\[[^]]*\]" $FD/$FJS | grep -o "'[^']*'" | tr -d "'"); do
+    [ -s $FD/fonts/$f.png ] || curl -fsSL -m 30 -o $FD/fonts/$f.png "$FTU/fonts/$f.png" || true; done
+  curl -fsSL -m 30 -o $FD/proxy-servers.json https://embed-v2.ftelnet.ca/proxy-servers.json || true
+  sed -i -e "s#//embed-v2.ftelnet.ca/ftelnet/fonts/#/ftelnet/fonts/#g" -e "s#//embed-v2.ftelnet.ca/proxy-servers.json#/ftelnet/proxy-servers.json#g" $FD/$FJS
+  echo "fTelnet copied: $(ls $FD/fonts | wc -l) fonts"
+fi
+[ -n "$H" ] && sed -i "s#<?xjs write(get_url()); ?>#/ftelnet/$FJS?v=$FTV#" "$H"
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.9
+BBS_VERSION=0.10
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
