@@ -251,7 +251,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.33
+BBS_VERSION=0.34
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
@@ -493,6 +493,13 @@ m=re.search(r'(?ms)^\[newuser\][^\n]*\n(.*?)(?=^\[|\Z)',t)
 b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<5)),m.group(1),count=1)
 open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
 PY6
+# 24-hour time everywhere (system setting SM_MILITARY, 1 << 18, the first settings line of main.ini, before any [section])
+python3 - $D/ctrl/main.ini <<'PY7'
+import re,sys
+f=sys.argv[1];t=open(f).read()
+e=re.search(r'(?m)^\[',t); e=e.start() if e else len(t)   # the top part, before the first [section]
+open(f,'w').write(re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<18)),t[:e],count=1)+t[e:])
+PY7
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
 cat > /etc/systemd/system/sbbs.service <<S
