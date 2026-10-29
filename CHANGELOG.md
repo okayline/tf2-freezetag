@@ -2,139 +2,44 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## BBS: back to v0.24, v0.27
-**Thu Oct 29, 2026 · 6:51 AM HST** (waiting for "push")
+## BBS: terminal size tries, back to the full-width look, v0.20 to v0.27
+**Thu Oct 29, 2026 · 6:35 AM – 6:50 AM HST** (commits ceab526 … 049be4d, pushed and applied)
 
-- **Changed:** back to how v0.24 was: full-width terminal with the 12x23 letters. The footer is v0.27.
-- **Removed:** v0.25's frame width rule and v0.26's resize after the page loads, and the footer's v0.26.
-
-## BBS: terminal fits itself on load, v0.26
-**Thu Oct 29, 2026 · 6:50 AM HST** (waiting for "push")
-
-- **Added:** the page sends the terminal a window resize 0.3, 1.2 and 3 seconds after it loads, so it fits the window by itself. Before, it started too big and sticking out on the right until you resized the window once.
-- **Changed:** the footer is v0.26.
-- **Removed:** the footer's v0.25.
-
-## BBS: terminal frame fits the page, v0.25
-**Thu Oct 29, 2026 · 6:47 AM HST** (waiting for "push")
-
-- **Added:** the frame around the terminal can't be wider than the page (v0.23's frame fix, without its 480-pixel limit), so a narrow window shrinks the terminal instead of cutting it off on the right. The footer is v0.25.
-- **Removed:** the footer's v0.24. The terminal is still full width with the 12x23 letters.
-
-## BBS: back to the full-width terminal, v0.24
-**Thu Oct 29, 2026 · 6:44 AM HST** (waiting for "push")
-
-- **Changed:** back to v0.21: the terminal (12x23 letters) stretches to the full page width again. The footer is v0.24.
-- **Removed:** v0.22's 960-pixel limit and v0.23's 480-pixel limit and box width rule, and the footer's v0.23.
-
-## BBS: smaller terminal, v0.23
-**Thu Oct 29, 2026 · 6:44 AM HST** (waiting for "push")
-
-- **Changed:** the terminal is at most 480 pixels wide (half of v0.22). The boxes inside the terminal area can't be wider than the page, so a narrow window shrinks the terminal instead of cutting it off on the right. The footer is v0.23.
-- **Removed:** the 960-pixel width, and the footer's v0.22.
-
-## BBS: terminal no wider than 960 pixels, v0.22
-**Thu Oct 29, 2026 · 6:41 AM HST** (waiting for "push")
-
-- **Changed:** the terminal stretches to the page width but stops at 960 pixels (the 12x23 letters at their own size), so it isn't huge on a big screen. Narrow windows still shrink it. The footer is v0.22.
-- **Removed:** stretching past 960 pixels, and the footer's v0.21.
-
-## BBS: smoother letters, v0.21
-**Thu Oct 29, 2026 · 6:40 AM HST** (waiting for "push")
-
-- **Changed:** the terminal uses the biggest letters (12x23), still stretched to the page width. On screen they're the same size as before (80 columns always fill the width) but less pixely. The footer is v0.21.
-- **Removed:** the 8x16 letters from v0.20, and the footer's v0.20.
-
-## BBS: medium letters, terminal as wide as the page, v0.20
-**Thu Oct 29, 2026 · 6:36 AM HST** (waiting for "push")
-
-- **Changed:** the terminal uses the medium 8x16 letters and is stretched to the page width (crisp, blocky pixels). The footer is v0.20.
-- **Removed:** picking the biggest letters that fit, the shrink-only width rule, and the footer's v0.19.
+- **Changed:** the terminal is stretched to the page width and uses the biggest letters (12x23). On screen the letters are the same size as with any font (80 columns always fill the width); the bigger font is just smoother. v0.20 used the 8x16 letters (blockier); v0.21 switched to 12x23.
+- **Changed:** the footer is v0.27 (`049be4d`). v0.27 is v0.24 put back: the full-width look of v0.21.
+- **Removed:** four things tried and taken out again: a 960-pixel width limit (v0.22), a 480-pixel limit with a width rule for the boxes around the terminal (v0.23), a frame width rule (v0.25) and a window resize sent after the page loads (v0.26). The 8x16 letters (v0.20) and the footer's v0.19 are gone too. v0.24 and v0.27 were made by undoing the earlier ones as new steps, so v0.22 to v0.26 are still in the history.
+- **Known:** the terminal starts too big and sticks out on the right until the window is resized once. Not fixed.
 
 ## BBS: spinning cursor for everyone, 40-line terminal, v0.19
-**Thu Oct 29, 2026 · 6:24 AM HST** (waiting for "push")
+**Thu Oct 29, 2026 · 6:23 AM – 6:25 AM HST** (commits 6a629e4, 681c7be, e8e7383, pushed and applied; the BBS was restarted)
 
-- **Changed:** the spinning cursor is on for every user and for new users (user setting "spinning cursor", `main.ini` new-user settings `0x6910` → `0x6930`). Rolled accounts were made with it off, so they saw no spinner. The footer is v0.19.
-- **Changed:** the web terminal is 40 lines tall instead of 25 (still 80 columns).
-- **Changed:** in a narrow window the terminal shrinks to fit instead of being cut off on the right.
-- **Removed:** new users starting with the spinning cursor off, the 25-line terminal, and the footer's v0.18.
+- **Added:** the spinning cursor is on for every user (user setting "spinning cursor", set by `bbs/setup.sh`).
+- **Changed:** new users start with it on (`main.ini` new-user settings `0x6910` to `0x6930`). Rolled accounts used to be made with it off, so they saw only a still `_`. The web terminal is 40 lines tall instead of 25 (still 80 columns). The footer is v0.19.
+- **Removed:** new users starting with the spinning cursor off, the 25-line terminal, and the footer's v0.18. A rule that shrank the terminal in a narrow window (e8e7383) was replaced by the stretch-to-width rule above.
 
-## BBS: no Home link, v0.18
-**Thu Oct 29, 2026 · 6:17 AM HST** (waiting for "push")
+## BBS: User page, Log out, fewer links, v0.14 to v0.18
+**Thu Oct 29, 2026 · 5:57 AM – 6:17 AM HST** (commits 965c38e … f70b40b, pushed and applied)
 
-- **Changed:** the BBS name at the top takes you back to the terminal. After "Sign in with passkey" (or "Link passkey") the whole page reloads, so the terminal logs in again as that user; before, only the User panel reloaded and the terminal stayed on the old user. The footer is v0.18.
-- **Removed:** the "Home" link, and the footer's v0.17.
-
-## BBS: the terminal stays connected, v0.17
-**Thu Oct 29, 2026 · 6:16 AM HST** (waiting for "push")
-
-- **Added:** on the terminal page, Forum and User open in a panel (thin border, like the terminal) in the terminal's place. The terminal is only moved out of sight, so it stays connected. Home (or the BBS name) brings it back without a reload. Inside the panel the page has no top links or footer.
-- **Changed:** the footer is v0.17.
-- **Removed:** the reload and reconnect when going Home, Forum or User from the terminal page, and the footer's v0.16.
-
-## BBS: "User" page with passkey sign-in, no Sign in at the top, v0.16
-**Thu Oct 29, 2026 · 6:09 AM HST** (waiting for "push")
-
-- **Added:** "Sign in with passkey" on the User page, so a new device can switch to your passkey account.
-- **Changed:** the "Stuff" link and page are now "User" (`pages/900-user.xjs`). The footer is v0.16.
-- **Removed:** `pages/900-stuff.xjs`, the "Sign in" link at the top right (it only showed for a moment before the page signed you in), and the footer's v0.15.
-
-## BBS: Log out, your name on the Stuff page, v0.15
-**Thu Oct 29, 2026 · 6:02 AM HST** (waiting for "push")
-
-- **Added:** a "Log out" link on the Stuff page. Like aura-farm v0.21, each browser keeps its own account: Log out goes back to it (a new one is made only if it was deleted). Signing in with a passkey no longer changes which account the browser keeps.
-- **Changed:** the Stuff page starts with "You are logged in as (name)" (with the unread mail count) and the "Link passkey" link. The footer is v0.15.
-- **Removed:** your name, the mail count and "Link passkey" from the top links (the top links keep "Sign in" for visitors who are not signed in), the passkey sign-in pointing this browser at the passkey account (the `key` it took, `bbs/setup.sh` `api/passkey.ssjs`), and the footer's v0.14.
-
-## BBS: one passkey link, v0.14
-**Thu Oct 29, 2026 · 5:58 AM HST** (waiting for "push")
-
-- **Changed:** the footer is v0.14.
-- **Removed:** the second passkey link under the top links on the home page ("Sign in with passkey" / "Link a passkey to this account", `bbs/setup.sh`). The top links keep "Sign in" and "Link passkey". Also removed: the footer's v0.13.
+- **Added:** a "User" page (`pages/900-user.xjs`, was "Stuff"): who you are logged in as (with the unread mail count), Link passkey, Sign in with passkey, Log out, and links to every other page. On the terminal page, Forum and User open in a panel where the terminal was; the terminal is only moved out of sight, so it stays connected. The BBS name brings it back without a reload.
+- **Changed:** like aura-farm v0.21, each browser keeps its own account: Log out goes back to it, and a new one is made only if it was deleted. After a passkey sign-in the whole page reloads, so the terminal logs in as that user too. The top links are the BBS name, Forum and User. The footer is v0.18.
+- **Removed:** the Home link, the "Sign in" link at the top right, your name and Link passkey from the top links, the second passkey link on the home page, the code that made a passkey sign-in re-point the browser's account (the page never sent it), `pages/900-stuff.xjs`, and the footer's v0.13.
 
 ## BBS: 10 nodes, all-black page, text links, DOS font, v0.13
-**Thu Oct 29, 2026 · 5:47 AM HST** (waiting for "push")
+**Thu Oct 29, 2026 · 5:45 AM – 5:53 AM HST** (commits 5ff1db5 … 42eb93a, pushed and applied; the BBS was restarted at 5:53 AM)
 
-- **Added:** nodes 5 to 10, so 10 people can be on at once (`bbs/setup.sh`: `LastNode = 10`, folders `node5`-`node10`, and their lines in `main.ini`). The footer is v0.13.
-- **Changed:** the web page is all black (top bar, page and footer, on every page) so it blends with the terminal. The terminal keeps its thin border.
-- **Changed:** the top menu bar is now one row of plain text links on the page (only three: Home, Forum and Stuff, no dropdown menus), made by `bbs/setup.sh` in `components/navbar.xjs`. Sign in, Link passkey and your name with the mail badge stay on the right. The passkey links were only on the server before; now they are in the repo.
-- **Added:** a "Stuff" page (`pages/900-stuff.xjs`) that lists every other page (files, games, node spy, user list and the rest) as text links.
-- **Added:** the page text uses the same DOS letters as the terminal: the "Web437 IBM VGA 8x16" web font by VileR (int10h.org, CC BY-SA 4.0), kept with its license in `/fonts` on the BBS site.
-- **Removed:** the 4-node limit, the dark grey top bar, the fixed menu bar with its dropdowns and phone menu button, and the footer's v0.12.
+- **Added:** nodes 5 to 10, so 10 people can be on at once (`bbs/setup.sh`: `LastNode = 10`, folders `node5` to `node10`, their lines in `main.ini`). The page text uses the same DOS letters as the terminal: the "Web437 IBM VGA 8x16" web font by VileR (int10h.org, CC BY-SA 4.0), kept with its license in `/fonts` on the BBS site.
+- **Changed:** the page is all black (top bar, page and footer) so it blends with the terminal, which keeps its thin border. The top menu bar is now one row of plain text links. The passkey sign-in links, which only existed on the server, are now in the repo (`components/navbar.xjs` made by `bbs/setup.sh`). The footer is v0.13.
+- **Removed:** the 4-node limit, the dark grey fixed menu bar with its dropdowns and phone menu button, and the footer's v0.12.
 
-## BBS: browsers get the new terminal file, v0.12
-**Thu Oct 29, 2026 · 5:38 AM HST**
+## BBS: our own web terminal, no Bulletins screen, no blinking text, v0.10 to v0.12
+**Thu Oct 29, 2026 · 5:25 AM – 5:41 AM HST** (commits 84b2b90 … b87d93f, pushed and applied; the BBS was restarted at 5:41 AM)
 
-- **Changed:** the home page links the terminal as `?v=2026-01-16-nocursor`, so browsers load our patched copy (no terminal cursor) instead of an old saved one. The footer is v0.12.
-- **Removed:** the old `?v=2026-01-16` link and the footer's v0.11.
-
-## BBS: v0.11
-**Thu Oct 29, 2026 · 5:37 AM HST**
-
-- **Changed:** the footer is v0.11. It covers the two changes below (no Bulletins screen at logon, no terminal cursor), which went out without a version bump.
-- **Removed:** the footer's v0.10.
-
-## BBS: no terminal cursor (trial)
-**Thu Oct 29, 2026 · 5:34 AM HST** (on the live BBS as a trial; setup change waiting for "push")
-
-- **Changed:** the web terminal never shows its own blinking cursor, so Synchronet's spinning cursor is the only one (`bbs/setup.sh` patches our copy of fTelnet).
-- **Removed:** the terminal's blinking cursor.
-
-## BBS: no Bulletins screen at logon
-**Thu Oct 29, 2026 · 5:31 AM HST** (waiting for "push")
-
-- **Changed:** after logging in you go straight to the main menu. BullsEye Bulletins is still in the programs menu.
-- **Removed:** the Bulletins screen that showed at every logon (`bbs/setup.sh` sets its logon event off in `xtrn.ini`).
-
-## BBS: our own web terminal, v0.10
-**Thu Oct 29, 2026 · 5:30 AM HST** (waiting for "push")
-
-- **Added:** a copy of the web terminal (fTelnet: its script, styles and fonts) on our own site at `bbs.88x31.app/ftelnet`, made by `bbs/setup.sh`. The home page loads the terminal from there.
-- **Changed:** the footer is v0.10.
-- **Removed:** loading the terminal, its fonts and its proxy list from `embed-v2.ftelnet.ca`.
+- **Added:** a copy of the web terminal (fTelnet: its script, styles, keyboard styles, fonts and proxy list) on our own site at `bbs.88x31.app/ftelnet`, made by `bbs/setup.sh`. The home page loads it from there. It loads faster.
+- **Changed:** after logging in you go straight to the main menu; BullsEye Bulletins is still in the programs menu (its logon event in `xtrn.ini` is off). Our copy of fTelnet has its blink timer patched so blinking text (the BBS's `_`) no longer blinks. The home page links the terminal as `?v=2026-01-16-nocursor` so browsers load the patched copy. The footer is v0.12.
+- **Removed:** loading the terminal, its fonts and its proxy list from `embed-v2.ftelnet.ca`, the Bulletins screen at every logon, and the footer's v0.9. v0.11 went out only to put the version number right after two changes had been pushed without a bump.
 
 ## BBS: no Login on the web page, v0.9
-**Thu Oct 29, 2026 · 5:16 AM HST** (waiting for "push")
+**Thu Oct 29, 2026 · 5:16 AM HST** (commit eb908c4, pushed and applied)
 
 - **Added:** web visitors who are not signed in get a BBS account with a rolled name automatically. A key kept in their browser finds the same account when they come back. Signing in with a passkey points that key at the passkey account. The passkey link stays on the page.
 - **Changed:** the footer is v0.9.
