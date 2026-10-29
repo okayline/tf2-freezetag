@@ -35,7 +35,7 @@ def setk(sec,key,val):
     t=t[:m.start(1)]+body+t[m.end(1):]
 setk('BBS','TelnetPort','23'); setk('BBS','RLoginPort','513'); setk('BBS','RLoginInterface','127.0.0.1'); setk('BBS','SSHPort','0')
 setk('Mail','AutoStart','false'); setk('FTP','AutoStart','false')
-setk('Web','Port','8023'); setk('Web','TLS_Port','0')
+setk('Web','Port','8023'); setk('Web','Options','NO_CGI | NO_HOST_LOOKUP')   # no ALLOW_TLS: Caddy owns 443
 setk('UNIX','User','bbs'); setk('UNIX','Group','bbs')
 open(f,'w').write(t)
 PY
