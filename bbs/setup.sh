@@ -155,9 +155,12 @@ sed -i 's#fillStyle=this._Cursor.Colour#fillStyle="transparent"#g' $FD/$FJS
 grep -q 'fillStyle="transparent"' $FD/$FJS && echo "terminal cursor off" || echo "terminal cursor: patch did not fit"
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
-if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
-# all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
-if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
+# custom.css is rewritten from here on every run (one rule per line, each tagged), so a change in the repo reaches the site
+if [ -n "$CSSD" ]; then
+  touch $CSSD/custom.css
+  sed -i -E '/dark-switch|allblack|toplinks|dosfont|offcanvas|^footer p.*::after/d' $CSSD/custom.css
+  echo '/* darkswitch */ .dark-switch{display:none !important}' >> $CSSD/custom.css
+  # all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
@@ -235,8 +238,7 @@ cat > $D/webv4/pages/900-user.xjs <<'STUFF'
 <div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
 STUFF
 rm -f $D/webv4/pages/900-user.xjs.ssjs
-if [ -n "$CSSD" ] && ! grep -qs 'tlpanel' $CSSD/custom.css; then
-  sed -i '/toplinks/d' $CSSD/custom.css
+if [ -n "$CSSD" ]; then
   echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
@@ -246,21 +248,19 @@ if [ ! -s $WF/Web437_IBM_VGA_8x16.woff ]; then
   mkdir -p $WF; curl -fsSL -m 60 -o /tmp/fontpack.zip https://int10h.org/oldschool-pc-fonts/download/oldschool_pc_font_pack_v2.2_web.zip \
     && unzip -o -j -q /tmp/fontpack.zip 'woff - Web (webfonts)/Web437_IBM_VGA_8x16.woff' LICENSE.TXT -d $WF; rm -f /tmp/fontpack.zip
 fi
-if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
+if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.29
-# the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
-[ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
+BBS_VERSION=0.30
+# the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
 # phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
-if [ -n "$CSSD" ] && ! grep -qs 'offcanvas' $CSSD/custom.css; then echo '@media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
-# take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
-mkdir -p $D/webv4-sidebar-removed
-for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D/webv4-sidebar-removed/; done
+if [ -n "$CSSD" ]; then echo '/* offcanvas */ @media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
+# no Recent Visitors block in the sidebar
+rm -rf $D/webv4/sidebar/002-recent-visitors.xjs* $D/webv4-sidebar-removed
 # replace the stock "mybbs" names: internet address, QWK ID, IRC bot channel
 sed -i -E 's/^(\s*addr\s*=\s*)mybbs\.com/\1bbs.88x31.app/' $D/ctrl/msgs.ini
 sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
@@ -269,7 +269,7 @@ sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 # (mods/newuser_prompts.js) and the web page's automatic account (api/passkey.ssjs, action anon) both load it
 mkdir -p $D/mods
 cat > $D/mods/rollname.js <<'JS3'
-// 88x31: rolls a free two-word name like the games, or null (made by bbs/setup.sh; do not edit)
+// 88x31: rollName() rolls a free two-word name like the games, or null; fillUser() fills a new user's blank fields (made by bbs/setup.sh; do not edit)
 var A = ["Quiet", "Amber", "Early", "Gentle", "Bright", "Sleepy", "Golden", "Misty", "Rosy", "Brisk", "Hushed", "Warm", "Pale", "Slow", "Steady", "Wandering", "Soft", "Silver", "Crisp", "Drowsy", "Humble", "Eager", "Lucky", "Patient", "Little", "Cheerful", "Faint", "Glowing", "Distant", "Tender", "Rested", "Windy", "Dewy", "Calm", "Merry", "Shy", "Nimble", "Sunny", "Mellow", "Dappled"];
 var N = ["Heron", "Lantern", "Sparrow", "Kettle", "Meadow", "Thistle", "Harbor", "Wren", "Compass", "Fern", "Moth", "Orchard", "Ferry", "Pebble", "Robin", "Willow", "Teapot", "Comet", "Lark", "Cedar", "Beacon", "Marmot", "Otter", "Clover", "Ember", "Finch", "Tide", "Bramble", "Lamp", "Poppy", "Swallow", "Sundial", "Quill", "Hedgehog", "Trellis", "Rooster", "Weathervane", "Kingfisher", "Pigeon", "Lighthouse"];
 function rollName() {
@@ -278,6 +278,15 @@ function rollName() {
 		if (n.length <= 16 && system.check_name(n) && !system.matchuser(n)) return n;
 	}
 	return null;
+}
+// fills a user's blank fields from their name so no new-user questions are asked, and turns off the "search all groups" questions
+function fillUser(u) {
+	if (!u.name) u.name = u.alias;
+	if (!u.handle) u.handle = u.alias;
+	if (!u.location) u.location = 'Unknown';
+	if (!u.birthdate) u.birthdate = '1970-01-01';
+	if (!u.netmail) u.netmail = u.alias.replace(/ /g, '_') + '@bbs.88x31.app';
+	u.settings &= ~((1 << 14) | (1 << 16));   // ASK_NSCAN, ASK_SSCAN
 }
 JS3
 # passkey sign-in for the web site: api/passkey.ssjs talks to the shared Accounts service (dungeon-items) with the
@@ -367,9 +376,7 @@ function userForKey(k) {
 			au = system.new_user(an);
 			if (typeof au !== 'object' || !au.number) return reply({ error: "Couldn't make a BBS user. Try again." });
 			au.security.password = randomString(16).replace(/[^A-Za-z0-9]/g, 'x');   // nobody can log in with just the name
-			au.name = an; au.handle = an; au.location = 'Unknown'; au.birthdate = '1970-01-01';
-			au.netmail = an.replace(/ /g, '_') + '@bbs.88x31.app';
-			au.settings &= ~((1 << 14) | (1 << 16));   // no "search all groups" questions at logon
+			fillUser(au);
 			ak = md5_calc(String(Math.random()) + time() + au.number + randomString(16), true);   // 32 hex characters
 			bindKey(ak, au.number);
 		}
@@ -432,13 +439,8 @@ hook="""
 				if (!(n > 0) || time() > exp) return false;
 				var u = new User(n);
 				// no new-user questions for passkey users: fill the fields the stock logon.js asks about when they are blank
-					if (!u.name) u.name = u.alias;
-					if (!u.handle) u.handle = u.alias;
-					if (!u.location) u.location = 'Unknown';
-					if (!u.birthdate) u.birthdate = '1970-01-01';
-					if (!u.netmail) u.netmail = u.alias.replace(/ /g, '_') + '@bbs.88x31.app';
-					u.settings &= ~((1 << 14) | (1 << 16));   // ASK_NSCAN, ASK_SSCAN: no "search all groups" questions at logon
-					return bbs.login(u.alias, '', u.security.password);
+				load(system.mods_dir + 'rollname.js'); fillUser(u);
+				return bbs.login(u.alias, '', u.security.password);
 			})(String(str).toLowerCase());
 			if (_ok) { bbs.logon(); exit(); }
 			continue;
@@ -472,10 +474,7 @@ if (!name) {
 user.alias = name;
 user.name = name;
 user.handle = name;
-user.location = 'Unknown';
-user.birthdate = '1970-01-01';
-user.netmail = name.replace(/ /g, '_') + '@bbs.88x31.app';
-user.settings &= ~((1 << 14) | (1 << 16));   // ASK_NSCAN, ASK_SSCAN: no "search all groups" questions at logon
+fillUser(user);
 console.print("\r\nYour name here is \1h" + name + "\1n.\r\n");
 JS2
 chown -R $U:$U $D

@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: clean-up of the earlier work, v0.30
+**Thu Oct 29, 2026 · 7:13 AM HST** (not pushed)
+
+- **Removed:** three copies of the code that fills in a new user's fields (web page account, passkey login, "New"). **Added:** one `fillUser()` in mods/rollname.js that all three use.
+- **Removed:** the "only add once" checks on the site's extra CSS, so edits in the repo never reached the site. **Changed:** custom.css lines are taken out and written fresh on every run.
+- **Removed:** the parked Recent Visitors files (webv4-sidebar-removed); they are deleted now.
+- **Known:** the terminal still starts too big until the window is resized. Not fixed. Footer v0.30.
+
 ## BBS: passkey sign-ups get the same names as everyone else, v0.29
 **Thu Oct 29, 2026 · 7:11 AM HST** (not pushed)
 
