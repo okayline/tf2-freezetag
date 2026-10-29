@@ -79,24 +79,10 @@ X
   echo "NetHack door added to section $SEC (settings $S)"
 fi
 
-# scoundrel.exe door: the daily deck from scoundrel.88x31.app, played in the BBS (bbs/xtrn/scoundrel.js); signs in with the BBS user's 88x31 account
-mkdir -p $D/xtrn/scoundrel $D/data/scoundrel
-cp "$HERE/xtrn/scoundrel.js" $D/xtrn/scoundrel/scoundrel.js 2>/dev/null || echo "scoundrel door: not copied (run setup.sh from the repo's bbs folder)"
-sed -i -E '/^\[prog:[A-Z]+\.SCOUNDREL\]/,/^$/d' $X   # the v0.83 entry: GAMES.SCOUNDREL and settings 1<<0, which Synchronet did not list
-if ! grep -qi '^\[prog:.*SCOUNDREL\]' $X; then
-  SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
-  cat >> $X <<X
-
-[prog:$SEC:SCOUNDREL]
-	name = scoundrel.exe
-	cmd = ?$D/xtrn/scoundrel/scoundrel.js
-	settings = $(( $(flag XTRN_MULTIUSER) ))
-	type = 0
-	event = 0
-	ars =
-X
-  echo "scoundrel door added to section $SEC"
-fi
+# no scoundrel.exe door for now (owner: "just dont hook scoundrel up yet"): its program entry and files are taken off the BBS.
+# data/scoundrel (each BBS user's scoundrel login) is kept.
+awk '/^\[/{skip = (tolower($0) ~ /^\[prog:[a-z]+[.:]scoundrel\]/)} !skip' $X > $X.new && cat $X.new > $X && rm -f $X.new   # cat keeps the file's owner
+rm -rf $D/xtrn/scoundrel
 
 # no Bulletins screen at logon: BullsEye stays in the programs menu, but is no longer a logon event (event 1 -> 0)
 python3 - $X <<'PY4'
@@ -362,7 +348,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.98
+BBS_VERSION=0.99
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out

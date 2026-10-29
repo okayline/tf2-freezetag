@@ -2,8 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: scoundrel.exe door taken off for now, v0.99
+**Thu Oct 29, 2026 · 1:15 PM HST** (not pushed)
+
+- **Removed:** the scoundrel.exe door. Owner: "can we stop forcing the guests to create accounts", then "just dont hook scoundrel up yet haha". The door made an 88x31 account for every BBS user who opened it. `bbs/xtrn/scoundrel.js` is deleted; `bbs/setup.sh` now takes its program entry out of `xtrn.ini` and deletes `xtrn/scoundrel` on the server. **Added:** nothing. Kept on the server: `data/scoundrel` (each BBS user's scoundrel login). The 88x31 accounts the door already made, and scoundrel.exe's `/api/bbs-enter`, are not touched. Footer v0.99.
+
 ## BBS: footer menu left of the version, smaller links, v0.98
-**Thu Oct 29, 2026 · 1:11 PM HST** (not pushed)
+**Thu Oct 29, 2026 · 1:11 PM HST** (pushed)
 
 - **Changed:** the footer reads `© … · ≡ v0.98`: the `≡` sits before the version. Owner: "could you put it to the left of the version number please". **Removed:** the `≡` after the version.
 - **Changed:** the menu's links are 12 px, the same as the footer text. Owner: "could you make the text inside of it way smaller please". **Removed:** the 20 px link size in that menu (the top bar stays 20 px).
