@@ -2,6 +2,18 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: passkey sign-in, automatic login on the web terminal, v0.7
+**Thu Oct 29, 2026 · 3:07 AM – 4:19 AM HST** (commits 41e6c78 … bda4ec3, pushed)
+- **Added:** passkey sign-in on the BBS web site (`api/passkey.ssjs`, written by `bbs/setup.sh`), through the shared Accounts service. A passkey with no BBS user gets a new one with a random name; a signed-in user can link a passkey once. The "Sign in with passkey" link only shows while the account is not linked.
+- **Added:** automatic login on the web terminal. When you are signed in on the site, the page types a one-time code (22 characters, good for 60 seconds, used once) at the Login: prompt, and `mods/login.js` (a copy of the stock login plus a code check) logs you in and starts the session. Users made by passkey get a random password, so a name alone can't log in.
+- **Added:** the `ACCOUNTS_KEY` repo secret. The `run` action in `vps-tools.yml` writes it to `/sbbs/ctrl/secrets/accounts-key` (readable by the `bbs` user only, never printed).
+- **Changed:** the web terminal connects as soon as the page opens, and the page is silent (no terminal beeps). The stock "mybbs" names are now the real ones: address `bbs.88x31.app`, QWK ID `BBS88X31`, IRC channel `#88x31`.
+- **Changed:** the page version in the footer is plain, selectable text and is rewritten on every setup run (it could not change before). Now **v0.7**.
+- **Changed:** RLogin listens only on 127.0.0.1 (it listened on every address), and the BBS's own HTTPS is off so it does not fight Caddy for port 443.
+- **Changed:** the `run` output filter in `vps-tools.yml` also hides IPv6 addresses.
+- **Removed:** the Connect button, the red "click here to enable keyboard input" banner, the stock "mybbs" names, and the footer version rule in `custom.css` (the text replaced it). Login by RLogin (tried in v0.3 to v0.5) was dropped for the Login: prompt code in v0.6.
+- **Not checked:** whether these changes were applied on the server; passkey sign-in and the automatic login in a browser.
+
 ## BBS web page: big terminal, Fullscreen, dark; BBS in the nightly backup
 **Thu Oct 29, 2026 · 2:34 AM – 3:02 AM HST** (commits 0aab8bb … 2a51205, pushed and applied)
 - **Added:** the BBS (`/sbbs` settings, data, text and mods) and its NetHack saves to the nightly backup (`vps/backup-setup.sh`).
