@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: phone keyboards that draft words, v0.92
+**Thu Oct 29, 2026 · 11:30 AM HST** (committed, not pushed)
+
+- **Changed:** on a phone keyboard that types each word as a draft first (Android), the page sent every draft step ("abc" as "a", "ab", "abc"). Now nothing is sent while a word is a draft, and the finished word is sent once. Footer v0.92.
+- **Why:** owner, on Android: "if i try to log in as admin and type in my password at the SY:, type it in and press enter and nothing happens".
+- **Not checked:** whether this is the cause. The BBS logs were read after the fix was made: `data/logs/103026.log` shows the logons and programs but no line for the SY: attempt, `data/error.log` has none either, and `data/hack.log`'s last entries are from 10:06 and 10:09 PM server time. Not tested on an Android phone.
+- **Removed:** sending each draft step.
+
 ## BBS: 30 lines on desktop, v0.91
 **Thu Oct 29, 2026 · 11:27 AM HST** (pushed)
 
