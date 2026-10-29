@@ -105,12 +105,14 @@ body{background:#000;color:#ccc}
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
-  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else{(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}">\xe2\x9b\xb6</button></div><div style="text-align:center;color:\#666;font-size:12px;margin-top:6px">v0.1</div>#' "$H"
+  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else{(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}">\xe2\x9b\xb6</button></div>#' "$H"
   rm -f /tmp/bigterm.html
 fi
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
+# version number in the footer, next to the year
+if [ -n "$CSSD" ] && ! grep -qs 'v0.1' $CSSD/custom.css; then echo 'footer p::after{content:" \00b7  v0.1"}' >> $CSSD/custom.css; fi
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
