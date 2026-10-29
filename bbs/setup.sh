@@ -293,32 +293,18 @@ if [ -n "$CSSD" ]; then
   # all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
-# top of the page: one row of plain text links (every page) instead of the menu bar: the BBS name and Forum on the left, the user
-# name on the right with a small menu (Log in with passkey, Link passkey, Log out). On the terminal page, Forum opens in a panel and
+# top of the page: one row of plain text links (every page) instead of the menu bar: the BBS name and Forum. No user name and
+# no account links up here: those are behind the one-character menu in the footer. On the terminal page, Forum opens in a panel and
 # the terminal stays connected out of sight; the BBS name brings it back without a reload.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: the BBS name and the user menu instead of the menu bar (made by bbs/setup.sh; do not edit)
-	var me = (user.number > 0 && user.alias !== settings.guest);
+	// 88x31: the BBS name instead of the menu bar (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
 	<a id="tlbrand" href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
-	<span id="tlme"><a href="#" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;"><? write(me ? user.alias : 'Guest'); ?> &#9662;</a>
-	<span id="tlmenu">
-		<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
-<?xjs if (me) { ?>
-		<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
-		<a href="#" id="button-logout">Log out</a>
-<?xjs } ?>
-	</span></span>
 </div>
-<?xjs if (me) { ?>
-<script>(function(){ var l=document.getElementById('nav-pklink');
- fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
-<?xjs } ?>
-<script>document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)) m.classList.remove('open'); });</script>
 <script>
 // On the terminal page, Forum opens in a panel in its place and the terminal is only moved out of sight, so its
 // connection stays open; the BBS name puts the terminal back. Inside the panel the page has no top links or footer.
@@ -351,7 +337,7 @@ function pkSignIn(el){
 </script>
 NAV
 rm -f $NB.ssjs; fi
-# no User page (its name and links are in the top bar's user menu)
+# no User page (its links are in the footer's account menu)
 rm -f $D/webv4/pages/900-user.xjs $D/webv4/pages/900-user.xjs.ssjs $D/webv4/pages/900-stuff.xjs $D/webv4/pages/900-stuff.xjs.ssjs
 # no Games or Files pages (the same door programs and file areas are on the BBS menu: [X]ternal programs, [T]ransfer Files);
 # User List is for the sysop only (level 90)
@@ -362,7 +348,7 @@ f=sys.argv[1];t=open(f).read()
 open(f,'w').write(re.sub(r'(?ms)(^\[\*userlist\.xjs\]\s*\n\s*AccessRequirements\s*=).*?$',r'\1 level 90',t))
 PY8
 if [ -n "$CSSD" ]; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 26px} #toplinks a{color:#8cf;margin-right:14px} #tlme{float:right} #tlme>a{margin-right:0} #tlmenu{display:none;position:absolute;right:15px;top:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 26px} #toplinks a{color:#8cf;margin-right:14px} #tlme{position:relative;display:inline-block;margin-left:6px} #tlme>a{color:#8cf} #tlmenu{display:none;position:absolute;right:0;bottom:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000;text-align:left;white-space:nowrap} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
@@ -376,11 +362,28 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.96
+BBS_VERSION=0.97
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
-[ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
-# text sizes: the top bar bigger (20 px) except your name (16 px), the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
+# and after it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
+# (pkSignIn is in the top bar's component, loaded before the footer)
+if [ -f $FT ]; then cat > $FT <<FOOT
+<?xjs var me = (user.number > 0 && user.alias !== settings.guest); ?>
+<p>&copy; <?xjs write(system.name + ", " + strftime("%Y")); ?> &middot; v$BBS_VERSION <span id="tlme"><a href="#" title="Account" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;">&#8801;</a><span id="tlmenu">
+	<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
+<?xjs if (me) { ?>
+	<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
+	<a href="#" id="button-logout">Log out</a>
+<?xjs } ?>
+</span></span></p>
+<?xjs if (me) { ?>
+<script>(function(){ var l=document.getElementById('nav-pklink');
+ fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
+<?xjs } ?>
+<script>document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)) m.classList.remove('open'); });</script>
+FOOT
+rm -f $D/webv4/components/footer.xjs.ssjs; fi
+# text sizes: the top bar bigger (20 px), the footer's menu character 16 px, the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
 if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlmenu a{font-size:20px !important} #tlme,#tlme>a{font-size:16px !important} #tlbrand,#tlbrand b{font-size:24px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
 # the normal arrow over the terminal, not the text bar
 if [ -n "$CSSD" ]; then echo '/* cursor */ #fTelnetContainer,#fTelnetContainer *,#fTelnetContainer canvas{cursor:default !important}' >> $CSSD/custom.css; fi

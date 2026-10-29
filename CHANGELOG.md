@@ -2,8 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no name or account menu in the top bar; account menu behind ≡ in the footer, v0.97
+**Thu Oct 29, 2026 · 1:10 PM HST** (not pushed)
+
+- **Changed:** the web page's top bar has only the BBS name and Forum. Owner: "i dont want the account thing there at all. maybe on the bottom footer, put a one-character symbol link that has a dropdown (or up)". **Removed:** your name (or Guest) and its menu from the top right.
+- **Added:** a `≡` after the version in the footer (`© … · v0.97 ≡`). It opens the same menu upward: Log in with passkey, and when logged in Link passkey and Log out. `≡` is in the page's DOS font (code page 437). Footer v0.97. **Removed:** nothing else; the menu's links and passkey code are unchanged.
+
 ## BBS: scoundrel door, one name and no name in the header, v0.96
-**Thu Oct 29, 2026 · 1:02 PM HST** (not pushed)
+**Thu Oct 29, 2026 · 1:02 PM HST** (pushed)
 
 - **Changed:** in the scoundrel.exe door, a BBS user goes by their BBS alias on scoundrel's board. Each time the door opens, if the scoundrel name isn't the alias, it asks scoundrel.exe to rename the player to it (the existing `/api/name`). Owner: "can we have it only be one name ?". If scoundrel refuses the alias (taken, over 16 characters, or characters it doesn't allow), the user keeps their rolled name. **Removed:** the rolled name for BBS users whose alias scoundrel accepts.
 - **Changed:** the door's header is `SCOUNDREL.EXE // <screen> // DECK #n`. Owner: "can we take the user name/account thing out of the header on the bbs too". Footer v0.96. **Removed:** the player's name (or GUEST) from the header on every door screen.
