@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: scoundrel door file copied, v0.84
+**Thu Oct 29, 2026 · 10:58 AM HST** (committed, not pushed)
+
+- **Fixed:** setup.sh did not copy the scoundrel door (v0.83): it moves into /sbbs before that line, so the repo's folder was looked for in the wrong place. It now remembers the repo's bbs folder (`HERE`) first. Footer v0.84.
+
 ## BBS: scoundrel.exe door, v0.83
 **Thu Oct 29, 2026 · 10:50 AM HST** (pushed)
 

@@ -5,6 +5,7 @@
 # Does NOT start/restart it.
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
+HERE=$(cd "$(dirname "$0")" && pwd)   # the repo's bbs folder (the script moves into $D below)
 U=bbs; D=/sbbs; NAME="~*~88x31~*~ BbS"
 
 echo "== packages =="
@@ -77,7 +78,7 @@ fi
 
 # scoundrel.exe door: the daily deck from scoundrel.88x31.app, played in the BBS (bbs/xtrn/scoundrel.js); signs in with the BBS user's 88x31 account
 mkdir -p $D/xtrn/scoundrel $D/data/scoundrel
-cp "$(dirname "$0")/xtrn/scoundrel.js" $D/xtrn/scoundrel/scoundrel.js 2>/dev/null || echo "scoundrel door: not copied (run setup.sh from the repo's bbs folder)"
+cp "$HERE/xtrn/scoundrel.js" $D/xtrn/scoundrel/scoundrel.js 2>/dev/null || echo "scoundrel door: not copied (run setup.sh from the repo's bbs folder)"
 if ! grep -qi '^\[prog:.*SCOUNDREL\]' $X; then
   SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
   cat >> $X <<X
@@ -345,7 +346,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.83
+BBS_VERSION=0.84
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
