@@ -143,8 +143,6 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
-  # big letters: a 40-column terminal (25 lines); Synchronet shows its own 40-column main menu (text/menu/main.40col.msg)
-  sed -i -E 's/(Options\.ScreenColumns *= *)80;/\140;/' "$H"
   rm -f /tmp/bigterm.html
 fi
 # web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are
@@ -261,7 +259,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.49
+BBS_VERSION=0.50
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs

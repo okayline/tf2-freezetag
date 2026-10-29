@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: back to 80 columns, v0.50
+**Thu Oct 29, 2026 · 8:56 AM HST** (not pushed)
+
+- **Changed:** the web terminal is 80 columns again, like telnet. The home page is restored from its saved copy on every run, so nothing else is needed. Footer v0.50.
+- **Removed:** the line in setup.sh that set the web terminal to 40 columns. bbs/menu/main.40col.msg and bbs/text/answer.40col.msg stay in the repo, but only a 40-column terminal shows them now.
+
 ## BBS: tidier logon screen, v0.49
 **Thu Oct 29, 2026 · 8:33 AM HST** (not pushed)
 
