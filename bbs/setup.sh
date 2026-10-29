@@ -156,6 +156,9 @@ if [ ! -s $FD/$FJS ] || [ "${FTELNET_REFRESH:-}" = 1 ]; then
   echo "fTelnet copied: $(ls $FD/fonts | wc -l) fonts"
 fi
 [ -n "$H" ] && sed -i "s#<?xjs write(get_url()); ?>#/ftelnet/$FJS?v=$FTV#" "$H"
+# no terminal cursor: the blink timer only ever hides it, so Synchronet's spinning cursor is the only one
+sed -i 's#case BlinkState.Show:this.onshow.trigger();break;#case BlinkState.Show:this.onhide.trigger();break;#' $FD/$FJS
+grep -q 'case BlinkState.Show:this.onhide.trigger()' $FD/$FJS && echo "terminal cursor off" || echo "terminal cursor: patch did not fit"
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
