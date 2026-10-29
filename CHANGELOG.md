@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: tap script removed, v0.66
+**Thu Oct 29, 2026 · 9:48 AM HST** (committed, not pushed)
+
+- **Removed:** the tap/click-a-menu-letter script from the home page (v0.61) and the line that put the terminal on `window` for it (v0.62). It never worked on the live site. Owner: "can we remove the tap script maybe". Footer v0.66 (v0.65 was the rolled-back text sizes).
+- **Not changed:** mouse click spots stay off in the menus and the mouse setting stays off for every user (v0.60).
+
 ## BBS: text sizes tried and rolled back, v0.65
 **Thu Oct 29, 2026 · 9:40 AM HST** (pushed)
 

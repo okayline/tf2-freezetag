@@ -126,46 +126,6 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
   ws.addEventListener('message',function(ev){ var d=ev.data; if(typeof d==='string')see(d); else if(d instanceof ArrayBuffer)see(String.fromCharCode.apply(null,new Uint8Array(d))); else if(d&&d.arrayBuffer)d.arrayBuffer().then(function(b){see(String.fromCharCode.apply(null,new Uint8Array(b)));}); });
   return ws; }
  P.prototype=W.prototype; P.CONNECTING=0; P.OPEN=1; P.CLOSING=2; P.CLOSED=3; window.WebSocket=P; })();</script>
-<script>/* 88x31: tap or click a menu letter, or any word of its item, to press that key: the terminal reads the tapped cell and sends the key (made by bbs/setup.sh; do not edit) */
-(function(){
-function tapKey(row, x) {
-	// row: one screen row as [{ch, fg}] (0-based); x: the tapped cell. Returns the key letter to press, or null.
-	var SIDE_L = ' [(<\xB3\xBA|\u2502\u2551', SIDE_R = ' ])>:.\xB3\xBA|\u2502\u2551';
-	function isKey(i) {
-		var c = row[i];
-		if (!c || c.fg < 8 || !/^[A-Za-z&!?*#]$/.test(c.ch)) return false;
-		var l = i > 0 ? row[i - 1].ch : ' ', r = i < row.length - 1 ? row[i + 1].ch : ' ';
-		return SIDE_L.indexOf(l) >= 0 && SIDE_R.indexOf(r) >= 0;
-	}
-	var spaces = 0;
-	for (var i = x; i >= 0 && x - i < 40; i--) {
-		var ch = row[i].ch;
-		if (isKey(i)) return ch;
-		if ('\xDA\xC0\xBF\xD9\xC4\u250C\u2514\u2510\u2518\u2500'.indexOf(ch) >= 0) return null;
-		if (ch === ' ') { if (++spaces >= 3) return null; } else spaces = 0;
-	}
-	return null;
-}
-
-	var t = setInterval(function () { var C = window.fTelnet && fTelnet.Crt; if (!C || !C.Canvas || !C.SaveScreen) return; clearInterval(t); hook(C); }, 300);
-	function hook(C) {
-		var cv = C.Canvas, d = null;
-		cv.addEventListener('pointerdown', function (e) { d = { x: e.clientX, y: e.clientY, t: Date.now() }; });
-		cv.addEventListener('pointerup', function (e) {
-			if (!d) return;
-			var m = Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y), ms = Date.now() - d.t; d = null;
-			if (m > 8 || ms > 600) return;
-			var r = cv.getBoundingClientRect(), cols = C.ScreenCols, rows = C.ScreenRows;
-			var x = Math.floor((e.clientX - r.left) / (r.width / cols)), y = Math.floor((e.clientY - r.top) / (r.height / rows)) + 1;
-			if (x < 0 || x >= cols || y < 1 || y > rows) return;
-			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
-			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
-			var k = tapKey(row, x);
-			if (k) C.PushKeyPress(k.charCodeAt(0), 0, false, false, false);
-		});
-	}
-})();
-</script>
 <script>/* 88x31: taller letters: the terminal picture is stretched 25% taller, same width (made by bbs/setup.sh; do not edit) */
 (function(){ var K = 1.25;
 	setInterval(function () { var cv = document.querySelector('#fTelnetContainer canvas'); if (!cv || !cv.width || !cv.height) return; cv.style.setProperty('aspect-ratio', cv.width + ' / ' + Math.round(cv.height * K), 'important'); }, 500);
@@ -176,8 +136,6 @@ X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
   # taller terminal: 40 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\140;/' "$H"
-  # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it
-  sed -i -E "s/(var fTelnet = new fTelnetClient\('fTelnetContainer', Options\);)/\1 window.fTelnet = fTelnet;/" "$H"
   rm -f /tmp/bigterm.html
 fi
 # web terminal (fTelnet) served from our own site, not embed-v2.ftelnet.ca: the script, its css, keyboard css and fonts are
@@ -294,7 +252,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.64
+BBS_VERSION=0.66
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
