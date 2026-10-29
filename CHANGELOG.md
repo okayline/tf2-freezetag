@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Home doesn't reconnect the terminal, v0.17
+**Thu Oct 29, 2026 · 6:13 AM HST** (waiting for "push")
+
+- **Changed:** clicking Home (or the BBS name) while you're already on the terminal page does nothing, instead of reloading the page and reconnecting. The footer is v0.17.
+- **Removed:** that reload and reconnect, and the footer's v0.16.
+
 ## BBS: "User" page with passkey sign-in, no Sign in at the top, v0.16
 **Thu Oct 29, 2026 · 6:09 AM HST** (waiting for "push")
 

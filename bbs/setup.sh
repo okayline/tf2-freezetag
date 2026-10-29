@@ -156,7 +156,8 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# The user name, Link passkey and Log out are on the User page.
+# The user name, Link passkey and Log out are on the User page. Home (and the name) do nothing while you are already on the
+# page with the terminal, so it does not reload and reconnect.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
@@ -164,8 +165,8 @@ cat > $NB <<'NAV'
 	// 88x31: three text links instead of the menu bar: Home, Forum, User (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
-	<a href="<? write(settings.brand_link || './'); ?>"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-user.xjs">User</a>
+	<a href="<? write(settings.brand_link || './'); ?>" onclick="return !document.getElementById('fTelnetContainer')"><b><? write(settings.brand || system.name); ?></b></a>
+	<a href="./" onclick="return !document.getElementById('fTelnetContainer')">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-user.xjs">User</a>
 </div>
 <script>
 function pkSignIn(el){
@@ -230,7 +231,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.16
+BBS_VERSION=0.17
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
