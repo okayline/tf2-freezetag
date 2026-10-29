@@ -172,6 +172,10 @@ grep -q 'case BlinkState.Show:this.onhide.trigger()' $FD/$FJS && echo "terminal 
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
+# all-black page around the terminal (every page): top bar, page and footer are black like the terminal; the terminal keeps its thin border
+if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
+  echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
+fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
 BBS_VERSION=0.13

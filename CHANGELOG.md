@@ -2,11 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## BBS: 10 nodes, v0.13
+## BBS: 10 nodes, all-black page, v0.13
 **Thu Oct 29, 2026 · 5:47 AM HST** (waiting for "push")
 
 - **Added:** nodes 5 to 10, so 10 people can be on at once (`bbs/setup.sh`: `LastNode = 10`, folders `node5`-`node10`, and their lines in `main.ini`). The footer is v0.13.
-- **Removed:** the 4-node limit and the footer's v0.12.
+- **Changed:** the web page is all black (top bar, page and footer, on every page) so it blends with the terminal. The terminal keeps its thin border.
+- **Removed:** the 4-node limit, the dark grey top bar and the footer's v0.12.
 
 ## BBS: browsers get the new terminal file, v0.12
 **Thu Oct 29, 2026 · 5:38 AM HST**
