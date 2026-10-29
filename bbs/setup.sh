@@ -88,22 +88,8 @@ for k in guest_name guest_email; do
   if grep -qE "^\s*$k\s*=" $D/ctrl/modopts.ini; then sed -i -E "s/^(\s*$k\s*=).*/\1false/" $D/ctrl/modopts.ini
   else sed -i -E "/^\[logon\]/a\    $k=false" $D/ctrl/modopts.ini; fi
 done
-# logon screen at 40 columns: last callers one per line (name, time, how; Ctrl-A [ ] = new line) and the avatar above the stats box
-python3 - $D/ctrl/modopts.ini <<'PYA'
-import re,sys
-f=sys.argv[1];t=open(f).read()
-def setk(sec,key,val):
-    global t
-    m=re.search(r'(?ms)^\[%s\][^\n]*\n(.*?)(?=^\[|\Z)'%re.escape(sec),t)
-    body=m.group(1)
-    if re.search(r'(?m)^\s*%s\s*='%key,body): body=re.sub(r'(?m)^(\s*)%s\s*=.*$'%key,lambda x:x.group(1)+key+' = '+val,body,count=1)
-    else: body='\t%s = %s\n'%(key,val)+body
-    t=t[:m.start(1)]+body+t[m.end(1):]
-A='\x01'
-setk('logonlist','last_few_callers_fmt',A+'['+A+']'+A+'n%.0s%.0s'+A+'h'+A+'w%-16.16s%.0s '+A+'n'+A+'m%s '+A+'h%s'+A+'n')
-setk('logon','draw_avatar_right','false'); setk('logon','draw_avatar_above','true')
-open(f,'w').write(t)
-PYA
+# logon screen: Synchronet's own (last callers with all columns, avatar to the right): remove the settings that made it fit 40 columns
+sed -i -E '/^\s*(last_few_callers_fmt|draw_avatar_right|draw_avatar_above)\s*=/d' $D/ctrl/modopts.ini
 # dark mode on for everyone (the switch itself is hidden below)
 if grep -qE '^\s*darkmode_on\s*=' $D/ctrl/modopts.ini; then sed -i -E 's/^(\s*darkmode_on\s*=).*/\1true/' $D/ctrl/modopts.ini
 else sed -i -E '/^\[web\]/a\    darkmode_on=true' $D/ctrl/modopts.ini; fi
@@ -261,7 +247,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.53
+BBS_VERSION=0.54
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
