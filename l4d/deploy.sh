@@ -92,7 +92,8 @@ done
 [ "$FAIL" = 0 ] || { echo "Stopping: fix the compile errors above."; exit 1; }
 
 echo "-- settings"
-install -o tf2 -g tf2 -m 644 "$HERE/base/adminmenu_maplist.ini" "$SM/configs/adminmenu_maplist.ini"
+MAPLIST=adminmenu_maplist.ini; [ "$MODE" = versus ] && MAPLIST=adminmenu_maplist_versus.ini
+install -o tf2 -g tf2 -m 644 "$HERE/base/$MAPLIST" "$SM/configs/adminmenu_maplist.ini"
 # rcon password: keep the old one unless it is missing or the old default
 OLD=$(sed -n 's/^rcon_password "\(.*\)".*/\1/p' "$CFG/server.cfg" 2>/dev/null | head -n 1 || true)
 if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); echo "(new rcon password made, not shown)"; fi
@@ -101,6 +102,8 @@ if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); ech
   echo "rcon_password \"$OLD\""
   echo "hostname \"$NAME\""
   echo "mp_gamemode $MODE"
+  # only take lobbies of this mode, so a co-op lobby can't switch the versus server to a co-op map
+  [ "$MODE" = versus ] && echo "sv_gametypes \"versus\""
   echo "l4d_rotate_order \"$ORDER\""
   [ -n "$DIFFICULTY" ] && echo "z_difficulty $DIFFICULTY"
 } > "$CFG/server.cfg"
