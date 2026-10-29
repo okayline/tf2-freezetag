@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: phone fixes (Enter, width, landscape, scrollback), v0.93 to v0.95
+**Thu Oct 29, 2026 · 11:10 AM – 11:35 AM HST** (pushed)
+
+- **v0.93 Fixed:** on a phone, Enter, Space, Backspace, Tab and Esc from the phone's keyboard never reached the BBS (fTelnet drops any key below `!` when it is sent as a key-press). They are now sent as a key-down, the way fTelnet's own on-screen keyboard sends them. Owner: at the SV: prompt "i type in my password and press enter, nothing happens"; after the fix: "whoa it worked !!!!". **Removed:** nothing.
+- **v0.94 Fixed:** on a phone the right side of the 80-column screen was cut off (fTelnet sizes its box to 720 px, wider than a phone). The box is never wider than the page, and on a phone it fills the whole width, so a landscape phone stretches it. Owner: "yes much better!!!". **Removed:** nothing.
+- **v0.95 Changed:** no scrollback inside the terminal: the green SCROLLBACK bar and getting stuck scrolled up are gone (owner: "is there a way to not have scrolling"). Swiping on the terminal scrolls the page again (owner: "can you enable the webpage scrolling again"). Footer v0.95. **Removed:** fTelnet's scrollback (scrolling up to re-read old lines, on desktop too) and the `overscroll-behavior:contain` rule that kept swipes on the terminal from scrolling the page.
+- **Note:** v0.92 (phone keyboards that draft words) is from another chat and was not pushed when this was written.
+
 ## BBS: phone keyboards that draft words, v0.92
 **Thu Oct 29, 2026 · 11:30 AM HST** (committed, not pushed)
 

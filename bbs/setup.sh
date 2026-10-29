@@ -124,7 +124,7 @@ if [ -n "$H" ]; then
 body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
-#fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
+#fTelnetContainer,#fTelnetContainer *{overflow:hidden !important}
 #fTelnetContainer canvas{width:100% !important;height:auto !important}
 /* fTelnet sets its box to 80 columns of pixels (720px): never wider than the page; on phones always the full width (a landscape phone stretches it) and as tall as the scaled screen */
 .fTelnetClientContainer{max-width:100% !important}
@@ -374,7 +374,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.91
+BBS_VERSION=0.95
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
