@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: passkey sign-ups get the same names as everyone else, v0.29
+**Thu Oct 29, 2026 · 7:11 AM HST** (not pushed)
+
+- **Removed:** `freshName()` and its own word lists in api/passkey.ssjs (names like `BraveOwl123`).
+- **Changed:** a new user made by a passkey sign-in gets a rolled name from `rollName()` (like `Quiet Heron`), the same as the web page and "New". Footer v0.29.
+
 ## BBS: no _ cursor in the browser terminal, v0.28
 **Thu Oct 29, 2026 · 7:08 AM HST** (not pushed)
 

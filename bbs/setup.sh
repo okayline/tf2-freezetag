@@ -251,7 +251,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.28
+BBS_VERSION=0.29
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
@@ -312,15 +312,6 @@ function call(method, args) {
 	var r = new HTTPRequest(undefined, undefined, { 'x-accounts-key': key() }, 15);
 	var body = r.Post(ACC + method, JSON.stringify(args), undefined, undefined, 'application/json');
 	try { return JSON.parse(body); } catch (e) { return { error: 'Accounts are unavailable right now. Try again in a moment.' }; }
-}
-var W1 = ['Quiet', 'Amber', 'Silver', 'Wandering', 'Hidden', 'Lucky', 'Clever', 'Brave', 'Velvet', 'Neon', 'Mossy', 'Copper'];
-var W2 = ['Fox', 'Owl', 'Lantern', 'Comet', 'Moth', 'Raven', 'Pilgrim', 'Otter', 'Signal', 'Ghost', 'Heron', 'Ember'];
-function freshName() {
-	for (var i = 0; i < 60; i++) {
-		var n = W1[random(W1.length)] + W2[random(W2.length)] + (i >= 10 ? String(random(1000)) : '');
-		if (system.matchuser(n) < 1) return n;
-	}
-	return null;
 }
 function ipOf() {
 	var h = http_request.header || {};
@@ -408,7 +399,8 @@ function userForKey(k) {
 		return reply({ error: 'That passkey is already linked to another BBS user.' });
 	}
 	// nobody linked and nobody signed in: make a new BBS user for this account (like the games make a new player)
-	var name = freshName();
+	load(system.mods_dir + 'rollname.js');
+	var name = rollName();
 	if (!name) return reply({ error: "Couldn't pick a name. Try again." });
 	var nu = system.new_user(name);
 	if (typeof nu !== 'object' || !nu.number) return reply({ error: "Couldn't make a BBS user. Try again." });
