@@ -126,11 +126,6 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
   ws.addEventListener('message',function(ev){ var d=ev.data; if(typeof d==='string')see(d); else if(d instanceof ArrayBuffer)see(String.fromCharCode.apply(null,new Uint8Array(d))); else if(d&&d.arrayBuffer)d.arrayBuffer().then(function(b){see(String.fromCharCode.apply(null,new Uint8Array(b)));}); });
   return ws; }
  P.prototype=W.prototype; P.CONNECTING=0; P.OPEN=1; P.CLOSING=2; P.CLOSED=3; window.WebSocket=P; })();</script>
-<script>/* 88x31: taller letters: the terminal picture is stretched 25% taller, same width (made by bbs/setup.sh; do not edit) */
-(function(){ var K = 1.25;
-	setInterval(function () { var cv = document.querySelector('#fTelnetContainer canvas'); if (!cv || !cv.width || !cv.height) return; cv.style.setProperty('aspect-ratio', cv.width + ' / ' + Math.round(cv.height * K), 'important'); }, 500);
-})();
-</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
@@ -252,7 +247,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.66
+BBS_VERSION=0.67
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
