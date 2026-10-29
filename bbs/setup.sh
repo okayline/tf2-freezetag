@@ -246,7 +246,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.18
+BBS_VERSION=0.19
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
@@ -488,6 +488,17 @@ chown -R $U:$U $D
 echo 'var u = new User(system.matchuser("Guest")); if (u.number) u.settings &= ~((1 << 14) | (1 << 16));' > /tmp/guestfix.js && chmod 644 /tmp/guestfix.js
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/guestfix.js 2>&1 | tail -n 1) || true
 rm -f /tmp/guestfix.js
+# spinning cursor (user setting SPIN, 1 << 5) on for every user, and on for new users (main.ini [newuser] settings)
+echo 'for (var n = 1; n <= system.lastuser; n++) { var u = new User(n); u.settings |= (1 << 5); }' > /tmp/spinfix.js && chmod 644 /tmp/spinfix.js
+(cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/spinfix.js 2>&1 | tail -n 1) || true
+rm -f /tmp/spinfix.js
+python3 - $D/ctrl/main.ini <<'PY6'
+import re,sys
+f=sys.argv[1];t=open(f).read()
+m=re.search(r'(?ms)^\[newuser\][^\n]*\n(.*?)(?=^\[|\Z)',t)
+b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<5)),m.group(1),count=1)
+open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
+PY6
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
 cat > /etc/systemd/system/sbbs.service <<S
