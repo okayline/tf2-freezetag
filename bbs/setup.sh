@@ -176,6 +176,55 @@ if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark
 if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
+# top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
+# Keeps the passkey "Sign in" / "Link passkey" links and the user name with the unread mail badge.
+NB=$D/webv4/components/navbar.xjs
+if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
+cat > $NB <<'NAV'
+<?xjs
+	// 88x31: plain text links instead of the menu bar (made by bbs/setup.sh; do not edit)
+	function links(arr, path) {
+		arr.forEach(function (e) {
+			if (e.type == 'list') { links(e.list, (path || '') + e.title + '/'); return; }
+			write('<a href="./?page=' + (path || '') + e.page + '"' + (e.type == 'link' ? ' target="_blank"' : '') + '>' + e.title + '</a> ');
+		});
+	}
+?>
+<div id="toplinks">
+	<a href="<? write(settings.brand_link || './'); ?>"><b><? write(settings.brand || system.name); ?></b></a>
+	<?xjs links(getPageList(settings.web_pages)); ?>
+	<span id="toplinks-right">
+	<?xjs if (user.alias === settings.guest || user.number < 1) { ?>
+		<a href="#" onclick="return pkSignIn(this)">Sign in</a>
+	<?xjs } else { ?>
+		<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
+		<a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a>
+	<?xjs } ?>
+	</span>
+</div>
+<script>
+function pkSignIn(el){
+ var b=function(s){return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});};
+ var e=function(x){return btoa(String.fromCharCode.apply(null,new Uint8Array(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
+ var label=el.textContent; el.textContent='...';
+ (async function(){ try{
+  if(!window.PublicKeyCredential) throw 'This browser has no passkeys.';
+  var o=await (await fetch('./api/passkey.ssjs?action=options',{cache:'no-store'})).json(); if(o.error) throw o.error;
+  var c=await navigator.credentials.get({publicKey:{challenge:b(o.challenge),rpId:o.rpId,userVerification:o.userVerification||'preferred',timeout:o.timeout}});
+  var cred={id:c.id,type:c.type,response:{clientDataJSON:e(c.response.clientDataJSON),authenticatorData:e(c.response.authenticatorData),signature:e(c.response.signature),userHandle:c.response.userHandle?e(c.response.userHandle):null}};
+  var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred})})).json();
+  if(r.error) throw r.error; location.reload();
+ }catch(x){ el.textContent=label; el.title=(x&&x.message)?x.message:String(x); } })();
+ return false;
+}
+(function(){ var l=document.getElementById('nav-pklink'); if(!l)return;
+ fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();
+</script>
+NAV
+rm -f $NB.ssjs; fi
+if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #toplinks-right{float:right} #toplinks-right a{margin:0 0 0 14px}' >> $CSSD/custom.css
+fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
 BBS_VERSION=0.13
