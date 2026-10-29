@@ -288,12 +288,12 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.70
+BBS_VERSION=0.71
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
-# text sizes: the top bar bigger (20 px), the footer line smaller (12 px); the page text is 16 px
-if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlme,#tlme a,#tlmenu a{font-size:20px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
+# text sizes: the top bar bigger (20 px) except your name (16 px), the footer line smaller (12 px); the page text is 16 px
+if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlmenu a{font-size:20px !important} #tlme,#tlme>a{font-size:16px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
 # the normal arrow over the terminal, not the text bar
 if [ -n "$CSSD" ]; then echo '/* cursor */ #fTelnetContainer,#fTelnetContainer *,#fTelnetContainer canvas{cursor:default !important}' >> $CSSD/custom.css; fi
 # no border around the terminal (the old one was a thin light line); everything around it is already black
