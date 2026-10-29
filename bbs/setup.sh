@@ -67,6 +67,11 @@ fi
 
 # web page: full-width layout, big terminal (no sidebar on the home page)
 sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
+# Guest logon: no "please enter your full name" / e-mail questions (logon.js skips a prompt whose option is false)
+for k in guest_name guest_email; do
+  if grep -qE "^\s*$k\s*=" $D/ctrl/modopts.ini; then sed -i -E "s/^(\s*$k\s*=).*/\1false/" $D/ctrl/modopts.ini
+  else sed -i -E "/^\[logon\]/a\    $k=false" $D/ctrl/modopts.ini; fi
+done
 # dark mode on for everyone (the switch itself is hidden below)
 if grep -qE '^\s*darkmode_on\s*=' $D/ctrl/modopts.ini; then sed -i -E 's/^(\s*darkmode_on\s*=).*/\1true/' $D/ctrl/modopts.ini
 else sed -i -E '/^\[web\]/a\    darkmode_on=true' $D/ctrl/modopts.ini; fi
