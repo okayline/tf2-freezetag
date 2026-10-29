@@ -156,7 +156,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# Keeps "Sign in" for visitors who are not signed in; the user name, Link passkey and Log out are on the Stuff page.
+# The user name, Link passkey and Log out are on the Stuff page.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
@@ -166,11 +166,6 @@ cat > $NB <<'NAV'
 <div id="toplinks">
 	<a href="<? write(settings.brand_link || './'); ?>"><b><? write(settings.brand || system.name); ?></b></a>
 	<a href="./">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-stuff.xjs">Stuff</a>
-	<span id="toplinks-right">
-	<?xjs if (user.alias === settings.guest || user.number < 1) { ?>
-		<a href="#" onclick="return pkSignIn(this)">Sign in</a>
-	<?xjs } ?>
-	</span>
 </div>
 <script>
 function pkSignIn(el){
@@ -217,7 +212,7 @@ cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 STUFF
 rm -f $D/webv4/pages/900-stuff.xjs.ssjs
 if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #toplinks-right{float:right} #toplinks-right a{margin:0 0 0 14px}' >> $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
@@ -231,7 +226,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.15
+BBS_VERSION=0.16
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
