@@ -299,7 +299,13 @@ function roll() {
 }
 if (options.lang)
 	prompts.get_lang();
-prompts.get_terminal(user, options);
+// terminal setup without questions: the same as answering Yes to "Use automatic terminal type detection?"
+require("sbbs" + "defs.js", "USER_AUTOTERM");
+if (console.autoterm) {
+	user.settings |= USER_AUTOTERM;
+	user.settings |= console.autoterm;
+}
+prompts.get_terminal(user, { autoterm: false, backspace: false, mouse: false, charset: false });
 var name = roll();
 if (!name) {
 	log(LOG_ERR, "New user: could not roll a name");
