@@ -65,7 +65,7 @@ X
   echo "NetHack door added to section $SEC (settings $S)"
 fi
 
-# web page: full-width layout, big terminal (no sidebar on the home page), Fullscreen button
+# web page: full-width layout, big terminal (no sidebar on the home page)
 sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
 # dark mode on for everyone (the switch itself is hidden below)
 if grep -qE '^\s*darkmode_on\s*=' $D/ctrl/modopts.ini; then sed -i -E 's/^(\s*darkmode_on\s*=).*/\1true/' $D/ctrl/modopts.ini
@@ -80,32 +80,11 @@ if [ -n "$H" ]; then
 body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
-#ftwrap,#fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
-#ftwrap:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
+#fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 </style>
-<script>
-(function(){
- function pos(){
-  var w=document.getElementById('ftwrap'),c=document.getElementById('fTelnetContainer'),f=w&&w.querySelector('button');
-  var cv=c&&c.querySelector('canvas'); if(!f||!cv)return;
-  var W=w.getBoundingClientRect(),V=cv.getBoundingClientRect();
-  f.style.right=(W.right-V.right+10)+'px'; f.style.bottom=(W.bottom-V.bottom+10)+'px';
- }
- function fsfit(){
-  var c=document.getElementById('fTelnetContainer'),cv=c&&c.querySelector('canvas'); if(!cv)return;
-  var fs=document.fullscreenElement||document.webkitFullscreenElement;
-  if(fs){var k=Math.min(innerWidth/cv.width,innerHeight/cv.height);
-   cv.style.setProperty('width',Math.floor(cv.width*k)+'px','important'); cv.style.setProperty('height',Math.floor(cv.height*k)+'px','important');}
-  else{cv.style.removeProperty('width'); cv.style.removeProperty('height');}
- }
- function both(){fsfit();pos();}
- window.addEventListener('resize',both); document.addEventListener('fullscreenchange',both); setInterval(both,1000);
-})();
-</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
-  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else{(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}">\xe2\x9b\xb6</button></div>#' "$H"
   rm -f /tmp/bigterm.html
 fi
 # hide the Dark/Light switch in the top bar (every page) with the site's own custom.css
