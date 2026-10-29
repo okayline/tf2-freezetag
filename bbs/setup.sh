@@ -213,8 +213,6 @@ X
   # taller terminal: 45 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\145;/' "$H"
   # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it (fTelnet._Crt)
-  # taller lines: always the 8x16 VGA font (twice as tall as wide); fTelnet otherwise picks a small squat font to fit the screen, which looks crowded
-  sed -i -E "s/(Options\.Font *= *)'CP437';/\1'CP437_8x16';/" "$H"
   # phones: no fTelnet on-screen keyboard (the tap script brings up the phone's own keyboard instead)
   sed -i -E 's/(Options\.ScreenRows *= *45;)/\1 Options.VirtualKeyboardVisible = false;/' "$H"
   sed -i -E "s/(var fTelnet = new fTelnetClient\('fTelnetContainer', Options\);)/\1 window.fTelnet = fTelnet;/" "$H"
@@ -333,7 +331,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.78
+BBS_VERSION=0.79
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
