@@ -548,7 +548,7 @@ async def scramble_cmd(interaction: discord.Interaction):
     await interaction.followup.send(me(interaction.user, "scrambled the teams on TF2"))
 
 
-@tree.command(name="difficulty", description="Set an L4D server's difficulty (saved for restarts)")
+@tree.command(name="difficulty", description="Set an L4D server's difficulty (this game only, not saved)")
 @allowed()
 @app_commands.choices(server=[c for c in SERVER_CHOICES if c.value != "tf2"],
                       level=[app_commands.Choice(name=d, value=d) for d in DIFFICULTIES])
@@ -556,16 +556,11 @@ async def difficulty_cmd(interaction: discord.Interaction, server: str, level: s
     await interaction.response.defer()
     if server == "tf2" or level not in DIFFICULTIES:
         return await interaction.followup.send("L4D servers only.")
-    cfg = SERVERS[server]["cfg"]
     try:
-        lines = [l for l in open(cfg, encoding="utf-8").read().splitlines() if not re.match(r"\s*z_difficulty\b", l)]
-        lines.append('z_difficulty "%s"' % level)
-        with open(cfg, "w", encoding="utf-8") as f:
-            f.write("\n".join(lines) + "\n")
         await asyncio.to_thread(rcon, server, "z_difficulty " + level)
     except Exception as e:
         return await interaction.followup.send("Didn't work (%s)." % type(e).__name__)
-    await interaction.followup.send(me(interaction.user, "set %s to %s (from the next map)" % (SERVERS[server]["label"], level)))
+    await interaction.followup.send(me(interaction.user, "set %s to %s (this game only)" % (SERVERS[server]["label"], level)))
 
 
 @tree.command(name="campaign", description="Start an L4D campaign from chapter 1")

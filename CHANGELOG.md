@@ -6,6 +6,7 @@
 **Wed Oct 28, 2026 · 7:43 PM – 7:52 PM HST**
 - **Changed:** Reverse FF now kicks at 200 friendly damage per map and never bans (`reverseff_survivormaxdmg "200"`, `reverseff_banduration "-1"` in `l4d/base/reverse_ff.cfg`). A 24 hour ban had split up a lobby group. Applied live on all three servers with the console (no restarts), and that player's ban was lifted. **Removed:** the 120 damage limit and the 24 hour ban.
 - **Removed:** `DIFFICULTY` in `l4d/servers/*.conf` and the `z_difficulty` line deploy wrote into server.cfg (it was Hard on vintage). Lobbies pick their own difficulty. Also taken out of vintage's live server.cfg; the current game keeps its difficulty until the next lobby or restart.
+- **Changed:** the Discord bot's `/difficulty` now changes the difficulty for the current game only. It no longer writes `z_difficulty` into server.cfg, which had kept a difficulty stuck across restarts.
 
 ## Tales from the Safe Room: server logs become written stories; Reverse FF spares infected players
 **Tue Oct 27, 2026 · 9:27 PM – 10:30 PM HST** (commits fcf1331 … 6791235; the story pieces that run on the Worker are in okayline/dungeon-items)
