@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: one passkey link, v0.14
+**Thu Oct 29, 2026 · 5:58 AM HST** (waiting for "push")
+
+- **Changed:** the footer is v0.14.
+- **Removed:** the second passkey link under the top links on the home page ("Sign in with passkey" / "Link a passkey to this account", `bbs/setup.sh`). The top links keep "Sign in" and "Link passkey". Also removed: the footer's v0.13.
+
 ## BBS: 10 nodes, all-black page, text links, DOS font, v0.13
 **Thu Oct 29, 2026 · 5:47 AM HST** (waiting for "push")
 

@@ -115,27 +115,6 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
  if(!JSON.parse(st.responseText).signedIn){var k='';try{k=localStorage.getItem(K)||'';}catch(e){}
   var an=new XMLHttpRequest();an.open('POST','./api/passkey.ssjs?action=anon',false);an.setRequestHeader('content-type','application/json');an.send(JSON.stringify({key:k}));
   var aj=JSON.parse(an.responseText);if(aj.key){try{localStorage.setItem(K,aj.key);}catch(e){}}}}catch(e){}</script>
-<div id="pkbar" style="text-align:right;margin:0 0 6px;font-size:13px;display:none"><a href="#" id="pklogin" style="color:#8cf">Sign in with passkey</a> <span id="pkmsg" style="color:#aaa"></span></div>
-<script>
-(function(){
- var bar=document.getElementById('pkbar'),a=document.getElementById('pklogin'),msg=document.getElementById('pkmsg');
- if(!window.PublicKeyCredential||!bar)return;
- fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&j.linked)return; bar.style.display='block'; if(j.signedIn)a.textContent='Link a passkey to this account';}).catch(function(){bar.style.display='block';});
- var b=function(s){return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});};
- var e=function(x){return btoa(String.fromCharCode.apply(null,new Uint8Array(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
- a.addEventListener('click',async function(ev){
-  ev.preventDefault(); msg.textContent='...';
-  try{
-   var o=await (await fetch('./api/passkey.ssjs?action=options',{cache:'no-store'})).json(); if(o.error)throw o.error;
-   var c=await navigator.credentials.get({publicKey:{challenge:b(o.challenge),rpId:o.rpId,userVerification:o.userVerification||'preferred',timeout:o.timeout}});
-   var cred={id:c.id,type:c.type,response:{clientDataJSON:e(c.response.clientDataJSON),authenticatorData:e(c.response.authenticatorData),signature:e(c.response.signature),userHandle:c.response.userHandle?e(c.response.userHandle):null}};
-   var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred,key:(function(){try{return localStorage.getItem('bbs88x31key')||'';}catch(e){return '';}})()})})).json();
-   if(r.error)throw r.error;
-   msg.textContent=(r.linked?'Linked as ':'Signed in as ')+r.name; setTimeout(function(){location.reload();},800);
-  }catch(x){ msg.textContent=(x&&x.message)?x.message:String(x); }
- });
-})();
-</script>
 <script>try{var x=new XMLHttpRequest();x.open('GET','./api/passkey.ssjs?action=token',false);x.send();var j=JSON.parse(x.responseText);if(j.token)window.PKTOKEN=j.token;}catch(e){}
 /* signed in: type the one-time code at the BBS "Login:" prompt, once */
 (function(){ if(!window.PKTOKEN||!window.WebSocket)return; var W=window.WebSocket;
@@ -248,7 +227,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.13
+BBS_VERSION=0.14
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
