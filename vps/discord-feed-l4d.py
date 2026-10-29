@@ -194,7 +194,7 @@ def format_line(raw):
         if kind == "revive":
             return "\u2764\ufe0f %s %s %s" % (esc(g[0], 32), g[2], esc(g[3], 32))
         if kind == "item":
-            return "\U0001F392 %s picked up %s" % (esc(g[0], 32), ITEM[g[1]])
+            return None                           # item pickups: turned off (too many posts)
         if kind == "spawn":
             now = time.time()
             if now - LAST_SPAWN.get(g[1], 0) < 30:
