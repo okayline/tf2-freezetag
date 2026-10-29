@@ -102,6 +102,7 @@ body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
+#fTelnetContainer canvas{max-width:100% !important;height:auto !important;image-rendering:pixelated}
 #ftelnet-connect{display:none !important}
 .fTelnetFocusWarning{display:none !important}
 </style>

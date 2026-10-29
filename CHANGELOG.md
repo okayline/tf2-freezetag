@@ -7,6 +7,7 @@
 
 - **Changed:** the spinning cursor is on for every user and for new users (user setting "spinning cursor", `main.ini` new-user settings `0x6910` → `0x6930`). Rolled accounts were made with it off, so they saw no spinner. The footer is v0.19.
 - **Changed:** the web terminal is 40 lines tall instead of 25 (still 80 columns).
+- **Changed:** in a narrow window the terminal shrinks to fit instead of being cut off on the right.
 - **Removed:** new users starting with the spinning cursor off, the 25-line terminal, and the footer's v0.18.
 
 ## BBS: no Home link, v0.18
