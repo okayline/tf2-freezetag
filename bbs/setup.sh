@@ -88,7 +88,15 @@ body{background:#000;color:#ccc}
   var W=w.getBoundingClientRect(),V=cv.getBoundingClientRect();
   f.style.right=(W.right-V.right+10)+'px'; f.style.bottom=(W.bottom-V.bottom+10)+'px';
  }
- window.addEventListener('resize',pos); document.addEventListener('fullscreenchange',pos); setInterval(pos,1000);
+ function fsfit(){
+  var c=document.getElementById('fTelnetContainer'),cv=c&&c.querySelector('canvas'); if(!cv)return;
+  var fs=document.fullscreenElement||document.webkitFullscreenElement;
+  if(fs){var k=Math.min(innerWidth/cv.width,innerHeight/cv.height);
+   cv.style.setProperty('width',Math.floor(cv.width*k)+'px','important'); cv.style.setProperty('height',Math.floor(cv.height*k)+'px','important');}
+  else{cv.style.removeProperty('width'); cv.style.removeProperty('height');}
+ }
+ function both(){fsfit();pos();}
+ window.addEventListener('resize',both); document.addEventListener('fullscreenchange',both); setInterval(both,1000);
 })();
 </script>
 <!-- end bigterm -->
