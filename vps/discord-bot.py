@@ -26,7 +26,7 @@ from discord import app_commands
 ROLE = "teal"
 D = "/home/tf2/discord"
 CHANNELS = {"l4d-classic", "l4d-vintage", "l4d-vs", "tf2-freezetag"}
-AD_EVERY = 60 * 60                       # seconds between chat announcements per server
+AD_EVERY = 65 * 60                       # seconds between chat announcements per server
 ALERT_CHANNEL = "tf2-freezetag"          # low memory / disk warnings and the nightly backup result
 
 # key: label, game, service, rcon port, server.cfg, log folder, channel for its up/down posts
@@ -195,7 +195,7 @@ class Bot(discord.Client):
             await c.send(text, allowed_mentions=discord.AllowedMentions.none())
 
     async def advert(self, key, humans):
-        """Every AD_EVERY seconds, one random line from announcements-<server>.txt goes to that server's chat (only while someone is on)."""
+        """Every AD_EVERY seconds (65 minutes), one random line from announcements-<server>.txt goes to that server's chat (only while someone is on)."""
         now = time.time()
         last = self.last_ad.setdefault(key, now)    # first sight: start the clock, don't post right after a bot restart
         if humans == 0 or now - last < AD_EVERY:
