@@ -79,14 +79,15 @@ fi
 # scoundrel.exe door: the daily deck from scoundrel.88x31.app, played in the BBS (bbs/xtrn/scoundrel.js); signs in with the BBS user's 88x31 account
 mkdir -p $D/xtrn/scoundrel $D/data/scoundrel
 cp "$HERE/xtrn/scoundrel.js" $D/xtrn/scoundrel/scoundrel.js 2>/dev/null || echo "scoundrel door: not copied (run setup.sh from the repo's bbs folder)"
+sed -i -E '/^\[prog:[A-Z]+\.SCOUNDREL\]/,/^$/d' $X   # the v0.83 entry: GAMES.SCOUNDREL and settings 1<<0, which Synchronet did not list
 if ! grep -qi '^\[prog:.*SCOUNDREL\]' $X; then
   SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
   cat >> $X <<X
 
-[prog:$SEC.SCOUNDREL]
+[prog:$SEC:SCOUNDREL]
 	name = scoundrel.exe
 	cmd = ?$D/xtrn/scoundrel/scoundrel.js
-	settings = $(flag XTRN_MULTIUSER)
+	settings = $(( $(flag XTRN_MULTIUSER) ))
 	type = 0
 	event = 0
 	ars =
@@ -156,14 +157,31 @@ function tapKey(row, x) {
 		var l = i > 0 ? row[i - 1].ch : ' ', r = i < row.length - 1 ? row[i + 1].ch : ' ';
 		return SIDE_L.indexOf(l) >= 0 && SIDE_R.indexOf(r) >= 0;
 	}
-	var spaces = 0;
-	for (var i = x; i >= 0 && x - i < 40; i--) {
-		var ch = row[i].ch;
+	var BOX = '\xDA\xC0\xBF\xD9\xC4┌└┐┘─';
+	// 1. the key of the item tapped: look left from the tap (the words after a key), then right (the words before one, like "Get" in "Get [I]nfo")
+	var spaces = 0, i, ch;
+	for (i = x; i >= 0 && x - i < 40; i--) {
+		ch = row[i].ch;
 		if (isKey(i)) return ch;
-		if ('\xDA\xC0\xBF\xD9\xC4\u250C\u2514\u2510\u2518\u2500'.indexOf(ch) >= 0) return null;
-		if (ch === ' ') { if (++spaces >= 3) return null; } else spaces = 0;
+		if (BOX.indexOf(ch) >= 0) break;
+		if (ch === ' ') { if (++spaces >= 3) break; } else spaces = 0;
 	}
-	return null;
+	spaces = 0;
+	for (i = x + 1; i < row.length && i - x < 40; i++) {
+		ch = row[i].ch;
+		if (isKey(i)) return ch;
+		if (BOX.indexOf(ch) >= 0) break;
+		if (ch === ' ') { if (++spaces >= 2) break; } else spaces = 0;
+	}
+	// 2. a word with its key letter in its own colour and no brackets (Synchronet's "~Quit" style): that letter
+	if (row[x].ch === ' ') return null;
+	var a = x, b = x;
+	while (a > 0 && row[a - 1].ch !== ' ') a--;
+	while (b < row.length - 1 && row[b + 1].ch !== ' ') b++;
+	var seen = {}, odd = [];
+	for (i = a; i <= b; i++) if (/^[A-Za-z0-9]$/.test(row[i].ch)) seen[row[i].fg] = (seen[row[i].fg] || 0) + 1;
+	for (i = a; i <= b; i++) if (/^[A-Za-z0-9]$/.test(row[i].ch) && seen[row[i].fg] === 1 && row[i].fg >= 8) odd.push(row[i].ch);
+	return (odd.length === 1 && b - a >= 1) ? odd[0] : null;
 }
 
 	var t = setInterval(function () { var C = window.fTelnet && fTelnet._Crt; if (!C || !C.Canvas || !C.SaveScreen) return; clearInterval(t); hook(C); }, 300);
@@ -346,7 +364,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.84
+BBS_VERSION=0.85
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs

@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: tap any word of an item, scoundrel in the programs list, v0.85
+**Thu Oct 29, 2026 · 11:05 AM HST** (committed, not pushed)
+
+- **Changed:** the tap script finds an item's key from any word of it: it looks left from the tap and now also right, so "Get" in "Get [I]nfo" presses I. A word whose key letter is in its own colour with no brackets (Synchronet's "Which or Quit" style) presses that letter. Owner: "i cant click on Q or Quit to go back on this page" and "make it so clicking the whole word is the same as the letter".
+- **Fixed:** scoundrel.exe was not in the programs list: its xtrn.ini entry was `[prog:GAMES.SCOUNDREL]` with `settings = 1<<0`; Synchronet's own entries are `[prog:GAMES:CODE]` with a number. setup.sh now writes it that way and removes the old entry. Footer v0.85.
+- **Removed:** the v0.83 scoundrel entry.
+
 ## BBS: scoundrel door file copied, v0.84
 **Thu Oct 29, 2026 · 10:58 AM HST** (pushed)
 
