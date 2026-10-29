@@ -156,13 +156,23 @@ function tapKey(row, x) {
 		if (mob) {
 			ta = document.createElement('textarea');
 			ta.setAttribute('autocapitalize', 'off'); ta.setAttribute('autocomplete', 'off'); ta.setAttribute('autocorrect', 'off'); ta.setAttribute('spellcheck', 'false'); ta.setAttribute('aria-hidden', 'true');
-			ta.style.cssText = 'position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;z-index:-1';
+			ta.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;z-index:-1';
 			document.body.appendChild(ta);
 			var key = function (c) { C.PushKeyPress(c, 0, false, false, false); }, reset = function () { ta.value = ' '; ta.setSelectionRange(1, 1); };
 			reset();
 			// open it on the tap's last event (click): focusing earlier, on pointerup, lost the focus to the mousedown that phones fire after a tap
 			cv.addEventListener('mousedown', function (e) { e.preventDefault(); });
-			cv.addEventListener('click', function () { if (wantKb) { wantKb = false; ta.focus(); } });
+			cv.addEventListener('click', function () { if (wantKb) { wantKb = false; try { ta.focus({ preventScroll: true }); } catch (x) { ta.focus(); } setTimeout(fit, 350); } });
+			// keyboard up: scroll so the terminal's cursor line sits just above it (the phone's own scroll would push the terminal out of view)
+			var fit = function () {
+				if (document.activeElement !== ta) return;
+				var vv = window.visualViewport, vh = vv ? vv.height : window.innerHeight, r = cv.getBoundingClientRect(), s = r.height / cv.height;
+				var fh = (C._Font && C._Font.Height) || (cv.height / C.ScreenRows), off = C._UseModernScrollback ? (C._ScrollbackSize || 0) * fh : 0;
+				var rowBottom = window.scrollY + r.top + (off + C.WhereY() * fh) * s;
+				window.scrollTo(0, Math.max(0, rowBottom - vh + 8));
+			};
+			if (window.visualViewport) visualViewport.addEventListener('resize', function () { setTimeout(fit, 50); });
+			ta.addEventListener('blur', function () { window.scrollTo(0, 0); });
 			['keydown', 'keypress', 'keyup'].forEach(function (n) { ta.addEventListener(n, function (e) { e.stopPropagation(); }); });
 			ta.addEventListener('keydown', function (e) {
 				if (e.keyCode === 13) { e.preventDefault(); key(13); }
@@ -174,7 +184,7 @@ function tapKey(row, x) {
 				if (tp === 'deleteContentBackward' || v.length < 1) key(8);
 				else if (tp === 'insertLineBreak' || tp === 'insertParagraph') key(13);
 				else { var s = (e.data != null && tp.indexOf('insert') === 0) ? e.data : v.slice(1); for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); key(c === 10 ? 13 : c); } }
-				reset();
+				reset(); requestAnimationFrame(fit);
 			});
 		}
 		cv.addEventListener('pointerdown', function (e) { d = { x: e.clientX, y: e.clientY, t: Date.now() }; });
@@ -317,7 +327,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.75
+BBS_VERSION=0.76
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs

@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: phone keyboard no longer pushes the terminal out of view, v0.76
+**Thu Oct 29, 2026 · 10:10 AM HST** (committed, not pushed)
+
+- **Fixed:** when the phone keyboard opened, the phone scrolled to the hidden text field at the bottom and pushed the terminal off screen. The field is now at the top and takes focus without scrolling; once the keyboard is up the page scrolls so the terminal's cursor line sits just above it, and again as you type. Closing the keyboard scrolls back to the top. Owner: "when the phone keyboard pops up, it pushes the screen up and out of view". Footer v0.76.
+
 ## BBS: terminal 45 lines tall, v0.75
 **Thu Oct 29, 2026 · 10:07 AM HST** (pushed)
 
