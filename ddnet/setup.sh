@@ -5,17 +5,16 @@
 # Does NOT start or restart the server.
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
-U=tf2; D=/home/$U/ddnet; RAW=https://raw.githubusercontent.com/okayline/tf2-freezetag/main/ddnet
+U=tf2; D=/home/$U/ddnet; RAW=https://raw.githubusercontent.com/okayline/tf2-freezetag/${REF:-main}/ddnet   # REF=<commit> skips GitHub's few-minute cache
 VER=$(curl -fsS https://ddnet.org/downloads/ | grep -oE 'DDNet-[0-9.]+-linux_x86_64\.tar\.xz' | sort -uV | tail -1)
 [ -n "$VER" ] || { echo "Could not find the DDNet download."; exit 1; }
 echo "== $VER =="
 T=$(mktemp -d); curl -fsSL -o "$T/dd.tar.xz" "https://ddnet.org/downloads/$VER"
 tar -xJf "$T/dd.tar.xz" -C "$T"; mkdir -p "$D/logs"
 cp -a "$T"/DDNet-*/. "$D"/; rm -rf "$T"
-# DDNet reads the first autoexec_server.cfg it finds: the user folder comes before data/ (which has its default)
-C=/home/$U/.local/share/ddnet; mkdir -p "$C"
-curl -fsSL -o "$C/autoexec_server.cfg" "$RAW/autoexec_server.cfg"
-chown -R $U:$U "$D" "/home/$U/.local"
+# DDNet reads data/autoexec_server.cfg (its own default lives there), so ours replaces it
+curl -fsSL -o "$D/data/autoexec_server.cfg" "$RAW/autoexec_server.cfg"; rm -f "$D/autoexec_server.cfg"
+chown -R $U:$U "$D"
 cat > /etc/systemd/system/ddnet.service <<UNIT
 [Unit]
 Description=DDNet (DDRace) server
