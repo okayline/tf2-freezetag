@@ -102,6 +102,8 @@ if [ -z "$OLD" ] || [ "$OLD" = Space123 ]; then OLD=$(openssl rand -hex 12); ech
   echo "rcon_password \"$OLD\""
   echo "hostname \"$NAME\""
   echo "mp_gamemode $MODE"
+  # only take lobbies of this mode, so a co-op lobby can't switch the versus server to a co-op map
+  [ "$MODE" = versus ] && echo "sv_gametypes \"versus\""
   echo "l4d_rotate_order \"$ORDER\""
   [ -n "$DIFFICULTY" ] && echo "z_difficulty $DIFFICULTY"
 } > "$CFG/server.cfg"
