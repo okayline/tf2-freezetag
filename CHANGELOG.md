@@ -2,6 +2,15 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## 88x31 BBS (Synchronet + NetHack) at bbs.88x31.app
+**Thu Oct 29, 2026 · 1:50 AM – 2:28 AM HST**
+- **Added:** `bbs/setup.sh`: builds Synchronet 3.22 from source into `/sbbs` (user `bbs`, service `sbbs`, nice 5, 300 MB memory cap, about 20 MB in use). Named "88x31 BBS". Telnet on port 23, web site on 8023 (local only, behind Caddy). Mail, FTP, RLogin and SSH are off. `SKIPBUILD=1` re-applies the settings without rebuilding. The build took about 10 minutes on the one core; TF2, the three L4D servers and OpenRA were stopped for it (all empty) and started again afterwards. The script was sent to the box through `run`, not curl from GitHub.
+- **Added:** NetHack as a door game (`nethack-console`, `[prog:GAMES.NETHACK]` in `/sbbs/ctrl/xtrn.ini`, run as `/usr/games/nethack -u <alias>`), under X (External programs).
+- **Added:** BBS system password from the new repo secret `BBS_SYSPASS`. The `run` action writes it to `/root/bbs-syspass` (never printed, the repo is public), and `bbs/setup.sh` puts it in `main.ini`. Symbols in it are kept (a first version dropped them, so the sysop sign-up refused the password).
+- **Added:** sysop account (user #1) and a Guest account (user #2, made with `exec/makeguest.js`). The web site returned HTTP 500 until the Guest account existed.
+- **Added:** `bbs.88x31.app`: Cloudflare A record (DNS-only, so telnet works on the same name) and a Caddy site in `vps/Caddyfile` with a real certificate. Websocket requests go to the BBS's websocket service (127.0.0.1:1123), everything else to the web site (8023). `wssp=443` in `/sbbs/ctrl/modopts.ini` makes the browser terminal (fTelnet) connect through Caddy. Applied by hand with `run` (old Caddyfile kept as `/etc/caddy/Caddyfile.bak`).
+- **Not done yet:** BBS in the nightly backup; listing on the Telnet BBS Guide; NetHack tested in a real game; a custom 88x31 login screen.
+
 ## OpenRA Red Alert server
 **Thu Oct 29, 2026 · HST**
 - **Added:** `openra/setup.sh`: installs the OpenRA Red Alert dedicated server (latest release, unpacked AppImage) in `/home/tf2/openra`, service `openra`, port 1234/tcp, named "88x31 | Red Alert | US West", listed on the public OpenRA server list. No game files needed. Runs at lower priority (nice 5) with a 400 MB memory cap so TF2 and L4D stay smooth. Install: `run` action with `curl -fsSL https://raw.githubusercontent.com/okayline/tf2-freezetag/main/openra/setup.sh | bash`.
