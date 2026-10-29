@@ -38,8 +38,6 @@ bool g_pending;
 char g_next[64];
 int g_vsRounds;          // rounds that have ended on a versus finale map since it loaded
 float g_lastRoundEnd;
-StringMap g_teams;       // versus: Steam ID -> team (2 survivor, 3 infected), saved just before a campaign change
-float g_teamsUntil;      // engine time when the saved teams are forgotten
 
 public void OnPluginStart()
 {
@@ -51,7 +49,6 @@ public void OnPluginStart()
     // versus: not every event exists in every game version, so hook them softly and log what happened
     if (!HookEventEx("round_end", OnRoundEnd, EventHookMode_PostNoCopy)) LogMessage("round_end event not available");
     if (HookEventEx("versus_match_finished", OnMatchFinished, EventHookMode_PostNoCopy)) LogMessage("hooked versus_match_finished");
-    g_teams = new StringMap();
     RegAdminCmd("sm_nextcampaign", CmdNext, ADMFLAG_CHANGEMAP, "Go to the next campaign now");
 }
 
@@ -61,7 +58,6 @@ public void OnMapStart()
     g_vsRounds = 0;
     g_lastRoundEnd = 0.0;
     CreateTimer(3.0, LogMap, _, TIMER_FLAG_NO_MAPCHANGE);
-    if (g_teams.Size > 0) CreateTimer(3.0, RestoreTeams, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 // L4D does not write the map name into its game log, so the Discord feed can't see map changes
@@ -190,59 +186,6 @@ public Action CmdNext(int client, int args)
 public Action DoChange(Handle timer)
 {
     LogMessage("campaign rotation: changing to %s", g_next);
-    if (IsVersus()) SaveTeams();
     ServerCommand("changelevel %s", g_next);
     return Plugin_Stop;
-}
-
-// ---------- keep versus teams across a campaign change ----------
-// changelevel loads the next campaign fresh, so the game forgets who was on which team.
-// Remember each human's team right before the change, then put them back as they load in.
-
-void SaveTeams()
-{
-    g_teams.Clear();
-    char id[32];
-    for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientInGame(i) || IsFakeClient(i)) continue;
-        int t = GetClientTeam(i);
-        if (t != 2 && t != 3) continue;   // spectators pick for themselves
-        if (GetClientAuthId(i, AuthId_Steam2, id, sizeof(id))) g_teams.SetValue(id, t);
-    }
-    g_teamsUntil = GetEngineTime() + 120.0;   // engine time keeps counting through the map change
-    LogMessage("campaign rotation: remembered %d players' teams", g_teams.Size);
-}
-
-public Action RestoreTeams(Handle timer)
-{
-    if (g_teams.Size == 0 || GetEngineTime() > g_teamsUntil) {
-        if (g_teams.Size > 0) LogMessage("campaign rotation: %d players did not come back in time", g_teams.Size);
-        g_teams.Clear();
-        return Plugin_Stop;
-    }
-    char id[32];
-    int want;
-    for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientInGame(i) || IsFakeClient(i)) continue;
-        if (!GetClientAuthId(i, AuthId_Steam2, id, sizeof(id)) || !g_teams.GetValue(id, want)) continue;
-        int now = GetClientTeam(i);
-        if (now == want) { g_teams.Remove(id); continue; }
-        if (want == 3) {
-            ChangeClientTeam(i, 3);
-        } else {
-            if (now != 1) ChangeClientTeam(i, 1);
-            // take over a survivor bot (same way as !back in l4d_afk)
-            int flags = GetCommandFlags("sb_takecontrol");
-            if (flags != INVALID_FCVAR_FLAGS) {
-                SetCommandFlags("sb_takecontrol", flags & ~FCVAR_CHEAT);
-                FakeClientCommand(i, "sb_takecontrol");
-                SetCommandFlags("sb_takecontrol", flags);
-            }
-        }
-        if (GetClientTeam(i) == want) {
-            g_teams.Remove(id);
-            LogMessage("campaign rotation: put %N back on team %d", i, want);
-        }
-    }
-    return Plugin_Continue;
 }
