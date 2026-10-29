@@ -126,6 +126,9 @@ body{background:#000;color:#ccc}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #fTelnetContainer canvas{width:100% !important;height:auto !important}
+/* fTelnet sets its box to 80 columns of pixels (720px), wider than a phone, so the right side was cut off: never wider than the page, and on phones as tall as the shrunk screen */
+.fTelnetClientContainer{max-width:100% !important}
+@media (pointer:coarse){.fTelnetClientContainer{height:auto !important}}
 #ftelnet-connect{display:none !important}
 .fTelnetFocusWarning{display:none !important}
 </style>
