@@ -245,7 +245,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.46
+BBS_VERSION=0.47
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
@@ -507,6 +507,8 @@ open(f,'w').write(re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda
 PY7
 # custom text for Synchronet's scripts (the one-line main prompt), from the repo's bbs/ctrl
 cp "$(dirname "$0")/ctrl/text.ini" $D/ctrl/text.ini 2>/dev/null || echo "text.ini: not copied (run setup.sh from the repo's bbs folder)"
+# our screens from the repo's bbs/text: the 40-column connect screen without the big logo (so it fits 25 lines and never pauses)
+cp "$(dirname "$0")"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
 # our menus from the repo's bbs/menu: the 40-column main menu (mouse click spots: Ctrl-A ~ before each key letter), Get Info and Your statistics (one column)
 cp "$(dirname "$0")"/menu/*.msg $D/text/menu/ 2>/dev/null || echo "menus: not copied (run setup.sh from the repo's bbs folder)"
 chmod g+s /usr/games/nethack 2>/dev/null || true

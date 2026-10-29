@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no pause on the connect screen in the web terminal, v0.47
+**Thu Oct 29, 2026 · 8:26 AM HST** (not pushed)
+
+- **Added:** bbs/text/answer.40col.msg, the connect screen for 40-column terminals; setup.sh copies bbs/text into the BBS's text folder.
+- **Removed:** the big Synchronet logo from that screen at 40 columns, so it fits 25 lines and doesn't stop at [Hit a key]. Telnet (80 columns) keeps the full screen. Footer v0.47.
+
 ## BBS: Your statistics in one column, v0.46
 **Thu Oct 29, 2026 · 8:19 AM HST** (not pushed)
 
