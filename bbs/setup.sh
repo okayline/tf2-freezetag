@@ -191,7 +191,8 @@ function pkSignIn(el){
 NAV
 rm -f $NB.ssjs; fi
 # "Stuff" page: who you are logged in as, Link passkey and Log out (signed-in users), then every other page (all but Home
-# and Forum) as text links. Log out also forgets the browser key, so the home page makes a new rolled account next time.
+# and Forum) as text links. Log out goes back to this browser's own account (the one its key finds); a new one is made only if
+# that one is gone.
 cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 <!--Stuff-->
 <?xjs
@@ -208,7 +209,7 @@ cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 <?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
 <p>You are logged in as <a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a></p>
 <p><a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a></p>
-<p><a href="#" id="button-logout" onclick="try{localStorage.removeItem('bbs88x31key');}catch(e){}">Log out</a></p>
+<p><a href="#" id="button-logout">Log out</a></p>
 <script>(function(){ var l=document.getElementById('nav-pklink');
  fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
 <?xjs } ?>
@@ -266,7 +267,7 @@ if [ -d "$APID" ]; then cat > "$APID/passkey.ssjs" <<'JS'
 // Passkey sign-in for the 88x31 BBS web site, through the shared Accounts service (dungeon-items).
 //   GET  ?action=options                  passkey login options (a challenge from Accounts)
 //   POST ?action=anon   {key}             no Login on the web: the browser key finds its BBS user, or makes one with a rolled name
-//   POST ?action=login  {credential,key} signs in the BBS user linked to that account; if nobody is linked yet: links the
+//   POST ?action=login  {credential}     signs in the BBS user linked to that account; if nobody is linked yet: links the
 //                                         signed-in user, or (nobody signed in) makes a new BBS user with a random name.
 var settings = load('modopts.js', 'web') || { web_directory: '../webv4' };
 load(settings.web_directory + '/lib/init.js');
@@ -367,8 +368,9 @@ function userForKey(k) {
 	}
 	if (action != 'login' || http_request.method != 'POST') return reply({ error: 'Unknown action.' });
 
-	var cred, lk = '';
-	try { var pb = JSON.parse(http_request.post_data); cred = pb.credential; lk = String(pb.key || ''); } catch (e) { return reply({ error: 'Bad request.' }); }
+	// a passkey sign-in never changes which BBS user this browser's own key finds (Log out goes back to that one)
+	var cred;
+	try { cred = JSON.parse(http_request.post_data).credential; } catch (e) { return reply({ error: 'Bad request.' }); }
 	var r = call('passkeyLogin', [{ origin: ORIGIN, credential: cred, ip: ipOf() }]);
 	if (!r || r.error || !r.accountId) return reply({ error: (r && r.error) || "That passkey didn't work." });
 
@@ -378,12 +380,11 @@ function userForKey(k) {
 		if (usr.settings & USER_DELETED) return reply({ error: 'That BBS user is gone.' });
 		destroySession(http_request.cookie.synchronet || {});
 		setCookie(usr, randomString(512));
-		bindKey(lk, usr.number);
 		return reply({ ok: true, name: usr.alias });
 	}
 	if (is_user()) {
 		var l = call('link', [r.accountId, GAME, user.number]);
-		if (l && l.linked) { bindKey(lk, user.number); return reply({ ok: true, linked: true, name: user.alias }); }
+		if (l && l.linked) { return reply({ ok: true, linked: true, name: user.alias }); }
 		return reply({ error: 'That passkey is already linked to another BBS user.' });
 	}
 	// nobody linked and nobody signed in: make a new BBS user for this account (like the games make a new player)
@@ -396,7 +397,6 @@ function userForKey(k) {
 	if (!(nl && nl.linked)) { nu.settings |= USER_DELETED; return reply({ error: "Couldn't link the new BBS user. Try again." }); }
 	destroySession(http_request.cookie.synchronet || {});
 	setCookie(nu, randomString(512));
-	bindKey(lk, nu.number);
 	return reply({ ok: true, created: true, name: nu.alias });
 })();
 JS

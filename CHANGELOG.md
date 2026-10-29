@@ -5,9 +5,9 @@
 ## BBS: Log out, your name on the Stuff page, v0.15
 **Thu Oct 29, 2026 · 6:02 AM HST** (waiting for "push")
 
-- **Added:** a "Log out" link on the Stuff page. It also forgets this browser's key, so the home page gives you a new rolled account next time.
+- **Added:** a "Log out" link on the Stuff page. Like aura-farm v0.21, each browser keeps its own account: Log out goes back to it (a new one is made only if it was deleted). Signing in with a passkey no longer changes which account the browser keeps.
 - **Changed:** the Stuff page starts with "You are logged in as (name)" (with the unread mail count) and the "Link passkey" link. The footer is v0.15.
-- **Removed:** your name, the mail count and "Link passkey" from the top links (the top links keep "Sign in" for visitors who are not signed in), and the footer's v0.14.
+- **Removed:** your name, the mail count and "Link passkey" from the top links (the top links keep "Sign in" for visitors who are not signed in), the passkey sign-in pointing this browser at the passkey account (the `key` it took, `bbs/setup.sh` `api/passkey.ssjs`), and the footer's v0.14.
 
 ## BBS: one passkey link, v0.14
 **Thu Oct 29, 2026 · 5:58 AM HST** (waiting for "push")
