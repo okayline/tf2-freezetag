@@ -157,20 +157,20 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
 # The user name, Link passkey and Log out are on the User page. On the terminal page, Forum and User open in a panel and the
-# terminal stays connected out of sight; Home brings it back without a reload.
+# terminal stays connected out of sight; the BBS name brings it back without a reload.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: three text links instead of the menu bar: Home, Forum, User (made by bbs/setup.sh; do not edit)
+	// 88x31: the BBS name and two text links instead of the menu bar: Forum, User (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
 	<a href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./" onclick="return tlGo(this)">Home</a> <a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a> <a href="./?page=900-user.xjs" onclick="return tlGo(this)">User</a>
+	<a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a> <a href="./?page=900-user.xjs" onclick="return tlGo(this)">User</a>
 </div>
 <script>
 // On the terminal page, Forum and User open in a panel in its place and the terminal is only moved out of sight, so its
-// connection stays open; Home puts the terminal back. Inside the panel the page has no top links or footer.
+// connection stays open; the BBS name puts the terminal back. Inside the panel the page has no top links or footer.
 if (window !== window.top) document.documentElement.className += ' inframe';
 function tlGo(a) {
  var term = document.getElementById('fTelnetContainer'); if (!term || window !== window.top) return true;
@@ -246,7 +246,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.17
+BBS_VERSION=0.18
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
