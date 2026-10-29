@@ -193,10 +193,6 @@ function tapKey(row, x) {
 			var m = Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y), ms = Date.now() - d.t; d = null;
 			if (m > 8 || ms > 600) return;
 			var p = C.MousePositionToScreenPosition(e.offsetX, e.offsetY), cols = C.ScreenCols, rows = C.ScreenRows, x = p.x - 1, y = p.y;
-			// a [Hit a key] pause on the cursor's line: a tap or click anywhere on the terminal continues
-			var cy = C.WhereY(), cl = C.SaveScreen(1, cy, C.ScreenCols, cy)[0], line = '';
-			for (var j = 0; j < cl.length; j++) line += cl[j].Ch;
-			if (/\[Hit a key\]/i.test(line)) { C.PushKeyPress(13, 0, false, false, false); return; }
 			if (x < 0 || x >= cols || y < 1 || y > rows) return;
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
@@ -331,7 +327,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.79
+BBS_VERSION=0.80
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
