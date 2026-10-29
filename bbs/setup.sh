@@ -61,11 +61,12 @@ H=$D/repo/src/sbbs3/sbbsdefs.h
 flag() { grep -E "^#define[[:space:]]+$1[[:space:]]" $H | head -1 | sed -E 's/.*\(1 *<< *([0-9]+)\).*/$((1<<\1))/' | sed -E 's/^\$\(\((.*)\)\)$/\1/'; }
 S=$(( $(flag XTRN_MULTIUSER) | $(flag XTRN_ANSI) | $(flag XTRN_NATIVE) | $(flag XTRN_STDIO) ))
 X=$D/ctrl/xtrn.ini
+sed -i -E '/^\[prog:[A-Z]+\.NETHACK\]/,/^$/d' $X   # an entry made the old way (GAMES.NETHACK), which Synchronet did not list
 if ! grep -qi '^\[prog:.*NETHACK\]' $X; then
   SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
   cat >> $X <<X
 
-[prog:$SEC.NETHACK]
+[prog:$SEC:NETHACK]
 	name = NetHack
 	cmd = /usr/games/nethack -u %a
 	settings = $S
@@ -364,7 +365,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.85
+BBS_VERSION=0.86
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
