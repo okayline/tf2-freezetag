@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## BBS: scoundrel.exe door, v0.83
-**Thu Oct 29, 2026 · 10:50 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:50 AM HST** (pushed)
 
 - **Added:** a scoundrel.exe door in the programs menu (`bbs/xtrn/scoundrel.js`, installed by setup.sh as `[prog:...SCOUNDREL]`). It plays today's daily deck from scoundrel.88x31.app: the same run, deck and leaderboard as the website. Screens: title, the room (HP, blade, deck counts, the four cards with what taking each does), the end (score, route) and the board. Keys `[1-4]` take, `[B]` bare hands, `[S]` skip, `[Q]` quit.
 - **Accounts:** the door signs in as the BBS user's 88x31 account (`accountOf('bbs', user)`); a user with no account gets one, linked to them. scoundrel.exe's new `POST /api/bbs-enter` (scoundrel.exe v0.9.6) gives that account's player and a token, kept in `data/scoundrel/`. Owner: "the accounts this bbs uses should be the same as scoundrel".
