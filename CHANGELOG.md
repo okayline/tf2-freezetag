@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: tap a card, v0.87
+**Thu Oct 29, 2026 · 11:15 AM HST** (committed, not pushed)
+
+- **Added:** in the tap script: a tap inside a box, or on the line just under it, presses the key shown on the line above the box. scoundrel.exe's cards are boxes with `[1]` to `[4]` over them, so tapping a card takes it. It checks this before the other tap rules, so the number on a card is not pressed as a key. Owner: "can you program the clicks on the cards for scoundrel please". Footer v0.87.
+- **Removed:** nothing.
+
 ## BBS: NetHack in the programs list, v0.86
 **Thu Oct 29, 2026 · 11:08 AM HST** (pushed)
 
