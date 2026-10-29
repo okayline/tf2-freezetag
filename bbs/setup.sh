@@ -41,6 +41,8 @@ setk('UNIX','User','bbs'); setk('UNIX','Group','bbs')
 open(f,'w').write(t)
 PY
 sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
+# location, sysop name, guru name, and the idle kick (no typing for 10 minutes)
+sed -i -E "s/^(\s*location\s*=).*/\1Cyberspace/; s/^(\s*operator\s*=).*/\1kura/; s/^(\s*guru\s*=).*/\1ifne/; s/^(\s*max_getkey_inactivity\s*=).*/\110m/" $D/ctrl/main.ini
 # 10 nodes: node folders 1-10 (new ones copy node1's settings) and their [node_dir] lines in main.ini
 for n in $(seq 2 10); do
   [ -d $D/node$n ] || { mkdir -p $D/node$n; for c in node.ini terminal.ini client.ini; do [ -f $D/node1/$c ] && cp $D/node1/$c $D/node$n/; done; }
