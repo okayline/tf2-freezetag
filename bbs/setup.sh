@@ -94,7 +94,7 @@ body{background:#000;color:#ccc}
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
-  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">\xe2\x9b\xb6</button></div><div style="text-align:center;color:#666;font-size:12px;margin-top:6px">v0.1</div>#' "$H"
+  sed -i 's#<div id="fTelnetContainer" class="fTelnetContainer"></div>#<div id="ftwrap" style="position:relative"><div id="fTelnetContainer" class="fTelnetContainer"></div><button title="Fullscreen" style="position:absolute;right:12px;bottom:10px;background:none;border:none;padding:0;color:\#ddd;font-size:20px;line-height:1;opacity:.6;cursor:pointer;z-index:5" onclick="var e=document.getElementById(\x27ftwrap\x27);(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">\xe2\x9b\xb6</button></div><div style="text-align:center;color:\#666;font-size:12px;margin-top:6px">v0.1</div>#' "$H"
   rm -f /tmp/bigterm.html
 fi
 chown -R $U:$U $D
