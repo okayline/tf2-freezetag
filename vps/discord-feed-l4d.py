@@ -250,8 +250,54 @@ def bump(name, key):
         STATS[name][key] += 1
 
 
+def tally_ev(text):
+    m = RULES[0][1].search(text)
+    if not m:
+        return False
+    ev, aid, a, arole, bid, b, brole, extra = m.groups()
+    ah, bh = aid not in (None, "BOT", "WORLD"), bid not in (None, "BOT", "WORLD")
+    opt = dict(re.findall(r'(\w+)=(\S+)', extra or ""))
+    if ev == "heal" and ah and a != b:
+        bump(a, "heal")
+    elif ev == "revive" and ah:
+        bump(a, "revive")
+    elif ev == "rescue" and ah:
+        bump(a, "rescue")
+    elif ev == "pills" and ah:
+        bump(a, "pills")
+    elif ev == "ledge_grab" and ah:
+        bump(a, "ledge")
+    elif ev in ("pounce", "tongue", "vomit"):
+        if bh:
+            bump(b, "puked" if ev == "vomit" else "caught")
+        if ah:
+            bump(a, "pin")                     # versus: an infected player got someone
+    elif ev == "witch_startled" and ah:
+        CHAPTER.setdefault("woke", []).append(a)
+    elif ev == "witch_killed":
+        CHAPTER["witches"] = CHAPTER.get("witches", 0) + 1
+        if opt.get("oneshot") == "1":
+            CHAPTER["crowns"] = CHAPTER.get("crowns", 0) + 1
+            if ah:
+                bump(a, "crown")
+    elif ev == "tank_killed":
+        lived = opt.get("lived", "").rstrip("s")
+        CHAPTER.setdefault("tanks", []).append(int(lived) if lived.lstrip("-").isdigit() else -1)
+    elif ev == "safe_room" and ah:
+        order = CHAPTER.setdefault("safe", [])
+        if a not in order:
+            order.append(a)
+    return True
+
+
 def tally(raw):
     text = re.sub(r"^\d\d/\d\d/\d{4} - \d\d:\d\d:\d\d: ", "", re.sub(r"^L ", "", raw.strip()))
+    mp = re.search(r'Started map "([^"]*)"', text)
+    if mp:
+        CHAPTER["map"] = mp.group(1)
+        return
+    if tally_ev(text):
+        return
     m = re.search(r'(?:\(DEATH\))?' + P + r' killed ' + P + r' with "([^"]*)"', text)
     if m:
         killer, ktags, victim, vtags = re.sub(r"^\(\d+\)", "", m.group(1)), m.group(2), re.sub(r"^\(\d+\)", "", m.group(3)), m.group(4)
@@ -287,25 +333,89 @@ def tally(raw):
             SINCE.pop(m.group(1), None)
 
 
+CAMPS = {"hospital": "No Mercy", "garage": "Crash Course", "smalltown": "Death Toll",
+         "airport": "Dead Air", "farm": "Blood Harvest", "river": "The Sacrifice"}
+CHAPTER = {}        # chapter-wide facts from the event log: map, tanks (seconds lived), witches, crowns, safe-room order
+
+
+def map_title(mp):
+    c = re.match(r"l4d_(?:vs_)?(hospital|garage|smalltown|airport|farm|river)0?(\d+)", mp or "")
+    return "%s, chapter %s" % (CAMPS[c.group(1)], c.group(2)) if c else (mp or "Chapter")
+
+
+def player_score(c):
+    """One number for the chapter's MVP: kills, saves and staying alive count; dying and friendly fire cost."""
+    return (c.get("si", 0) * 5 + c.get("ci", 0) + c.get("hs", 0) + c.get("boss", 0) * 25 + c.get("crown", 0) * 15
+            + c.get("revive", 0) * 8 + c.get("rescue", 0) * 8 + c.get("heal", 0) * 6 + c.get("pin", 0) * 4
+            - c.get("dead", 0) * 10 - c.get("ff", 0) * 2)
+
+
 def summary(title):
+    """The end-of-chapter card: a Discord embed with highlights on top and one section per player."""
     if not STATS:
+        CHAPTER.clear()
         return None
-    rows = sorted(STATS.items(), key=lambda kv: -(kv[1].get("si", 0) * 5 + kv[1].get("ci", 0)))
-    out = ["\U0001F4CA **%s**" % title]
+    rows = sorted(STATS.items(), key=lambda kv: -player_score(kv[1]))
+    ch = dict(CHAPTER)
+    lines = []
+    if rows and player_score(rows[0][1]) > 0:
+        lines.append("\U0001F3C6 **MVP: %s**" % esc(rows[0][0], 32))
+    order = ch.get("safe", [])
+    if order:
+        lines.append("\U0001F6AA First into the safe room: **%s**" % esc(order[0], 32)
+                     + (" (%d of %d made it)" % (len(order), len(STATS)) if len(STATS) > 1 else ""))
+    for secs in ch.get("tanks", []):
+        lines.append("\U0001F4AA A Tank went down" + (" after **%d seconds**" % secs if secs >= 0 else ""))
+    if ch.get("witches"):
+        crowns = ch.get("crowns", 0)
+        lines.append("\U0001F469 %d Witch%s killed%s" % (ch["witches"], "es" if ch["witches"] > 1 else "",
+                                                          " (%d in one shot! \U0001F451)" % crowns if crowns else ""))
+    if ch.get("woke"):
+        lines.append("\U0001F631 Witch startled by %s" % ", ".join(esc(n, 24) for n in ch["woke"][:3]))
+    fields = []
     for name, c in rows[:10]:
-        bits = ["%s %d" % (label, c[k]) for k, label in KEYS if c.get(k)]
+        fight = ["%s %d" % (label, c[k]) for k, label in (("si", "\U0001F9DF specials"), ("ci", "\U0001F480 commons"),
+                 ("hs", "\U0001F3AF headshots"), ("boss", "\U0001F6A8 Tanks/Witches"), ("crown", "\U0001F451 crowned"),
+                 ("pin", "\U0001F43E pinned someone")) if c.get(k)]
+        team = ["%s %d" % (label, c[k]) for k, label in (("revive", "\u2764\ufe0f revived"), ("rescue", "\U0001F6AA rescued"),
+                ("heal", "\U0001FA79 healed"), ("pills", "\U0001F48A pills")) if c.get(k)]
+        rough = ["%s %d" % (label, c[k]) for k, label in (("caught", "\U0001FAA2 got pinned"), ("puked", "\U0001F92E puked on"),
+                 ("down", "\U0001FA78 downed"), ("ledge", "\U0001F9D7 ledge"), ("dead", "\u2620\ufe0f died"),
+                 ("ff", "\U0001F52B hit teammates")) if c.get(k)]
+        extra = []
+        if c.get("items"):
+            extra.append("\U0001F392 items %d" % c["items"])
+        if name in order:
+            extra.append("\U0001F6AA safe room #%d" % (order.index(name) + 1))
         t = SINCE.get(name)
         if t:
             mins = int((time.time() - t) // 60)
-            bits.append("\u23f1\ufe0f %dh%02dm" % (mins // 60, mins % 60) if mins >= 60 else "\u23f1\ufe0f %dm" % mins)
-        out.append("**%s**: %s" % (esc(name, 32), " · ".join(bits) or "no stats"))
+            extra.append("\u23f1\ufe0f %dh%02dm" % (mins // 60, mins % 60) if mins >= 60 else "\u23f1\ufe0f %dm" % mins)
+        value = "\n".join(" · ".join(x) for x in (fight, team, rough, extra) if x) or "just arrived"
+        medal = "\U0001F947 " if name == rows[0][0] and player_score(c) > 0 else ""
+        fields.append({"name": (medal + name)[:250], "value": value[:1000], "inline": False})
     STATS.clear()
-    return "\n".join(out)
+    CHAPTER.clear()
+    embed = {"title": "\U0001F4CA %s \u2014 %s" % (title, map_title(ch.get("map"))), "color": 0xC0392B, "fields": fields}
+    if lines:
+        embed["description"] = "\n".join(lines)[:3900]
+    return {"embeds": [embed]}
 
 
 def flush(webhook, lines):
     if not lines:
         return 0
+    cards = [l for l in lines if isinstance(l, dict)]
+    lines = [l for l in lines if not isinstance(l, dict)]
+    code = 0
+    for card in cards:                         # the chapter card: an embed, posted on its own
+        payload = dict(card, allowed_mentions={"parse": []})
+        code, _ = status.call("POST", webhook, payload)
+        if code == 429:
+            time.sleep(3)
+            code, _ = status.call("POST", webhook, payload)
+    if not lines:
+        return code
     # collapse repeats in one batch (friendly fire spam), keep order
     seen, out = {}, []
     for l in lines:
