@@ -82,6 +82,7 @@ body{background:#000;color:#ccc}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #ftelnet-connect{display:none !important}
+.fTelnetFocusWarning{display:none !important}
 </style>
 <script>/* no sounds on this page: the web terminal's beeps (idle warnings, bells) are muted */
 (function(){try{HTMLMediaElement.prototype.play=function(){return Promise.resolve();};}catch(e){}
