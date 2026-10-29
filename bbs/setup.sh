@@ -83,6 +83,10 @@ body{background:#000;color:#ccc}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #ftelnet-connect{display:none !important}
 </style>
+<script>/* no sounds on this page: the web terminal's beeps (idle warnings, bells) are muted */
+(function(){try{HTMLMediaElement.prototype.play=function(){return Promise.resolve();};}catch(e){}
+ var N=function(){return{createOscillator:function(){return{connect:function(){},start:function(){},stop:function(){},frequency:{value:0}};},createGain:function(){return{connect:function(){},gain:{value:0}};},destination:{},resume:function(){return Promise.resolve();},close:function(){return Promise.resolve();}};};
+ try{window.AudioContext=N;window.webkitAudioContext=N;}catch(e){}})();</script>
 <script>window.addEventListener('load',function(){setTimeout(function(){var b=document.getElementById('ftelnet-connect');if(b)b.click();},500);});</script>
 <div id="pkbar" style="text-align:right;margin:0 0 6px;font-size:13px;display:none"><a href="#" id="pklogin" style="color:#8cf">Sign in with passkey</a> <span id="pkmsg" style="color:#aaa"></span></div>
 <script>
