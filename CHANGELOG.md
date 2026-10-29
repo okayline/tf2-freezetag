@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: taller lines with the 8x16 VGA font, v0.78
+**Thu Oct 29, 2026 · 10:15 AM HST** (committed, not pushed)
+
+- **Changed:** the web terminal always uses the 8x16 CP437 font (`Options.Font = 'CP437_8x16'`). fTelnet picked a font to fit the window, which with 45 lines (and on phones) meant a small, squat one scaled up, so lines looked crowded. Each line is now twice as tall as a character is wide; real font, not a stretched picture. The terminal is taller, so it may need more scrolling on a phone. Owner: "the text looks too crowded vertically". Footer v0.78.
+
 ## BBS: tap anywhere at [Hit a key], v0.77
 **Thu Oct 29, 2026 · 10:12 AM HST** (committed, not pushed)
 
