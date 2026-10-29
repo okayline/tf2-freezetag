@@ -211,12 +211,11 @@ NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: the BBS name, Forum and the user menu instead of the menu bar (made by bbs/setup.sh; do not edit)
+	// 88x31: the BBS name and the user menu instead of the menu bar (made by bbs/setup.sh; do not edit)
 	var me = (user.number > 0 && user.alias !== settings.guest);
 ?>
 <div id="toplinks">
-	<a href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./?page=001-forum.xjs" onclick="return tlGo(this)">Forum</a>
+	<a id="tlbrand" href="<? write(settings.brand_link || './'); ?>" onclick="return tlGo(this)"><b><? write(settings.brand || system.name); ?></b></a>
 	<span id="tlme"><a href="#" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;"><? write(me ? user.alias : 'Guest'); ?> &#9662;</a>
 	<span id="tlmenu">
 		<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
@@ -288,12 +287,12 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.71
+BBS_VERSION=0.72
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
-# text sizes: the top bar bigger (20 px) except your name (16 px), the footer line smaller (12 px); the page text is 16 px
-if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlmenu a{font-size:20px !important} #tlme,#tlme>a{font-size:16px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
+# text sizes: the top bar bigger (20 px) except your name (16 px), the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
+if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlmenu a{font-size:20px !important} #tlme,#tlme>a{font-size:16px !important} #tlbrand,#tlbrand b{font-size:24px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
 # the normal arrow over the terminal, not the text bar
 if [ -n "$CSSD" ]; then echo '/* cursor */ #fTelnetContainer,#fTelnetContainer *,#fTelnetContainer canvas{cursor:default !important}' >> $CSSD/custom.css; fi
 # no border around the terminal (the old one was a thin light line); everything around it is already black

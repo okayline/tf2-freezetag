@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no Forum link, bigger BBS name, v0.72
+**Thu Oct 29, 2026 · 10:00 AM HST** (committed, not pushed)
+
+- **Removed:** the Forum link from the top bar (the forum page itself is still there).
+- **Changed:** the BBS name at the top left is 24 pixels (was 20). Owner: "get rid of menu item Forum, and make ~*~88x31~*~ part a little bigger". Footer v0.72.
+
 ## BBS: your name smaller in the top bar, v0.71
 **Thu Oct 29, 2026 · 9:59 AM HST** (committed, not pushed)
 
