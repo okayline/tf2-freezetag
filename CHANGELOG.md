@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no logon limit, v0.81
+**Thu Oct 29, 2026 · 10:20 AM HST** (committed, not pushed)
+
+- **Changed:** every user and every new user gets Synchronet's L exemption (no logons-per-day limit). Users are level 50, which allowed 50 logons a day, and every page reload is a logon. Time-per-day limits are unchanged. Owner: "can you please remove logon limit". Footer v0.81.
+
 ## BBS: tap anywhere at [Hit a key] removed, v0.80
 **Thu Oct 29, 2026 · 10:16 AM HST** (committed, not pushed)
 
