@@ -2,12 +2,19 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
-## BBS: no new-user questions, rolled names, no Login on the web, v0.8
-**Thu Oct 29, 2026 · about 4:30 AM – 5:15 AM HST** (commits 0ad32de, d6ed90d, 562200f)
+## BBS: no Login on the web page, v0.9
+**Thu Oct 29, 2026 · 5:16 AM HST** (waiting for "push")
 
-- **Added:** "New" at the telnet Login: now rolls a two-word name (like the games) and goes straight to the main screen. Visitors on the web page who are not signed in get an account with a rolled name automatically, and a key kept in their browser finds the same account when they come back. Signing in with a passkey points that key at the passkey account.
+- **Added:** web visitors who are not signed in get a BBS account with a rolled name automatically. A key kept in their browser finds the same account when they come back. Signing in with a passkey points that key at the passkey account. The passkey link stays on the page.
+- **Changed:** the footer is v0.9.
+- **Removed:** the Login step for web visitors. Telnet keeps its Login: prompt.
+
+## BBS: no new-user questions, rolled names, v0.8
+**Thu Oct 29, 2026 · about 4:30 AM – 5:15 AM HST** (commits 0ad32de, d6ed90d, pushed)
+
+- **Added:** "New" at the telnet Login: rolls a two-word name (like the games) and goes straight to the main screen.
 - **Changed:** the system name is `~*~88x31~*~ BbS`. The footer is v0.8. Passkey users, guests and new users are filled in (name, location, birth date, e-mail) instead of being asked.
-- **Removed:** the new-user questions (name, real name, location, birth date, e-mail, terminal type), the guest name and e-mail prompts, and the "search all groups" scan questions at logon. The Login prompt on the web page is gone for web visitors; telnet keeps it.
+- **Removed:** the new-user questions (name, real name, location, birth date, e-mail, terminal type), the guest name and e-mail prompts, and the "search all groups" scan questions at logon.
 
 ## BBS: passkey sign-in, automatic login on the web terminal, v0.7
 **Thu Oct 29, 2026 · 3:07 AM – 4:19 AM HST** (commits 41e6c78 … bda4ec3, pushed)
