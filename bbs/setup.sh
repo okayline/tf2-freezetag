@@ -97,6 +97,10 @@ if [ -n "$CSSD" ] && ! grep -qs 'offcanvas' $CSSD/custom.css; then echo '@media 
 # take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
 mkdir -p $D/webv4-sidebar-removed
 for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D/webv4-sidebar-removed/; done
+# replace the stock "mybbs" names: internet address, QWK ID, IRC bot channel
+sed -i -E 's/^(\s*addr\s*=\s*)mybbs\.com/\1bbs.88x31.app/' $D/ctrl/msgs.ini
+sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
+[ -f $D/ctrl/ircbot.ini ] && sed -i -E 's/^(\s*channels\s*=\s*)#MyBBS/\1#88x31/' $D/ctrl/ircbot.ini
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
