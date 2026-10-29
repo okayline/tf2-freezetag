@@ -41,7 +41,7 @@ open(f,'w').write(t)
 PY
 sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
 # system password (needed to create the sysop account): from repo secret BBS_SYSPASS, put in /root/bbs-syspass by vps-tools
-if [ -s /root/bbs-syspass ]; then P=$(tr -cd 'A-Za-z0-9' < /root/bbs-syspass); sed -i -E "0,/^password=/s/^password=.*/password=$P/" $D/ctrl/main.ini; P=; echo "system password set (not shown)"; fi
+if [ -s /root/bbs-syspass ]; then python3 -c 'import re,sys;p=open("/root/bbs-syspass").read().strip();f=sys.argv[1];t=open(f).read();open(f,"w").write(re.sub(r"(?m)^password=.*$",lambda m:"password="+p,t,count=1))' $D/ctrl/main.ini; echo "system password set (not shown)"; fi
 
 # NetHack door (flag values read from this build's own headers)
 H=$D/repo/src/sbbs3/sbbsdefs.h
