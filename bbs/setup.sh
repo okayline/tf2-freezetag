@@ -102,7 +102,7 @@ body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
-#fTelnetContainer canvas{width:100% !important;height:auto !important;image-rendering:pixelated}
+#fTelnetContainer canvas{width:100% !important;height:auto !important}
 #ftelnet-connect{display:none !important}
 .fTelnetFocusWarning{display:none !important}
 </style>
@@ -251,7 +251,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.31
+BBS_VERSION=0.32
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
