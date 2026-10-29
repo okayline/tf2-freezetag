@@ -231,7 +231,7 @@ f=sys.argv[1];t=open(f).read()
 open(f,'w').write(re.sub(r'(?ms)(^\[\*userlist\.xjs\]\s*\n\s*AccessRequirements\s*=).*?$',r'\1 level 90',t))
 PY8
 if [ -n "$CSSD" ]; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #tlme{float:right} #tlme>a{margin-right:0} #tlmenu{display:none;position:absolute;right:15px;top:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 26px} #toplinks a{color:#8cf;margin-right:14px} #tlme{float:right} #tlme>a{margin-right:0} #tlmenu{display:none;position:absolute;right:15px;top:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
@@ -245,7 +245,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.47
+BBS_VERSION=0.48
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
