@@ -84,6 +84,27 @@ body{background:#000;color:#ccc}
 #ftelnet-connect{display:none !important}
 </style>
 <script>window.addEventListener('load',function(){setTimeout(function(){var b=document.getElementById('ftelnet-connect');if(b)b.click();},500);});</script>
+<div id="pkbar" style="text-align:right;margin:0 0 6px;font-size:13px;display:none"><a href="#" id="pklogin" style="color:#8cf">Sign in with passkey</a> <span id="pkmsg" style="color:#aaa"></span></div>
+<script>
+(function(){
+ var bar=document.getElementById('pkbar'),a=document.getElementById('pklogin'),msg=document.getElementById('pkmsg');
+ if(!window.PublicKeyCredential||!bar)return;
+ fetch('./api/auth.ssjs').then(function(r){return r.json();}).then(function(j){bar.style.display='block'; if(j.authenticated)a.textContent='Link a passkey to this account';}).catch(function(){bar.style.display='block';});
+ var b=function(s){return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});};
+ var e=function(x){return btoa(String.fromCharCode.apply(null,new Uint8Array(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
+ a.addEventListener('click',async function(ev){
+  ev.preventDefault(); msg.textContent='...';
+  try{
+   var o=await (await fetch('./api/passkey.ssjs?action=options',{cache:'no-store'})).json(); if(o.error)throw o.error;
+   var c=await navigator.credentials.get({publicKey:{challenge:b(o.challenge),rpId:o.rpId,userVerification:o.userVerification||'preferred',timeout:o.timeout}});
+   var cred={id:c.id,type:c.type,response:{clientDataJSON:e(c.response.clientDataJSON),authenticatorData:e(c.response.authenticatorData),signature:e(c.response.signature),userHandle:c.response.userHandle?e(c.response.userHandle):null}};
+   var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred})})).json();
+   if(r.error)throw r.error;
+   msg.textContent=(r.linked?'Linked as ':'Signed in as ')+r.name; setTimeout(function(){location.reload();},800);
+  }catch(x){ msg.textContent=(x&&x.message)?x.message:String(x); }
+ });
+})();
+</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
@@ -103,6 +124,72 @@ for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D
 sed -i -E 's/^(\s*addr\s*=\s*)mybbs\.com/\1bbs.88x31.app/' $D/ctrl/msgs.ini
 sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 [ -f $D/ctrl/ircbot.ini ] && sed -i -E 's/^(\s*channels\s*=\s*)#MyBBS/\1#88x31/' $D/ctrl/ircbot.ini
+# passkey sign-in for the web site: api/passkey.ssjs talks to the shared Accounts service (dungeon-items) with the
+# key in ctrl/secrets/accounts-key (put there by vps-tools from the ACCOUNTS_KEY secret). Game name "bbs", player = BBS user number.
+APID=$(dirname "$(ls $D/webv4/*/api/auth.ssjs 2>/dev/null | head -1)")
+if [ -d "$APID" ]; then cat > "$APID/passkey.ssjs" <<'JS'
+// Passkey sign-in for the 88x31 BBS web site, through the shared Accounts service (dungeon-items).
+//   GET  ?action=options                  passkey login options (a challenge from Accounts)
+//   POST ?action=login  {credential}      signs in the BBS user linked to that account; if nobody is linked yet and
+//                                         someone is signed in with their BBS password, links that user to the account.
+var settings = load('modopts.js', 'web') || { web_directory: '../webv4' };
+load(settings.web_directory + '/lib/init.js');
+load(settings.web_lib + 'auth.js');
+load('http.js');
+var ACC = 'https://dungeon-items.ddddungeon.workers.dev/rpc/accounts/';
+var ORIGIN = 'https://bbs.88x31.app', GAME = 'bbs';
+
+function reply(o) {
+	var s = JSON.stringify(o);
+	http_reply.header['Content-Type'] = 'application/json';
+	http_reply.header['Cache-Control'] = 'no-store';
+	write(s);
+}
+function key() {
+	var f = new File(system.ctrl_dir + 'secrets/accounts-key');
+	if (!f.open('r')) return '';
+	var k = f.read(); f.close();
+	return k.replace(/\s+$/, '');
+}
+function call(method, args) {
+	var r = new HTTPRequest(undefined, undefined, { 'x-accounts-key': key() }, 15);
+	var body = r.Post(ACC + method, JSON.stringify(args), undefined, undefined, 'application/json');
+	try { return JSON.parse(body); } catch (e) { return { error: 'Accounts are unavailable right now. Try again in a moment.' }; }
+}
+function ipOf() {
+	var h = http_request.header || {};
+	var x = h['x-forwarded-for'] || h['X-Forwarded-For'] || http_request.remote_ip || 'unknown';
+	return String(x).split(',')[0].replace(/\s/g, '');
+}
+
+(function () {
+	var q = http_request.query || {};
+	var action = q.action ? q.action[0] : '';
+	if (action == 'options') return reply(call('passkeyLoginOptions', [{ origin: ORIGIN, ip: ipOf() }]));
+	if (action != 'login' || http_request.method != 'POST') return reply({ error: 'Unknown action.' });
+
+	var cred;
+	try { cred = JSON.parse(http_request.post_data).credential; } catch (e) { return reply({ error: 'Bad request.' }); }
+	var r = call('passkeyLogin', [{ origin: ORIGIN, credential: cred, ip: ipOf() }]);
+	if (!r || r.error || !r.accountId) return reply({ error: (r && r.error) || "That passkey didn't work." });
+
+	var p = call('playerFor', [r.accountId, GAME]);
+	if (p && p.playerId && p.playerId >= 1 && p.playerId <= system.lastuser) {
+		var usr = new User(p.playerId);
+		if (usr.settings & USER_DELETED) return reply({ error: 'That BBS user is gone.' });
+		destroySession(http_request.cookie.synchronet || {});
+		setCookie(usr, randomString(512));
+		return reply({ ok: true, name: usr.alias });
+	}
+	if (is_user()) {
+		var l = call('link', [r.accountId, GAME, user.number]);
+		if (l && l.linked) return reply({ ok: true, linked: true, name: user.alias });
+		return reply({ error: 'That passkey is already linked to another BBS user.' });
+	}
+	return reply({ error: "This passkey isn't linked to a BBS user yet. Log in with your BBS name and password first, then use the passkey once to link it." });
+})();
+JS
+fi
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
