@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: phone's own keyboard instead of the on-screen one, v0.73
+**Thu Oct 29, 2026 · 10:04 AM HST** (committed, not pushed)
+
+- **Removed:** fTelnet's on-screen keyboard on phones (`Options.VirtualKeyboardVisible = false`).
+- **Added:** in the tap script, on phones only: tapping the terminal anywhere but a menu letter brings up the phone's own keyboard (an invisible text field takes focus); what you type is sent on as keys, including Enter and Backspace. Owner: "is there a way to use the users keyboard, maybe with the tap screen script?". Footer v0.73.
+- **Not changed:** desktop works as before.
+
 ## BBS: no Forum link, bigger BBS name, v0.72
 **Thu Oct 29, 2026 · 10:00 AM HST** (committed, not pushed)
 

@@ -150,6 +150,30 @@ function tapKey(row, x) {
 	var t = setInterval(function () { var C = window.fTelnet && fTelnet._Crt; if (!C || !C.Canvas || !C.SaveScreen) return; clearInterval(t); hook(C); }, 300);
 	function hook(C) {
 		var cv = C.Canvas, d = null;
+		// phones: the phone's own keyboard instead of fTelnet's on-screen one. An invisible text field gets focus when you tap the
+		// terminal (not on a menu letter); what you type in it is sent on as keys. Key events stop at the field so fTelnet does not get them twice.
+		var ta = null, mob = (window.DetectMobileBrowser && DetectMobileBrowser.IsMobile) || (window.matchMedia && matchMedia('(pointer:coarse)').matches);
+		if (mob) {
+			ta = document.createElement('textarea');
+			ta.setAttribute('autocapitalize', 'off'); ta.setAttribute('autocomplete', 'off'); ta.setAttribute('autocorrect', 'off'); ta.setAttribute('spellcheck', 'false'); ta.setAttribute('aria-hidden', 'true');
+			ta.style.cssText = 'position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;z-index:-1';
+			document.body.appendChild(ta);
+			var key = function (c) { C.PushKeyPress(c, 0, false, false, false); }, reset = function () { ta.value = ' '; ta.setSelectionRange(1, 1); };
+			reset();
+			['keydown', 'keypress', 'keyup'].forEach(function (n) { ta.addEventListener(n, function (e) { e.stopPropagation(); }); });
+			ta.addEventListener('keydown', function (e) {
+				if (e.keyCode === 13) { e.preventDefault(); key(13); }
+				else if (e.keyCode === 8) { e.preventDefault(); key(8); }
+				else if (e.keyCode === 27) { e.preventDefault(); key(27); }
+			});
+			ta.addEventListener('input', function (e) {
+				var tp = e.inputType || '', v = ta.value;
+				if (tp === 'deleteContentBackward' || v.length < 1) key(8);
+				else if (tp === 'insertLineBreak' || tp === 'insertParagraph') key(13);
+				else { var s = (e.data != null && tp.indexOf('insert') === 0) ? e.data : v.slice(1); for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); key(c === 10 ? 13 : c); } }
+				reset();
+			});
+		}
 		cv.addEventListener('pointerdown', function (e) { d = { x: e.clientX, y: e.clientY, t: Date.now() }; });
 		cv.addEventListener('pointerup', function (e) {
 			if (!d) return;
@@ -161,6 +185,7 @@ function tapKey(row, x) {
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
 			var k = tapKey(row, x);
 			if (k) C.PushKeyPress(k.charCodeAt(0), 0, false, false, false);
+			else if (ta) ta.focus();
 		});
 	}
 })();
@@ -171,6 +196,8 @@ X
   # taller terminal: 40 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\140;/' "$H"
   # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it (fTelnet._Crt)
+  # phones: no fTelnet on-screen keyboard (the tap script brings up the phone's own keyboard instead)
+  sed -i -E 's/(Options\.ScreenRows *= *40;)/\1 Options.VirtualKeyboardVisible = false;/' "$H"
   sed -i -E "s/(var fTelnet = new fTelnetClient\('fTelnetContainer', Options\);)/\1 window.fTelnet = fTelnet;/" "$H"
   rm -f /tmp/bigterm.html
 fi
@@ -287,7 +314,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.72
+BBS_VERSION=0.73
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
