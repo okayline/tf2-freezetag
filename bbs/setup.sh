@@ -122,7 +122,10 @@ if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
 BBS_VERSION=0.2
-if [ -n "$CSSD" ]; then touch $CSSD/custom.css; sed -i '/^footer p.*::after/d' $CSSD/custom.css; echo "footer p:last-child::after{content:\" \\00b7  v$BBS_VERSION\"}" >> $CSSD/custom.css; fi
+# the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
+[ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
+FT=$D/webv4/components/footer.xjs
+[ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
 # phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
 if [ -n "$CSSD" ] && ! grep -qs 'offcanvas' $CSSD/custom.css; then echo '@media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
 # take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
