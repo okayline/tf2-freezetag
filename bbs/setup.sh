@@ -201,7 +201,7 @@ function ipOf() {
 	if (action == 'token') {
 		// a one-time code for the web terminal: good for 60 seconds, once (mods/login.js reads it)
 		if (!is_user()) return reply({ error: 'Not signed in.' });
-		var tok = 'pk' + md5_calc(String(Math.random()) + time() + user.number + randomString(16), true);   // lowercase hex
+		var tok = 'pk' + md5_calc(String(Math.random()) + time() + user.number + randomString(16), true).substr(0, 20);   // 22 chars: the Login: prompt takes 25
 		mkpath(system.data_dir + 'pktok');
 		var tf = new File(system.data_dir + 'pktok/' + tok);
 		if (!tf.open('w')) return reply({ error: 'Could not make a code.' });
@@ -252,7 +252,7 @@ e=src.find(");",k)+2 if k>=0 else -1
 hook="""
 		// 88x31: the web page types a one-time code (from api/passkey.ssjs) at this prompt; a good one (60 seconds,
 		// once) logs in the user it was made for.
-		if (/^pk[0-9a-f]{32}$/i.test(String(str))) {
+		if (/^pk[0-9a-f]{20}$/i.test(String(str))) {
 			var _ok = (function (tok) {
 				var f = new File(system.data_dir + 'pktok/' + tok);
 				if (!f.exists || !f.open('r')) return false;
