@@ -196,7 +196,8 @@ function tapKey(row, x) {
 			ta.setAttribute('autocapitalize', 'off'); ta.setAttribute('autocomplete', 'off'); ta.setAttribute('autocorrect', 'off'); ta.setAttribute('spellcheck', 'false'); ta.setAttribute('aria-hidden', 'true');
 			ta.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;z-index:-1';
 			document.body.appendChild(ta);
-			var key = function (c) { C.PushKeyPress(c, 0, false, false, false); }, reset = function () { ta.value = ' '; ta.setSelectionRange(1, 1); };
+			// Enter, Backspace, Tab, Esc and Space only reach the BBS as a key-down (fTelnet drops them as a key-press, like its own on-screen keyboard knows)
+			var key = function (c) { if (c === 8 || c === 9 || c === 13 || c === 27 || c === 32) C.PushKeyDown(0, c, false, false, false); else C.PushKeyPress(c, 0, false, false, false); }, reset = function () { ta.value = ' '; ta.setSelectionRange(1, 1); };
 			reset();
 			// open it on the tap's last event (click): focusing earlier, on pointerup, lost the focus to the mousedown that phones fire after a tap
 			cv.addEventListener('mousedown', function (e) { e.preventDefault(); });
