@@ -136,7 +136,7 @@ function board(st) {
 		});
 		if (b.you) console.print('\r\n  \1h\1wYOU\1n  #' + b.you.rank + '  score ' + b.you.score + '\r\n');
 	}
-	console.print('\r\n  \1h\1w[any key]\1n back');
+	console.print('\r\n  \1h\1w[B]\1nACK');   // any key goes back; [B] gives a tap something to press
 	console.getkey(K_NOCRLF);
 }
 

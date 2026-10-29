@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: scoundrel board's back button tappable, v0.89
+**Thu Oct 29, 2026 · 11:20 AM HST** (committed, not pushed)
+
+- **Changed:** the scoundrel board's "[any key] back" is now "[B]ACK", so a tap has a key to press; any key still goes back. Owner: "on this screen i cant click [any key] to go back". Footer v0.89.
+- **Removed:** the "[any key] back" label.
+
 ## BBS: scoundrel end screen fixed, v0.88
 **Thu Oct 29, 2026 · 11:17 AM HST** (pushed)
 
