@@ -14,10 +14,12 @@ id $U >/dev/null 2>&1 || useradd -r -m -d $D -s /usr/sbin/nologin $U
 
 echo "== Synchronet (build) =="
 mkdir -p $D; cd $D
+if [ "${SKIPBUILD:-}" != 1 ]; then
 curl -fsSL -m 60 -o install-sbbs.mk https://gitlab.synchro.net/main/sbbs/-/raw/master/install/install-sbbs.mk
 nice -n 10 make -f install-sbbs.mk SBBSDIR=$D SBBSUSER=$U SBBSGROUP=$U NOCAP=1 >$D/build.log 2>&1 \
   || { tail -n 30 $D/build.log; exit 1; }
 tail -n 2 $D/build.log
+fi
 
 echo "== settings =="
 # sbbs.ini: telnet 23, web 8023 (browser terminal), no mail/FTP, run as $U
@@ -26,7 +28,7 @@ import re,sys
 f=sys.argv[1];t=open(f).read()
 def setk(sec,key,val):
     global t
-    m=re.search(r'(?ms)^\[%s\]\s*$(.*?)(?=^\[|\Z)'%re.escape(sec),t)
+    m=re.search(r'(?ms)^\[%s\][^\n]*$(.*?)(?=^\[|\Z)'%re.escape(sec),t)
     body=m.group(1)
     if re.search(r'(?mi)^\s*%s\s*='%key,body): body=re.sub(r'(?mi)^(\s*)%s\s*=.*$'%key,r'\g<1>%s = %s'%(key,val),body,count=1)
     else: body='\n\t%s = %s'%(key,val)+body
@@ -41,11 +43,11 @@ sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
 
 # NetHack door (flag values read from this build's own headers)
 H=$D/repo/src/sbbs3/sbbsdefs.h
-flag() { grep -E "^#define[[:space:]]+$1[[:space:]]" $H | head -1 | sed -E 's/.*\((1<<[0-9]+)\).*/\1/; s/.*[[:space:]](0x[0-9A-Fa-f]+|[0-9]+).*$/\1/'; }
+flag() { grep -E "^#define[[:space:]]+$1[[:space:]]" $H | head -1 | sed -E 's/.*\(1 *<< *([0-9]+)\).*/$((1<<\1))/' | sed -E 's/^\$\(\((.*)\)\)$/\1/'; }
 S=$(( $(flag XTRN_MULTIUSER) | $(flag XTRN_ANSI) | $(flag XTRN_NATIVE) | $(flag XTRN_STDIO) ))
 X=$D/ctrl/xtrn.ini
 if ! grep -qi '^\[prog:.*NETHACK\]' $X; then
-  SEC=$(grep -oiE '^\[sec:[^]]+\]' $X | head -1 | sed -E 's/\[sec:(.*)\]/\1/')
+  SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
   cat >> $X <<X
 
 [prog:$SEC.NETHACK]
