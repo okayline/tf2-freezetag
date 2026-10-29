@@ -103,7 +103,6 @@ body{background:#000;color:#ccc}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
 #fTelnetContainer canvas{width:100% !important;height:auto !important;image-rendering:pixelated}
-#fTelnetContainer div{max-width:100% !important;width:auto !important;height:auto !important}
 #ftelnet-connect{display:none !important}
 .fTelnetFocusWarning{display:none !important}
 </style>
@@ -112,8 +111,6 @@ body{background:#000;color:#ccc}
  var N=function(){return{createOscillator:function(){return{connect:function(){},start:function(){},stop:function(){},frequency:{value:0}};},createGain:function(){return{connect:function(){},gain:{value:0}};},destination:{},resume:function(){return Promise.resolve();},close:function(){return Promise.resolve();}};};
  try{window.AudioContext=N;window.webkitAudioContext=N;}catch(e){}})();</script>
 <script>window.addEventListener('load',function(){setTimeout(function(){var b=document.getElementById('ftelnet-connect');if(b)b.click();},500);});</script>
-<script>/* the terminal only fits itself to the window on a resize: send it one right after the page loads (and again as it connects) */
-window.addEventListener('load',function(){[300,1200,3000].forEach(function(ms){setTimeout(function(){try{window.dispatchEvent(new Event('resize'));}catch(e){}},ms);});});</script>
 <script>/* not signed in: the browser gets a BBS user with a rolled name, and a key kept in this browser finds the same user next time */
 try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssjs?action=status',false);st.send();
  if(!JSON.parse(st.responseText).signedIn){var k='';try{k=localStorage.getItem(K)||'';}catch(e){}
@@ -254,7 +251,7 @@ if [ -n "$CSSD" ] && ! grep -qs 'dosfont' $CSSD/custom.css; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.26
+BBS_VERSION=0.27
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
