@@ -33,13 +33,23 @@ def setk(sec,key,val):
     if re.search(r'(?mi)^\s*%s\s*='%key,body): body=re.sub(r'(?mi)^(\s*)%s\s*=.*$'%key,r'\g<1>%s = %s'%(key,val),body,count=1)
     else: body='\n\t%s = %s'%(key,val)+body
     t=t[:m.start(1)]+body+t[m.end(1):]
-setk('BBS','TelnetPort','23'); setk('BBS','RLoginPort','513'); setk('BBS','RLoginInterface','127.0.0.1'); setk('BBS','SSHPort','0')
+setk('BBS','TelnetPort','23'); setk('BBS','RLoginPort','513'); setk('BBS','RLoginInterface','127.0.0.1'); setk('BBS','SSHPort','0'); setk('BBS','LastNode','10')   # 10 people at once
 setk('Mail','AutoStart','false'); setk('FTP','AutoStart','false')
 setk('Web','Port','8023'); setk('Web','Options','NO_CGI | NO_HOST_LOOKUP')   # no ALLOW_TLS: Caddy owns 443
 setk('UNIX','User','bbs'); setk('UNIX','Group','bbs')
 open(f,'w').write(t)
 PY
 sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
+# 10 nodes: node folders 1-10 (new ones copy node1's settings) and their [node_dir] lines in main.ini
+for n in $(seq 2 10); do
+  [ -d $D/node$n ] || { mkdir -p $D/node$n; for c in node.ini terminal.ini client.ini; do [ -f $D/node1/$c ] && cp $D/node1/$c $D/node$n/; done; }
+done
+python3 - $D/ctrl/main.ini <<'PY5'
+import re,sys
+f=sys.argv[1];t=open(f).read()
+m=re.search(r'(?ms)^\[node_dir\][^\n]*\n(.*?)(?=^\[|\Z)',t)
+open(f,'w').write(t[:m.start(1)]+''.join('\t%d=../node%d/\n'%(n,n) for n in range(1,11))+'\n'+t[m.end(1):])
+PY5
 # browser terminal behind Caddy (bbs.88x31.app): over https it connects to wss on 443
 grep -q '^\s*wssp\s*=' $D/ctrl/modopts.ini || sed -i -E '/^\[web\]/a\    wssp=443' $D/ctrl/modopts.ini
 # system password (needed to create the sysop account): from repo secret BBS_SYSPASS, put in /root/bbs-syspass by vps-tools
@@ -164,7 +174,7 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.12
+BBS_VERSION=0.13
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
