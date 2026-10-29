@@ -68,8 +68,8 @@ fi
 # web page: full-width layout, big terminal (no sidebar on the home page), Fullscreen button
 sed -i -E 's/^(\s*layout_full_width\s*=).*/\1true/' $D/ctrl/modopts.ini
 H=$(ls -d $D/webv4/pages/000-home.xjs 2>/dev/null || true)
-if [ -n "$H" ] && ! grep -q 'bigterm' "$H"; then
-  cp "$H" $D/webv4-home.xjs.bak
+if [ -n "$H" ]; then
+  [ -f $D/webv4-home.xjs.bak ] && cp $D/webv4-home.xjs.bak "$H" || cp "$H" $D/webv4-home.xjs.bak
   cat > /tmp/bigterm.html <<'X'
 <!-- bigterm -->
 <style>
@@ -79,6 +79,17 @@ body{background:#000;color:#ccc}
 .fTelnetContainer{width:100%}
 #ftwrap:fullscreen{background:#000;display:flex;align-items:center;justify-content:center}
 </style>
+<script>
+(function(){
+ function pos(){
+  var w=document.getElementById('ftwrap'),c=document.getElementById('fTelnetContainer'),f=w&&w.querySelector('button');
+  var cv=c&&c.querySelector('canvas'); if(!f||!cv)return;
+  var W=w.getBoundingClientRect(),V=cv.getBoundingClientRect();
+  f.style.right=(W.right-V.right+10)+'px'; f.style.bottom=(W.bottom-V.bottom+10)+'px';
+ }
+ window.addEventListener('resize',pos); document.addEventListener('fullscreenchange',pos); setInterval(pos,1000);
+})();
+</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
