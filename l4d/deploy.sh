@@ -63,6 +63,7 @@ echo "-- plugins"
 WANT=$(grep -vE '^\s*(#|$)' "$HERE/base/plugins.txt")
 [ "$DAMAGELOG" = 1 ] && WANT="$WANT"$'\n'l4d_damagelog
 [ "$REVERSE_FF" = 1 ] && WANT="$WANT"$'\n'l4d_reverse_ff
+[ "$EVENTLOG" = 1 ] && WANT="$WANT"$'\n'l4d_eventlog
 mkdir -p "$SM/plugins/disabled" "$SM/scripting" "$SM/translations"
 for sp in "$HERE"/scripting/*.sp; do
   n=$(basename "$sp" .sp)

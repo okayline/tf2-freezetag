@@ -17,4 +17,4 @@ l4d_afk
 l4d_campaign_rotate
 l4d_reserve
 l4d_scorekeeper
-# Per-server extras are switched on in l4d/servers/<name>.conf (REVERSE_FF, DAMAGELOG).
+# Per-server extras are switched on in l4d/servers/<name>.conf (REVERSE_FF, DAMAGELOG, EVENTLOG).
