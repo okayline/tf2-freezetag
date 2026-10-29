@@ -7,7 +7,8 @@
 
 - **Added:** nodes 5 to 10, so 10 people can be on at once (`bbs/setup.sh`: `LastNode = 10`, folders `node5`-`node10`, and their lines in `main.ini`). The footer is v0.13.
 - **Changed:** the web page is all black (top bar, page and footer, on every page) so it blends with the terminal. The terminal keeps its thin border.
-- **Changed:** the top menu bar is now one row of plain text links on the page (every page, no dropdown menus), made by `bbs/setup.sh` in `components/navbar.xjs`. Sign in, Link passkey and your name with the mail badge stay on the right. The passkey links were only on the server before; now they are in the repo.
+- **Changed:** the top menu bar is now one row of plain text links on the page (only three: Home, Forum and Stuff, no dropdown menus), made by `bbs/setup.sh` in `components/navbar.xjs`. Sign in, Link passkey and your name with the mail badge stay on the right. The passkey links were only on the server before; now they are in the repo.
+- **Added:** a "Stuff" page (`pages/900-stuff.xjs`) that lists every other page (files, games, node spy, user list and the rest) as text links.
 - **Added:** the page text uses the same DOS letters as the terminal: the "Web437 IBM VGA 8x16" web font by VileR (int10h.org, CC BY-SA 4.0), kept with its license in `/fonts` on the BBS site.
 - **Removed:** the 4-node limit, the dark grey top bar, the fixed menu bar with its dropdowns and phone menu button, and the footer's v0.12.
 

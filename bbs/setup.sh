@@ -182,17 +182,11 @@ NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: plain text links instead of the menu bar (made by bbs/setup.sh; do not edit)
-	function links(arr, path) {
-		arr.forEach(function (e) {
-			if (e.type == 'list') { links(e.list, (path || '') + e.title + '/'); return; }
-			write('<a href="./?page=' + (path || '') + e.page + '"' + (e.type == 'link' ? ' target="_blank"' : '') + '>' + e.title + '</a> ');
-		});
-	}
+	// 88x31: three text links instead of the menu bar: Home, Forum, Stuff (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
 	<a href="<? write(settings.brand_link || './'); ?>"><b><? write(settings.brand || system.name); ?></b></a>
-	<?xjs links(getPageList(settings.web_pages)); ?>
+	<a href="./">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-stuff.xjs">Stuff</a>
 	<span id="toplinks-right">
 	<?xjs if (user.alias === settings.guest || user.number < 1) { ?>
 		<a href="#" onclick="return pkSignIn(this)">Sign in</a>
@@ -222,6 +216,23 @@ function pkSignIn(el){
 </script>
 NAV
 rm -f $NB.ssjs; fi
+# "Stuff" page: every other page (all but Home and Forum) as a list of text links
+cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
+<!--Stuff-->
+<?xjs
+	// 88x31: links to every page except Home, Forum and this one (made by bbs/setup.sh; do not edit)
+	function stuff(arr, path) {
+		arr.forEach(function (e) {
+			if (e.type == 'list') { stuff(e.list, (path || '') + e.title + '/'); return; }
+			var p = (path || '') + e.page;
+			if (/^(000-home|001-forum|900-stuff)\./.test(p)) return;
+			write('<p><a href="./?page=' + p + '"' + (e.type == 'link' ? ' target="_blank"' : '') + '>' + e.title + '</a></p>');
+		});
+	}
+?>
+<div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
+STUFF
+rm -f $D/webv4/pages/900-stuff.xjs.ssjs
 if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
   echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px} #toplinks-right{float:right} #toplinks-right a{margin:0 0 0 14px}' >> $CSSD/custom.css
 fi
