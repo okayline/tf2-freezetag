@@ -22,7 +22,10 @@ spec.loader.exec_module(status)
 
 # A player in the log: "Name<...><...>..." ; the name is everything before the first <
 P = r'"([^"<]*)((?:<[^>]*>)*)"'
+# lines from our l4d_eventlog plugin: [88x31ev] <event> <id> "name" (role) [-> <id> "name" (role)] [key=value ...]
+EV_WHO = r'<([^>]*)> "([^"]*)" \(([^)]*)\)'
 RULES = [
+    ("ev", re.compile(r'\[88x31ev\] (\w+)(?: ' + EV_WHO + r')?(?: -> ' + EV_WHO + r')?(.*)$')),
     ("tf_trig", re.compile(P + r' triggered "(domination|revenge|chargedeployed|captureblocked|killedobject|medic_death)"(?: against ' + P + r')?(.*)$')),
     ("role", re.compile(P + r' changed role to "([^"]*)"')),
     ("say_team", re.compile(P + r' say_team "(.*)"')),
@@ -65,6 +68,40 @@ def is_bot(tags):
     return "<BOT>" in tags
 
 
+def format_ev(g):
+    """Posts for the [88x31ev] lines the game's own log lacks (revives, heals, witch, tank, safe room...).
+    Pounces, smoker grabs, incaps, deaths and spawns already come from the game's log, so those are skipped here."""
+    ev, aid, a, arole, bid, b, brole, extra = g
+    ah = aid not in (None, "BOT", "WORLD")          # is the first player a human
+    bh = bid not in (None, "BOT", "WORLD")
+    opt = dict(re.findall(r'(\w+)=(\S+)', extra or ""))
+    A, B = esc(a or "", 32), esc(b or "", 32)
+    if ev == "heal" and (ah or bh):
+        return "\U0001FA79 %s patched up %s" % (A, "themselves" if a == b else B)
+    if ev == "revive" and (ah or bh):
+        return "\u2764\ufe0f %s %s %s" % (A, "pulled up" if opt.get("ledge") == "1" else "picked up", B)
+    if ev == "rescue" and (ah or bh):
+        return "\U0001F6AA %s rescued %s from a closet" % (A, B)
+    if ev == "vomit" and bh:
+        return "\U0001F92E %s got puked on" % B
+    if ev == "witch_startled" and ah:
+        return "\U0001F469 **%s startled the Witch!**" % A
+    if ev == "witch_killed":
+        who = A if ah else ("the team" if not a else A)
+        return "\U0001F469 %s killed the Witch%s" % (who, " in one shot! \U0001F3AF" if opt.get("oneshot") == "1" else "")
+    if ev == "tank_killed":
+        secs = opt.get("lived", "").rstrip("s")
+        took = " after %s seconds" % secs if secs.isdigit() and int(secs) >= 0 else ""
+        return "\U0001F4AA **The Tank went down%s!**" % took
+    if ev == "safe_room" and ah and opt.get("order") == "1":
+        return "\U0001F6AA **%s** reached the safe room first" % A
+    if ev == "finale_win":
+        return "\U0001F681 **Rescued! The finale is won!**"
+    if ev == "mission_lost":
+        return "\U0001F480 Everyone went down. Mission lost."
+    return None
+
+
 def format_line(raw):
     text = raw.strip()
     text = re.sub(r"^L ", "", text)
@@ -74,6 +111,8 @@ def format_line(raw):
         if not m:
             continue
         g = m.groups()
+        if kind == "ev":
+            return format_ev(g)
         if kind == "tf_trig":
             who, wtags, ev, other, otags, rest = g
             if is_bot(wtags):
@@ -126,7 +165,8 @@ def format_line(raw):
             big = "**" if victim in ("Tank", "Witch") else ""
             if "<Infected>" not in vtags:          # TF2 and other games: player vs player
                 return "\u2620\ufe0f %s killed %s (%s)%s" % (esc(killer, 32), esc(victim, 32), esc(weapon, 24), hs)
-            return "\U0001F9DF %s killed a %s%s%s (%s)%s" % (esc(killer, 32), big, esc(victim, 32), big, esc(weapon, 24), hs)
+            article = "a " if is_bot(vtags) else ""   # versus: infected played by people get no "a"
+            return "\U0001F9DF %s killed %s%s%s%s (%s)%s" % (esc(killer, 32), article, big, esc(victim, 32), big, esc(weapon, 24), hs)
         if kind == "suicide":
             if "<Survivor>" not in g[1] or is_bot(g[1]):
                 return None                       # infected (Tank passing control etc.) or bot: skip
