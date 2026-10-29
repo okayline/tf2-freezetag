@@ -82,8 +82,11 @@ def format_ev(g):
         return "\u2764\ufe0f %s %s %s" % (A, "pulled up" if opt.get("ledge") == "1" else "picked up", B)
     if ev == "rescue" and (ah or bh):
         return "\U0001F6AA %s rescued %s from a closet" % (A, B)
-    if ev == "vomit" and bh:
-        return "\U0001F92E %s got puked on" % B
+    if ev in ("vomit", "pounce", "tongue") and (ah or bh):
+        emoji, verb = {"vomit": ("\U0001F92E", "puked on"), "pounce": ("\U0001F43E", "pounced on"),
+                       "tongue": ("\U0001F445", "grabbed")}[ev]
+        who = "%s (%s)" % (A, esc(arole or "", 12)) if ah else "A %s" % esc(arole or a or "", 12)
+        return "%s %s %s %s" % (emoji, who, verb, B)
     if ev == "witch_startled" and ah:
         return "\U0001F469 **%s startled the Witch!**" % A
     if ev == "witch_killed":
@@ -185,10 +188,8 @@ def format_line(raw):
             return None
         if kind == "revive" and is_bot(g[1]):
             return None
-        if kind == "pounce":
-            return "\U0001F43E Hunter pounced on %s" % esc(g[0], 32)
-        if kind == "tongue":
-            return "\U0001F445 Smoker grabbed %s" % esc(g[2], 32)
+        if kind in ("pounce", "tongue"):
+            return None                           # posted from the event log instead, with the infected player's name
         if kind == "revive":
             return "\u2764\ufe0f %s %s %s" % (esc(g[0], 32), g[2], esc(g[3], 32))
         if kind == "item":
