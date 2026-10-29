@@ -2,25 +2,31 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: arrow mouse pointer over the terminal, v0.70
+**Thu Oct 29, 2026 · 9:58 AM HST** (committed, not pushed)
+
+- **Changed:** the mouse shows the normal arrow over the terminal instead of the text bar. Owner: "could you have the mouse change to the pointer instead of the text input bar". Footer v0.70.
+- **Changelog:** v0.66 to v0.69 marked pushed.
+
 ## BBS: bigger top bar text, smaller footer text, v0.69
-**Thu Oct 29, 2026 · 9:57 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 9:57 AM HST** (pushed)
 
 - **Changed:** the top bar text is 20 pixels (was 16) and the footer line is 12 pixels, the same sizes tried in v0.65 before the rollback. Owner: "make the header row text bigger and the footer text row smaller please". Footer v0.69.
 
 ## BBS: tap a menu letter, fixed, v0.68
-**Thu Oct 29, 2026 · 9:56 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 9:56 AM HST** (pushed)
 
 - **Added back:** the v0.61 tap script and the v0.62 line that puts the terminal on `window`. Tapping or clicking a menu letter, or the words of its item, presses that key: it reads whatever is on screen at the tapped spot, so no screen needs a map. Owner: the tap screen is the better way. Footer v0.68.
 - **Fixed:** why it never worked. fTelnet keeps its terminal at `fTelnet._Crt`; the old script waited for `fTelnet.Crt`, which does not exist, so it never hooked in. It now also uses fTelnet's own mouse-to-cell function, which allows for the scrollback area the old math left out.
 - **Not changed:** no click spots; mouse setting stays off.
 
 ## BBS: terminal stretch removed, v0.67
-**Thu Oct 29, 2026 · 9:49 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 9:49 AM HST** (pushed)
 
 - **Removed:** the script that stretched the terminal picture 25% taller (v0.64). The terminal is back to its normal proportions, still 80 columns by 40 lines. Owner: "can we reverse the canvas stretch too please". Footer v0.67.
 
 ## BBS: tap script removed, v0.66
-**Thu Oct 29, 2026 · 9:48 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 9:48 AM HST** (pushed)
 
 - **Removed:** the tap/click-a-menu-letter script from the home page (v0.61) and the line that put the terminal on `window` for it (v0.62). It never worked on the live site. Owner: "can we remove the tap script maybe". Footer v0.66 (v0.65 was the rolled-back text sizes).
 - **Not changed:** mouse click spots stay off in the menus and the mouse setting stays off for every user (v0.60).
