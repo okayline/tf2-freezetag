@@ -3,17 +3,17 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## BBS: no time limit, v0.82
-**Thu Oct 29, 2026 · 10:22 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:22 AM HST** (pushed)
 
 - **Changed:** every user and every new user also gets Synchronet's T exemption (no time-per-day or time-per-call limit), next to the v0.81 L exemption. Owner: "remove the time limit too please". Footer v0.82.
 
 ## BBS: no logon limit, v0.81
-**Thu Oct 29, 2026 · 10:20 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:20 AM HST** (pushed)
 
 - **Changed:** every user and every new user gets Synchronet's L exemption (no logons-per-day limit). Users are level 50, which allowed 50 logons a day, and every page reload is a logon. Time-per-day limits are unchanged. Owner: "can you please remove logon limit". Footer v0.81.
 
 ## BBS: tap anywhere at [Hit a key] removed, v0.80
-**Thu Oct 29, 2026 · 10:16 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:16 AM HST** (pushed)
 
 - **Removed:** the v0.77 rule in the tap script that sent Enter on any tap when the cursor's line showed [Hit a key]. Taps on menu letters and the phone keyboard work as before. Owner: "remove 'tap anywhere to hit a key' please". Footer v0.80.
 
