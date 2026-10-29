@@ -145,7 +145,7 @@ function endScreen(st) {
 	header(st.name, st, r.status === 'won' ? 'CLEARED' : 'DELETED');
 	console.print('\r\n  ' + (r.status === 'won' ? '\1h\1gYou cleared the deck.' : '\1h\1rThe dungeon got you.') + '\1n\r\n');
 	console.print('\r\n  \1h\1wSCORE\1n ' + r.score + '\r\n');
-	if (r.marks) console.print('\r\n  ' + r.marks.replace(/[^\x20-\x7e]/g, function (ch) { return { '⤷': '>', '⚔': 'x', '‼': '!', '♥': '+', '·': '.' }[ch] || '?'; }) + '\r\n');
+	if (r.marks) console.print('\r\n  ' + [].concat(r.marks).join('').replace(/[^\x20-\x7e]/g, function (ch) { return { '\u21b7': '>', '⚔': 'x', '‼': '!', '♥': '+', '·': '.' }[ch] || '?'; }) + '\r\n');
 	console.print('\r\n  Come back tomorrow for a new deck.\r\n\r\n  \1h\1w[B]\1nOARD   \1h\1w[Q]\1nUIT');
 	for (;;) { var k = console.getkey(K_UPPER | K_NOCRLF); if (k === 'B') { board(st); return endScreen(st); } if (k === 'Q' || k === '\x1b') return; }
 }

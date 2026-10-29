@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: scoundrel end screen fixed, v0.88
+**Thu Oct 29, 2026 · 11:17 AM HST** (committed, not pushed)
+
+- **Fixed:** the end screen stopped with "r.marks.replace is not a function": the server sends the route as a list of marks (`worker.js` runView, `[...fixMarks(run.marks)]`), and the door read it as text. It now joins the list first. Footer v0.88.
+- **Removed:** nothing.
+
 ## BBS: tap a card, v0.87
 **Thu Oct 29, 2026 · 11:15 AM HST** (committed, not pushed)
 
