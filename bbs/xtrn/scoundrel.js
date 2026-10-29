@@ -82,15 +82,15 @@ function preview(v, c, bare) {
 	return (armed ? 'blade -' + Math.max(0, c.rank - v.weapon.card.rank) : 'bare -' + c.rank);
 }
 
-function header(name, info, screen) {
+function header(info, screen) {
 	console.clear();
-	console.print('\1h\1ySCOUNDREL.EXE\1n  //  \1h\1w' + (name || 'GUEST') + '\1n  //  ' + screen + '  \1h\1k//  DECK #' + info.number + '\1n\r\n');
+	console.print('\1h\1ySCOUNDREL.EXE\1n  //  ' + screen + '  \1h\1k//  DECK #' + info.number + '\1n\r\n');
 	console.print('\1n\1b' + Array(81).join('\xc4') + '\1n\r\n');
 }
 
 function drawRun(st, msg, bare) {
 	var v = st.run.view;
-	header(st.name, st, 'ROOM ' + v.turn);
+	header(st, 'ROOM ' + v.turn);
 	console.print('\r\n  \1h\1wHP\1n ' + lpad(v.health, 2) + '/' + v.maxHealth + '  \1h\1g' + bar(v.health, v.maxHealth, 20) + '\1n');
 	console.print('     \1h\1wBLADE\1n ' + (v.weapon ? '\1h\1c' + rank(v.weapon.card) + '\1n ' + (v.weaponCeiling == null ? 'hits anything' : v.weaponCeiling <= 2 ? 'dull' : 'hits up to ' + (RANKS[v.weaponCeiling - 1] || (v.weaponCeiling - 1))) : 'none') + '\r\n');
 	console.print('  \1h\1wIN DECK\1n ' + v.deckCount + ':  ' + v.deckMonsters + ' demons / ' + v.deckWeapons + ' blades / ' + v.deckPotions + ' health\r\n\r\n');
@@ -127,7 +127,7 @@ function said(events) {
 
 function board(st) {
 	var b = api('/api/leaderboard?day=' + st.day);
-	header(st.name, st, 'BOARD');
+	header(st, 'BOARD');
 	if (b.error) { console.print('\r\n  \1h\1r' + b.error + '\1n\r\n'); }
 	else {
 		console.print('\r\n  ' + b.played + ' played today, ' + b.won + ' cleared the deck\r\n\r\n');
@@ -142,7 +142,7 @@ function board(st) {
 
 function endScreen(st) {
 	var r = st.run;
-	header(st.name, st, r.status === 'won' ? 'CLEARED' : 'DELETED');
+	header(st, r.status === 'won' ? 'CLEARED' : 'DELETED');
 	console.print('\r\n  ' + (r.status === 'won' ? '\1h\1gYou cleared the deck.' : '\1h\1rThe dungeon got you.') + '\1n\r\n');
 	console.print('\r\n  \1h\1wSCORE\1n ' + r.score + '\r\n');
 	if (r.marks) console.print('\r\n  ' + [].concat(r.marks).join('').replace(/[^\x20-\x7e]/g, function (ch) { return { '\u21b7': '>', '⚔': 'x', '‼': '!', '♥': '+', '·': '.' }[ch] || '?'; }) + '\r\n');
@@ -155,10 +155,12 @@ function play() {
 	console.print('\1h\1yscoundrel.exe\1n  dealing...\r\n');
 	var st = api('/api/today');
 	if (st.error) { console.print('\r\n  \1h\1r' + st.error + '\1n\r\n'); console.pause(); return; }
-	var name = st.name;
+	// one name: on scoundrel's board a BBS user goes by their BBS alias. If scoundrel refuses it (taken, too long, odd
+	// characters), they keep the rolled name.
+	if (st.name !== user.alias) api('/api/name', { name: user.alias });
 	if (!st.run && st.unfinished) st.run = st.unfinished;   // a run started just before midnight can still be finished
 	if (!st.run) {
-		header(name, st, 'TITLE');
+		header(st, 'TITLE');
 		console.print('\r\n  A daily dungeon in a deck of cards. Everyone plays the same deck today.\r\n');
 		console.print('  Demons hurt you, blades fight for you, health heals you. Clear the deck to win.\r\n\r\n');
 		console.print('  \1h\1w[P]\1nLAY   \1h\1w[B]\1nOARD   \1h\1w[Q]\1nUIT');
@@ -170,7 +172,7 @@ function play() {
 		}
 		var s = api('/api/start', {});
 		if (s.error) { console.print('\r\n\r\n  \1h\1r' + s.error + '\1n\r\n'); console.pause(); return; }
-		st.run = s.run; st.name = name = s.name || name;
+		st.run = s.run;
 	}
 	var msg = '', bare = false;
 	while (st.run.status === 'playing') {
