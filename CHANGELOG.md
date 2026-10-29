@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## BBS: taller font removed, v0.79
-**Thu Oct 29, 2026 · 10:14 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:14 AM HST** (pushed)
 
 - **Removed:** the forced 8x16 font (v0.78); fTelnet picks its font to fit the window again. Owner: "can we remove the taller font please". Footer v0.79.
 
