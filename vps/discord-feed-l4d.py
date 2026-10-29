@@ -60,6 +60,7 @@ def esc(text, n):
 
 
 GAME = "l4d"
+GAP = 2.5          # seconds between Discord posts (about 24 a minute, under Discord's ~30)
 LAST_SPAWN = {}
 BOT_NAMES = {"Bill", "Francis", "Louis", "Zoey"}
 
@@ -349,6 +350,7 @@ def main():
     webhook = open(webhook_file).read().strip()
     path, fh, pending = None, None, ""
     buf, first, last_report = [], 0, time.time()
+    last_send = 0.0
     got = posted = 0
     print("%s feed: following logs in %s" % (name, log_dir), flush=True)
     while True:
@@ -396,12 +398,16 @@ def main():
                 buf.append(out)
         else:
             time.sleep(0.2)
-        if buf and (time.time() - first >= 2 or len(buf) >= 60):
-            code = flush(webhook, buf)
-            posted += len(buf)
+        # one post per event, at most one every GAP seconds (Discord allows about 30 a minute per channel).
+        # When events pile up faster than that, the waiting ones go out a few together so the feed keeps up.
+        if buf and time.time() - last_send >= GAP:
+            take = 1 if len(buf) <= 3 else min(len(buf) // 2, 15)
+            chunk, buf = buf[:take], buf[take:]
+            code = flush(webhook, chunk)
+            posted += len(chunk)
+            last_send = time.time()
             if not 200 <= code < 300:
                 print("%s feed: discord answered %d" % (name, code), flush=True)
-            buf = []
         if time.time() - last_report > 300:
             print("%s feed: last 5 min: %d log lines, %d posted" % (name, got, posted), flush=True)
             got = posted = 0
