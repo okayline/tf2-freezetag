@@ -626,6 +626,15 @@ m=re.search(r'(?ms)^\[newuser\][^\n]*\n(.*?)(?=^\[|\Z)',t)
 b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex((int(x.group(2),0)|(1<<5))&~(1<<31)),m.group(1),count=1)
 open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
 PY6
+# one menu for everyone: every command shell except DEFAULT is sysop-only (ars=SYSOP), so users can't switch to another one
+python3 - $D/ctrl/main.ini <<'PY10'
+import re,sys
+f=sys.argv[1];t=open(f).read()
+def lock(m):
+    if m.group(1).upper()=='DEFAULT': return m.group(0)
+    return re.sub(r'(?m)^(\s*ars\s*=).*$',r'\1SYSOP',m.group(0),count=1)
+open(f,'w').write(re.sub(r'(?ms)^\[shell:([^\]]+)\][^\n]*\n.*?(?=^\[|\Z)',lock,t))
+PY10
 # no logon or time limit: every user and every new user gets the L exemption (logons per day, bit 11) and the T exemption (time limits, bit 19)
 echo 'for (var n = 1; n <= system.lastuser; n++) { var u = new User(n); u.security.exemptions = (u.security.exemptions | (1 << 11) | (1 << 19)) >>> 0; }' > /tmp/logonfix.js && chmod 644 /tmp/logonfix.js
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/logonfix.js 2>&1 | tail -n 1) || true
