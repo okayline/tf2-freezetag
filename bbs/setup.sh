@@ -94,6 +94,11 @@ body{background:#000;color:#ccc}
  var N=function(){return{createOscillator:function(){return{connect:function(){},start:function(){},stop:function(){},frequency:{value:0}};},createGain:function(){return{connect:function(){},gain:{value:0}};},destination:{},resume:function(){return Promise.resolve();},close:function(){return Promise.resolve();}};};
  try{window.AudioContext=N;window.webkitAudioContext=N;}catch(e){}})();</script>
 <script>window.addEventListener('load',function(){setTimeout(function(){var b=document.getElementById('ftelnet-connect');if(b)b.click();},500);});</script>
+<script>/* not signed in: the browser gets a BBS user with a rolled name, and a key kept in this browser finds the same user next time */
+try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssjs?action=status',false);st.send();
+ if(!JSON.parse(st.responseText).signedIn){var k='';try{k=localStorage.getItem(K)||'';}catch(e){}
+  var an=new XMLHttpRequest();an.open('POST','./api/passkey.ssjs?action=anon',false);an.setRequestHeader('content-type','application/json');an.send(JSON.stringify({key:k}));
+  var aj=JSON.parse(an.responseText);if(aj.key){try{localStorage.setItem(K,aj.key);}catch(e){}}}}catch(e){}</script>
 <div id="pkbar" style="text-align:right;margin:0 0 6px;font-size:13px;display:none"><a href="#" id="pklogin" style="color:#8cf">Sign in with passkey</a> <span id="pkmsg" style="color:#aaa"></span></div>
 <script>
 (function(){
@@ -108,7 +113,7 @@ body{background:#000;color:#ccc}
    var o=await (await fetch('./api/passkey.ssjs?action=options',{cache:'no-store'})).json(); if(o.error)throw o.error;
    var c=await navigator.credentials.get({publicKey:{challenge:b(o.challenge),rpId:o.rpId,userVerification:o.userVerification||'preferred',timeout:o.timeout}});
    var cred={id:c.id,type:c.type,response:{clientDataJSON:e(c.response.clientDataJSON),authenticatorData:e(c.response.authenticatorData),signature:e(c.response.signature),userHandle:c.response.userHandle?e(c.response.userHandle):null}};
-   var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred})})).json();
+   var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred,key:(function(){try{return localStorage.getItem('bbs88x31key')||'';}catch(e){return '';}})()})})).json();
    if(r.error)throw r.error;
    msg.textContent=(r.linked?'Linked as ':'Signed in as ')+r.name; setTimeout(function(){location.reload();},800);
   }catch(x){ msg.textContent=(x&&x.message)?x.message:String(x); }
@@ -147,13 +152,29 @@ for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D
 sed -i -E 's/^(\s*addr\s*=\s*)mybbs\.com/\1bbs.88x31.app/' $D/ctrl/msgs.ini
 sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 [ -f $D/ctrl/ircbot.ini ] && sed -i -E 's/^(\s*channels\s*=\s*)#MyBBS/\1#88x31/' $D/ctrl/ircbot.ini
+# one place for the name rolling (two words like the games, word lists from scoundrel.exe src/names.js); the new-user script
+# (mods/newuser_prompts.js) and the web page's automatic account (api/passkey.ssjs, action anon) both load it
+mkdir -p $D/mods
+cat > $D/mods/rollname.js <<'JS3'
+// 88x31: rolls a free two-word name like the games, or null (made by bbs/setup.sh; do not edit)
+var A = ["Quiet", "Amber", "Early", "Gentle", "Bright", "Sleepy", "Golden", "Misty", "Rosy", "Brisk", "Hushed", "Warm", "Pale", "Slow", "Steady", "Wandering", "Soft", "Silver", "Crisp", "Drowsy", "Humble", "Eager", "Lucky", "Patient", "Little", "Cheerful", "Faint", "Glowing", "Distant", "Tender", "Rested", "Windy", "Dewy", "Calm", "Merry", "Shy", "Nimble", "Sunny", "Mellow", "Dappled"];
+var N = ["Heron", "Lantern", "Sparrow", "Kettle", "Meadow", "Thistle", "Harbor", "Wren", "Compass", "Fern", "Moth", "Orchard", "Ferry", "Pebble", "Robin", "Willow", "Teapot", "Comet", "Lark", "Cedar", "Beacon", "Marmot", "Otter", "Clover", "Ember", "Finch", "Tide", "Bramble", "Lamp", "Poppy", "Swallow", "Sundial", "Quill", "Hedgehog", "Trellis", "Rooster", "Weathervane", "Kingfisher", "Pigeon", "Lighthouse"];
+function rollName() {
+	for (var i = 0; i < 200; i++) {
+		var n = A[random(A.length)] + ' ' + N[random(N.length)];
+		if (n.length <= 16 && system.check_name(n) && !system.matchuser(n)) return n;
+	}
+	return null;
+}
+JS3
 # passkey sign-in for the web site: api/passkey.ssjs talks to the shared Accounts service (dungeon-items) with the
 # key in ctrl/secrets/accounts-key (put there by vps-tools from the ACCOUNTS_KEY secret). Game name "bbs", player = BBS user number.
 APID=$(dirname "$(ls $D/webv4/*/api/auth.ssjs 2>/dev/null | head -1)")
 if [ -d "$APID" ]; then cat > "$APID/passkey.ssjs" <<'JS'
 // Passkey sign-in for the 88x31 BBS web site, through the shared Accounts service (dungeon-items).
 //   GET  ?action=options                  passkey login options (a challenge from Accounts)
-//   POST ?action=login  {credential}      signs in the BBS user linked to that account; if nobody is linked yet: links the
+//   POST ?action=anon   {key}             no Login on the web: the browser key finds its BBS user, or makes one with a rolled name
+//   POST ?action=login  {credential,key} signs in the BBS user linked to that account; if nobody is linked yet: links the
 //                                         signed-in user, or (nobody signed in) makes a new BBS user with a random name.
 var settings = load('modopts.js', 'web') || { web_directory: '../webv4' };
 load(settings.web_directory + '/lib/init.js');
@@ -193,6 +214,22 @@ function ipOf() {
 	var x = h['x-forwarded-for'] || h['X-Forwarded-For'] || http_request.remote_ip || 'unknown';
 	return String(x).split(',')[0].replace(/\s/g, '');
 }
+// a visitor's long-lived key (32 hex characters, kept in their browser) finds their BBS user again: data/anon/<md5 of the key> holds the user number
+function bindKey(k, n) {
+	if (!/^[0-9a-f]{32}$/.test(k)) return;
+	mkpath(system.data_dir + 'anon');
+	var f = new File(system.data_dir + 'anon/' + md5_calc(k, true));
+	if (f.open('w')) { f.write(String(n)); f.close(); }
+}
+function userForKey(k) {
+	if (!/^[0-9a-f]{32}$/.test(k)) return null;
+	var f = new File(system.data_dir + 'anon/' + md5_calc(k, true));
+	if (!f.exists || !f.open('r')) return null;
+	var n = parseInt(f.read(), 10); f.close();
+	if (!(n >= 1 && n <= system.lastuser)) return null;
+	var u = new User(n);
+	return (u.settings & USER_DELETED) ? null : u;
+}
 
 (function () {
 	var q = http_request.query || {};
@@ -213,10 +250,33 @@ function ipOf() {
 		tf.write(user.number + ' ' + (time() + 60)); tf.close();
 		return reply({ token: tok, name: user.alias });
 	}
+	if (action == 'anon' && http_request.method == 'POST') {
+		// a visitor who is not signed in: their browser key finds their BBS user again; with no key (or an unknown one) they get a
+		// new BBS user with a rolled name, like the games, and a new key to keep in the browser. Signs them in on the site.
+		var ak = '';
+		try { ak = String(JSON.parse(http_request.post_data).key || ''); } catch (e) {}
+		var au = userForKey(ak);
+		if (!au) {
+			load(system.mods_dir + 'rollname.js');
+			var an = rollName();
+			if (!an) return reply({ error: "Couldn't pick a name. Try again." });
+			au = system.new_user(an);
+			if (typeof au !== 'object' || !au.number) return reply({ error: "Couldn't make a BBS user. Try again." });
+			au.security.password = randomString(16).replace(/[^A-Za-z0-9]/g, 'x');   // nobody can log in with just the name
+			au.name = an; au.handle = an; au.location = 'Unknown'; au.birthdate = '1970-01-01';
+			au.netmail = an.replace(/ /g, '_') + '@bbs.88x31.app';
+			au.settings &= ~((1 << 14) | (1 << 16));   // no "search all groups" questions at logon
+			ak = md5_calc(String(Math.random()) + time() + au.number + randomString(16), true);   // 32 hex characters
+			bindKey(ak, au.number);
+		}
+		destroySession(http_request.cookie.synchronet || {});
+		setCookie(au, randomString(512));
+		return reply({ ok: true, key: ak, name: au.alias });
+	}
 	if (action != 'login' || http_request.method != 'POST') return reply({ error: 'Unknown action.' });
 
-	var cred;
-	try { cred = JSON.parse(http_request.post_data).credential; } catch (e) { return reply({ error: 'Bad request.' }); }
+	var cred, lk = '';
+	try { var pb = JSON.parse(http_request.post_data); cred = pb.credential; lk = String(pb.key || ''); } catch (e) { return reply({ error: 'Bad request.' }); }
 	var r = call('passkeyLogin', [{ origin: ORIGIN, credential: cred, ip: ipOf() }]);
 	if (!r || r.error || !r.accountId) return reply({ error: (r && r.error) || "That passkey didn't work." });
 
@@ -226,11 +286,12 @@ function ipOf() {
 		if (usr.settings & USER_DELETED) return reply({ error: 'That BBS user is gone.' });
 		destroySession(http_request.cookie.synchronet || {});
 		setCookie(usr, randomString(512));
+		bindKey(lk, usr.number);
 		return reply({ ok: true, name: usr.alias });
 	}
 	if (is_user()) {
 		var l = call('link', [r.accountId, GAME, user.number]);
-		if (l && l.linked) return reply({ ok: true, linked: true, name: user.alias });
+		if (l && l.linked) { bindKey(lk, user.number); return reply({ ok: true, linked: true, name: user.alias }); }
 		return reply({ error: 'That passkey is already linked to another BBS user.' });
 	}
 	// nobody linked and nobody signed in: make a new BBS user for this account (like the games make a new player)
@@ -243,6 +304,7 @@ function ipOf() {
 	if (!(nl && nl.linked)) { nu.settings |= USER_DELETED; return reply({ error: "Couldn't link the new BBS user. Try again." }); }
 	destroySession(http_request.cookie.synchronet || {});
 	setCookie(nu, randomString(512));
+	bindKey(lk, nu.number);
 	return reply({ ok: true, created: true, name: nu.alias });
 })();
 JS
@@ -288,25 +350,17 @@ cat > $D/mods/newuser_prompts.js <<'JS2'
 // 88x31: a new user gets a rolled two-word name (like the games) instead of being asked for one (made by bbs/setup.sh; do not edit)
 var prompts = bbs.mods.prompts || load(bbs.mods.prompts = {}, "user_info_prompts.js", "new user registration");
 var options = load("modopts.js", "newuser_prompts", {});
-var A = ["Quiet", "Amber", "Early", "Gentle", "Bright", "Sleepy", "Golden", "Misty", "Rosy", "Brisk", "Hushed", "Warm", "Pale", "Slow", "Steady", "Wandering", "Soft", "Silver", "Crisp", "Drowsy", "Humble", "Eager", "Lucky", "Patient", "Little", "Cheerful", "Faint", "Glowing", "Distant", "Tender", "Rested", "Windy", "Dewy", "Calm", "Merry", "Shy", "Nimble", "Sunny", "Mellow", "Dappled"];
-var N = ["Heron", "Lantern", "Sparrow", "Kettle", "Meadow", "Thistle", "Harbor", "Wren", "Compass", "Fern", "Moth", "Orchard", "Ferry", "Pebble", "Robin", "Willow", "Teapot", "Comet", "Lark", "Cedar", "Beacon", "Marmot", "Otter", "Clover", "Ember", "Finch", "Tide", "Bramble", "Lamp", "Poppy", "Swallow", "Sundial", "Quill", "Hedgehog", "Trellis", "Rooster", "Weathervane", "Kingfisher", "Pigeon", "Lighthouse"];
-function roll() {
-	for (var i = 0; i < 200; i++) {
-		var n = A[random(A.length)] + ' ' + N[random(N.length)];
-		if (n.length <= 16 && system.check_name(n) && !system.matchuser(n)) return n;
-	}
-	return null;
-}
+load(system.mods_dir + "rollname.js");
 if (options.lang)
 	prompts.get_lang();
 // terminal setup without questions: the same as answering Yes to "Use automatic terminal type detection?"
-require("sbbs" + "defs.js", "USER_AUTOTERM");
+require("sbbsdefs.js", "USER_AUTOTERM");
 if (console.autoterm) {
 	user.settings |= USER_AUTOTERM;
 	user.settings |= console.autoterm;
 }
 prompts.get_terminal(user, { autoterm: false, backspace: false, mouse: false, charset: false });
-var name = roll();
+var name = rollName();
 if (!name) {
 	log(LOG_ERR, "New user: could not roll a name");
 	exit(1);
