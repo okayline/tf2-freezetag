@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The one way to set up or update an L4D server. Run as root on the VPS from the copy of this l4d/ folder.
-#   deploy.sh <classic|versus|vintage|test> [clean]
+#   deploy.sh <classic|versus|vintage> [clean]
 # - Reads l4d/servers/<name>.conf (name, port, mode, map order, extras) and l4d/base/* (shared files).
 # - "clean" first deletes the server's addons folder and SourceMod settings, so MetaMod, SourceMod and
 #   l4dtoolz are installed fresh. Game files, logs, motd and admins_simple.ini are kept.
@@ -9,7 +9,7 @@ set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
 HERE=$(cd "$(dirname "$0")" && pwd)
 KEY=${1:-}; CLEAN=${2:-}
-case "$KEY" in classic|versus|vintage|test) ;; *) echo "usage: deploy.sh classic|versus|vintage|test [clean]"; exit 1;; esac
+case "$KEY" in classic|versus|vintage) ;; *) echo "usage: deploy.sh classic|versus|vintage [clean]"; exit 1;; esac
 # shellcheck disable=SC1090
 . "$HERE/servers/$KEY.conf"
 

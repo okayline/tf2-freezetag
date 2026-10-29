@@ -85,7 +85,7 @@ jobs:
               [ -n "$COMMAND" ] && vps "$COMMAND" 2>&1 | hide | tail -c 8000 >> "$R" || echo "Put a command in the box." >> "$R" ;;
             status) vps "systemctl is-active tf2; df -h /home | tail -1; free -m | sed -n 2p" >> "$R" 2>&1 ;;
             l4d-deploy)
-              # box: classic, versus, vintage or test, optionally followed by "clean" (fresh MetaMod/SourceMod install)
+              # box: classic, versus or vintage, optionally followed by "clean" (fresh MetaMod/SourceMod install)
               ARGS=$(printf '%s' "$COMMAND" | tr -cd 'a-z ')
               vps 'rm -rf /root/l4d-deploy' >> "$R" 2>&1
               scp -r $SSHO l4d "$VPS_USER@$VPS_HOST:/root/l4d-deploy" >> "$R" 2>&1 \
@@ -102,14 +102,13 @@ jobs:
               [ -z "$N" ] || { scp $SSHO vps/ban-player.sh "$VPS_USER@$VPS_HOST:/root/ban-player.sh" >> "$R" 2>&1 \
                 && vps "bash /root/ban-player.sh '$N'" 2>&1 | tail -c 1500 >> "$R"; } ;;
             l4d-setup)
-              # box: classic (installs the game), versus, vintage or test (a copy of classic). Starts nothing.
+              # box: classic (installs the game), versus or vintage (a copy of classic). Starts nothing.
               A=""
               case "$COMMAND" in
                 classic) S=setup-l4d.sh ;;
                 versus) S=setup-l4d-b.sh ;;
                 vintage) S=setup-l4d-extra.sh; A="c 27018 coop l4d_hospital01_apartment '~*~88x31~*~ L4D ViNtaGe Edition'" ;;
-                test) S=setup-l4d-extra.sh; A="d 27019 coop l4d_hospital01_apartment '88x31 test'" ;;
-                *) S=""; echo "Box: classic, versus, vintage or test." >> "$R" ;;
+                *) S=""; echo "Box: classic, versus or vintage." >> "$R" ;;
               esac
               [ -z "$S" ] || { scp $SSHO "vps/$S" "$VPS_USER@$VPS_HOST:/root/$S" >> "$R" 2>&1 \
                 && vps "bash /root/$S $A" 2>&1 | tail -c 2500 >> "$R"; } ;;
