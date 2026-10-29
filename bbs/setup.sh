@@ -255,6 +255,9 @@ X
   sed -i -E 's/(Options\.ScreenRows *= *45;)/\1 Options.VirtualKeyboardVisible = false;/' "$H"
   # desktop (a mouse, not a finger): 30 lines, so the wide screen is not mostly empty rows; phones keep 45
   sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 if (!(window.matchMedia \&\& matchMedia('(pointer:coarse)').matches)) Options.ScreenRows = 30;/" "$H"
+  # no scrollback inside the terminal: fTelnet's "modern scrollback" puts old lines above the screen in a box that scrolls, so a
+  # phone could get stuck scrolled up with the green SCROLLBACK bar showing. The terminal is now only the screen itself.
+  sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 Options.AllowModernScrollback = false;/" "$H"
   sed -i -E "s/(var fTelnet = new fTelnetClient\('fTelnetContainer', Options\);)/\1 window.fTelnet = fTelnet;/" "$H"
   rm -f /tmp/bigterm.html
 fi
