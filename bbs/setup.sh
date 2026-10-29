@@ -113,6 +113,8 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 if [ -n "$CSSD" ] && ! grep -qs 'v0.1' $CSSD/custom.css; then echo 'footer p::after{content:" \00b7  v0.1"}' >> $CSSD/custom.css; fi
+# phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
+if [ -n "$CSSD" ] && ! grep -qs 'offcanvas' $CSSD/custom.css; then echo '@media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
 # take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
 mkdir -p $D/webv4-sidebar-removed
 for f in $D/webv4/sidebar/002-recent-visitors.xjs*; do [ -e "$f" ] && mv "$f" $D/webv4-sidebar-removed/; done
