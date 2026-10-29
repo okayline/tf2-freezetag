@@ -110,7 +110,14 @@ body{background:#000;color:#ccc}
  });
 })();
 </script>
-<script>try{var x=new XMLHttpRequest();x.open('GET','./api/passkey.ssjs?action=token',false);x.send();var j=JSON.parse(x.responseText);if(j.token){window.PKTOKEN=j.token;window.PKNAME=j.name;}}catch(e){}</script>
+<script>try{var x=new XMLHttpRequest();x.open('GET','./api/passkey.ssjs?action=token',false);x.send();var j=JSON.parse(x.responseText);if(j.token)window.PKTOKEN=j.token;}catch(e){}
+/* signed in: type the one-time code at the BBS "Login:" prompt, once */
+(function(){ if(!window.PKTOKEN||!window.WebSocket)return; var W=window.WebSocket;
+ function P(u,p){ var ws=p!==undefined?new W(u,p):new W(u), sent=false, buf='';
+  function see(t){ if(sent)return; buf=(buf+t).slice(-300); if(/Login: ?/.test(buf)){ sent=true; var c=window.PKTOKEN+'\r', a=new Uint8Array(c.length); for(var i=0;i<c.length;i++)a[i]=c.charCodeAt(i); setTimeout(function(){ try{ws.send(a);}catch(e){} },150); } }
+  ws.addEventListener('message',function(ev){ var d=ev.data; if(typeof d==='string')see(d); else if(d instanceof ArrayBuffer)see(String.fromCharCode.apply(null,new Uint8Array(d))); else if(d&&d.arrayBuffer)d.arrayBuffer().then(function(b){see(String.fromCharCode.apply(null,new Uint8Array(b)));}); });
+  return ws; }
+ P.prototype=W.prototype; P.CONNECTING=0; P.OPEN=1; P.CLOSING=2; P.CLOSED=3; window.WebSocket=P; })();</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
@@ -121,7 +128,7 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.5
+BBS_VERSION=0.6
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
@@ -194,7 +201,7 @@ function ipOf() {
 	if (action == 'token') {
 		// a one-time code for the web terminal: good for 60 seconds, once (mods/login.js reads it)
 		if (!is_user()) return reply({ error: 'Not signed in.' });
-		var tok = 'pk' + randomString(32).replace(/[^A-Za-z0-9]/g, 'x');
+		var tok = 'pk' + md5_calc(String(Math.random()) + time() + user.number + randomString(16), true);   // lowercase hex
 		mkpath(system.data_dir + 'pktok');
 		var tf = new File(system.data_dir + 'pktok/' + tok);
 		if (!tf.open('w')) return reply({ error: 'Could not make a code.' });
@@ -237,38 +244,32 @@ JS
 fi
 # web terminal auto-login: mods/login.js turns a one-time code (sent as the RLogin name) into that user, then runs the stock login
 mkdir -p $D/mods $D/data/pktok
-cat > $D/mods/login.js <<'JS'
-// 88x31: the web terminal connects by RLogin with the user's name and a one-time code from api/passkey.ssjs
-// (in the other RLogin slot). The password check fails on purpose, so the BBS runs this login script; a good code
-// (60 seconds, once, made for that same user) logs them in. Anything else goes on to the stock login.
-(function () {
-	var re = /^pk[A-Za-z0-9]{20,64}$/;
-	var a = String(bbs.rlogin_name || ''), b = String(bbs.rlogin_password || '');
-	var tok = re.test(b) ? b : (re.test(a) ? a : '');
-	if (!tok) return;
-	var f = new File(system.data_dir + 'pktok/' + tok);
-	if (!f.exists || !f.open('r')) return;
-	var t = f.read().split(' '); f.close(); f.remove();
-	var n = parseInt(t[0], 10), exp = parseInt(t[1], 10);
-	if (!(n > 0) || time() > exp) return;
-	var named = tok == b ? a : b;
-	if (named && system.matchuser(named) != n) return;
-	var u = new User(n);
-	if (bbs.login(u.alias, '', u.security.password)) exit();
-})();
-load(system.exec_dir + 'login.js');
-JS
-find $D/data/pktok -type f -mmin +5 -delete 2>/dev/null || true
-# the home page's terminal uses RLogin with the code when you're signed in on the site
-if [ -n "$H" ]; then python3 - "$H" <<'PY2'
+python3 - $D/exec/login.js $D/mods/login.js <<'PY3'
 import sys
-p=sys.argv[1]; s=open(p).read()
-k="var fTelnet = new fTelnetClient("
-if 'PKTOKEN' not in s.split(k)[0][-600:] and k in s:
-    s=s.replace(k,"if(window.PKTOKEN){Options.ConnectionType='rlogin';Options.Hostname=location.hostname;Options.Port=(location.protocol=='https:'?wssp:wsp)+'/?Port=513';Options.RLoginClientUsername=window.PKTOKEN;Options.RLoginServerUsername=window.PKNAME;Options.RLoginTerminalType='ansi-bbs';}\n\t\t\t\t"+k,1)
-open(p,'w').write(s)
-PY2
-fi
+src=open(sys.argv[1]).read()
+k=src.find("str=console.getstr(")
+e=src.find(");",k)+2 if k>=0 else -1
+hook="""
+		// 88x31: the web page types a one-time code (from api/passkey.ssjs) at this prompt; a good one (60 seconds,
+		// once) logs in the user it was made for.
+		if (/^pk[0-9a-f]{32}$/i.test(String(str))) {
+			var _ok = (function (tok) {
+				var f = new File(system.data_dir + 'pktok/' + tok);
+				if (!f.exists || !f.open('r')) return false;
+				var t = f.read().split(' '); f.close(); f.remove();
+				var n = parseInt(t[0], 10), exp = parseInt(t[1], 10);
+				if (!(n > 0) || time() > exp) return false;
+				var u = new User(n);
+				return bbs.login(u.alias, '', u.security.password);
+			})(String(str).toLowerCase());
+			if (_ok) exit();
+			continue;
+		}
+"""
+if k<0: sys.exit("login.js: getstr not found")
+open(sys.argv[2],"w").write("// 88x31: stock exec/login.js plus a one-time code check (made by bbs/setup.sh; do not edit)\n"+src[:e]+hook+src[e:])
+PY3
+find $D/data/pktok -type f -mmin +5 -delete 2>/dev/null || true
 chown -R $U:$U $D
 # the web site (browser terminal) needs a Guest account
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n makeguest.js 2>&1 | tail -n 1) || true
