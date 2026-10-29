@@ -85,7 +85,7 @@ def format_ev(g):
     if ev in ("vomit", "pounce", "tongue") and (ah or bh):
         emoji, verb = {"vomit": ("\U0001F92E", "puked on"), "pounce": ("\U0001F43E", "pounced on"),
                        "tongue": ("\U0001F445", "grabbed")}[ev]
-        who = "%s (%s)" % (A, esc(arole or "", 12)) if ah else "A %s" % esc(arole or a or "", 12)
+        who = A if ah else "A %s" % esc(arole or a or "", 12)
         return "%s %s %s %s" % (emoji, who, verb, B)
     if ev == "witch_startled" and ah:
         return "\U0001F469 **%s startled the Witch!**" % A
