@@ -210,8 +210,9 @@ rm -f $NB.ssjs; fi
 # and Forum) as text links. Log out goes back to this browser's own account (the one its key finds); a new one is made only if
 # that one is gone.
 rm -f $D/webv4/pages/900-stuff.xjs $D/webv4/pages/900-stuff.xjs.ssjs
-# no Games page (the same door programs are on the BBS menu: [X]ternal programs); User List is for the sysop only (level 90)
-rm -f $D/webv4/pages/003-games.xjs $D/webv4/pages/003-games.xjs.ssjs
+# no Games or Files pages (the same door programs and file areas are on the BBS menu: [X]ternal programs, [T]ransfer Files);
+# User List is for the sysop only (level 90)
+rm -f $D/webv4/pages/003-games.xjs $D/webv4/pages/003-games.xjs.ssjs $D/webv4/pages/002-files.xjs $D/webv4/pages/002-files.xjs.ssjs
 python3 - $D/webv4/pages/More/webctrl.ini <<'PY8'
 import re,sys
 f=sys.argv[1];t=open(f).read()
@@ -258,7 +259,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.36
+BBS_VERSION=0.37
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
