@@ -156,16 +156,16 @@ if [ -n "$CSSD" ] && ! grep -qs 'allblack' $CSSD/custom.css; then
   echo '/* allblack */ html,body,.navbar,.navbar-default,.navbar-inverse,footer,.container,.container-fluid{background-color:#000 !important} .navbar-default,.navbar-inverse{border-color:#000 !important}' >> $CSSD/custom.css
 fi
 # top of the page: one row of plain text links (every page, flattened, no dropdowns) instead of the menu bar.
-# The user name, Link passkey and Log out are on the Stuff page.
+# The user name, Link passkey and Log out are on the User page.
 NB=$D/webv4/components/navbar.xjs
 if [ -f $NB ]; then [ -f $D/webv4-navbar.xjs.bak ] || cp $NB $D/webv4-navbar.xjs.bak
 cat > $NB <<'NAV'
 <?xjs
-	// 88x31: three text links instead of the menu bar: Home, Forum, Stuff (made by bbs/setup.sh; do not edit)
+	// 88x31: three text links instead of the menu bar: Home, Forum, User (made by bbs/setup.sh; do not edit)
 ?>
 <div id="toplinks">
 	<a href="<? write(settings.brand_link || './'); ?>"><b><? write(settings.brand || system.name); ?></b></a>
-	<a href="./">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-stuff.xjs">Stuff</a>
+	<a href="./">Home</a> <a href="./?page=001-forum.xjs">Forum</a> <a href="./?page=900-user.xjs">User</a>
 </div>
 <script>
 function pkSignIn(el){
@@ -185,18 +185,19 @@ function pkSignIn(el){
 </script>
 NAV
 rm -f $NB.ssjs; fi
-# "Stuff" page: who you are logged in as, Link passkey and Log out (signed-in users), then every other page (all but Home
+# "User" page (was "Stuff"): who you are logged in as, Link passkey, Sign in with passkey, Log out, then every other page (all but Home
 # and Forum) as text links. Log out goes back to this browser's own account (the one its key finds); a new one is made only if
 # that one is gone.
-cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
-<!--Stuff-->
+rm -f $D/webv4/pages/900-stuff.xjs $D/webv4/pages/900-stuff.xjs.ssjs
+cat > $D/webv4/pages/900-user.xjs <<'STUFF'
+<!--User-->
 <?xjs
 	// 88x31: links to every page except Home, Forum and this one (made by bbs/setup.sh; do not edit)
 	function stuff(arr, path) {
 		arr.forEach(function (e) {
 			if (e.type == 'list') { stuff(e.list, (path || '') + e.title + '/'); return; }
 			var p = (path || '') + e.page;
-			if (/^(000-home|001-forum|900-stuff)\./.test(p)) return;
+			if (/^(000-home|001-forum|900-user)\./.test(p)) return;
 			write('<p><a href="./?page=' + p + '"' + (e.type == 'link' ? ' target="_blank"' : '') + '>' + e.title + '</a></p>');
 		});
 	}
@@ -204,13 +205,16 @@ cat > $D/webv4/pages/900-stuff.xjs <<'STUFF'
 <?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
 <p>You are logged in as <a href="./?page=000-mail.xjs"><? write(user.alias); ?> <span class="badge scanned" title="Unread mail" id="badge-unread-mail"></span></a></p>
 <p><a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a></p>
+<?xjs } ?>
+<p><a href="#" onclick="return pkSignIn(this)">Sign in with passkey</a></p>
+<?xjs if (user.number > 0 && user.alias !== settings.guest) { ?>
 <p><a href="#" id="button-logout">Log out</a></p>
 <script>(function(){ var l=document.getElementById('nav-pklink');
  fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
 <?xjs } ?>
 <div id="stufflist"><?xjs stuff(getPageList(settings.web_pages)); ?></div>
 STUFF
-rm -f $D/webv4/pages/900-stuff.xjs.ssjs
+rm -f $D/webv4/pages/900-user.xjs.ssjs
 if [ -n "$CSSD" ] && ! grep -qs 'toplinks' $CSSD/custom.css; then
   echo '/* toplinks */ body{padding-top:12px !important} #toplinks{padding:0 15px 10px} #toplinks a{color:#8cf;margin-right:14px}' >> $CSSD/custom.css
 fi
