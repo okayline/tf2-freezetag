@@ -34,7 +34,8 @@ for d in /home/tf2/discord /home/tf2/uptime-kuma/data /home/tf2/mc /home/tf2/lea
          /home/tf2/l4d/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
          /home/tf2/l4d-b/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
          /home/tf2/l4d-c/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
-         /etc/systemd/system /etc/caddy /etc/ssh /root/.ssh /etc/ufw /etc/iptables /var/spool/cron /root/tf2-gslt /var/www/stats /etc/l4d-story /opt/story; do
+         /etc/systemd/system /etc/caddy /etc/ssh /root/.ssh /etc/ufw /etc/iptables /var/spool/cron /root/tf2-gslt /var/www/stats /etc/l4d-story /opt/story \
+         /sbbs/ctrl /sbbs/data /sbbs/text /sbbs/mods /var/games/nethack; do
   [ -e "$d" ] && P+=("$d")
 done
 restic backup --one-file-system --exclude '*.jar' --exclude '/home/tf2/mc/cache' --exclude '/home/tf2/mc/logs' --exclude '*/world-old' --exclude '*.console.txt' "${P[@]}" || exit 1
