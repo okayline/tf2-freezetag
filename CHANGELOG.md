@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: 40-column web terminal, bigger letters, v0.33
+**Thu Oct 29, 2026 · 7:19 AM HST** (not pushed)
+
+- **Removed:** the 40-line terminal (back to 25 lines).
+- **Added:** the web terminal is 40 columns wide, so letters are twice as big; Synchronet's stock 40-column main menu shows. Screens made for 80 columns may wrap. Footer v0.33.
+
 ## BBS: smooth letters again, v0.32
 **Thu Oct 29, 2026 · 7:15 AM HST** (not pushed)
 
