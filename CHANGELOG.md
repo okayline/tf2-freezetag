@@ -2,6 +2,15 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS web page: big terminal, Fullscreen, dark; BBS in the nightly backup
+**Thu Oct 29, 2026 · 2:34 AM – 3:02 AM HST** (commits 0aab8bb … 2a51205, pushed and applied)
+- **Added:** the BBS (`/sbbs` settings, data, text and mods) and its NetHack saves to the nightly backup (`vps/backup-setup.sh`).
+- **Changed:** the BBS home page (`bbs/setup.sh`): full-width layout, no sidebar on the home page, a much bigger terminal, black page. A small Fullscreen icon sits in the terminal's lower-right corner and fits the terminal to the screen; click it again to leave. No scrollbars inside the terminal.
+- **Changed:** dark mode is on by default and the Dark/Light switch is hidden (`css/custom.css`). On phones the Sidebar button and the sliding sidebar are hidden.
+- **Removed:** the Recent Visitors block from the sidebar (files kept in `/sbbs/webv4-sidebar-removed`).
+- **Added:** page version **v0.1**, shown in the footer next to the year.
+- **Applied:** `bbs/setup.sh` with `SKIPBUILD=1` through the `run` action. No game server or BBS restart.
+
 ## 88x31 BBS at bbs.88x31.app
 **Thu Oct 29, 2026 · 1:50 AM – 2:28 AM HST**
 - **Added:** a Synchronet bulletin board, "88x31 BBS" (`bbs/setup.sh`, service `sbbs`). Connect with telnet or SyncTERM to `bbs.88x31.app`, or open https://bbs.88x31.app in a browser. Message boards, chat and NetHack as a door game. Runs at low priority with a memory cap.
