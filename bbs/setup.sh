@@ -81,7 +81,9 @@ body{background:#000;color:#ccc}
 .col-sm-9{width:100%}
 .fTelnetContainer{width:100%}
 #fTelnetContainer,#fTelnetContainer *{overflow:hidden !important;overscroll-behavior:contain}
+#ftelnet-connect{display:none !important}
 </style>
+<script>window.addEventListener('load',function(){setTimeout(function(){var b=document.getElementById('ftelnet-connect');if(b)b.click();},500);});</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
