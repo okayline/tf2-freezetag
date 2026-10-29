@@ -1,4 +1,5 @@
 @TRUNCATE@N@CLS@HG@BBS-C39@
+NC@ALIAS-C39@
 W旼N컴컴컴컴커
 �H B@MessagesNoun@W N�
 읕컴컴컴컴H켸
