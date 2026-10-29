@@ -110,7 +110,7 @@ body{background:#000;color:#ccc}
  });
 })();
 </script>
-<script>try{var x=new XMLHttpRequest();x.open('GET','./api/passkey.ssjs?action=token',false);x.send();var j=JSON.parse(x.responseText);if(j.token)window.PKTOKEN=j.token;}catch(e){}</script>
+<script>try{var x=new XMLHttpRequest();x.open('GET','./api/passkey.ssjs?action=token',false);x.send();var j=JSON.parse(x.responseText);if(j.token){window.PKTOKEN=j.token;window.PKNAME=j.name;}}catch(e){}</script>
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
@@ -121,7 +121,7 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.3
+BBS_VERSION=0.4
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
@@ -199,7 +199,7 @@ function ipOf() {
 		var tf = new File(system.data_dir + 'pktok/' + tok);
 		if (!tf.open('w')) return reply({ error: 'Could not make a code.' });
 		tf.write(user.number + ' ' + (time() + 60)); tf.close();
-		return reply({ token: tok });
+		return reply({ token: tok, name: user.alias });
 	}
 	if (action != 'login' || http_request.method != 'POST') return reply({ error: 'Unknown action.' });
 
@@ -238,16 +238,21 @@ fi
 # web terminal auto-login: mods/login.js turns a one-time code (sent as the RLogin name) into that user, then runs the stock login
 mkdir -p $D/mods $D/data/pktok
 cat > $D/mods/login.js <<'JS'
-// 88x31: the web terminal connects by RLogin with a one-time code from api/passkey.ssjs as the name.
-// A good code (60 seconds, once) logs that user in; anything else goes on to the stock login.
+// 88x31: the web terminal connects by RLogin with the user's name and a one-time code from api/passkey.ssjs
+// (in the other RLogin slot). The password check fails on purpose, so the BBS runs this login script; a good code
+// (60 seconds, once, made for that same user) logs them in. Anything else goes on to the stock login.
 (function () {
-	var s = String(bbs.rlogin_name || '');
-	if (!/^pk[A-Za-z0-9]{20,64}$/.test(s)) return;
-	var f = new File(system.data_dir + 'pktok/' + s);
+	var re = /^pk[A-Za-z0-9]{20,64}$/;
+	var a = String(bbs.rlogin_name || ''), b = String(bbs.rlogin_password || '');
+	var tok = re.test(b) ? b : (re.test(a) ? a : '');
+	if (!tok) return;
+	var f = new File(system.data_dir + 'pktok/' + tok);
 	if (!f.exists || !f.open('r')) return;
 	var t = f.read().split(' '); f.close(); f.remove();
 	var n = parseInt(t[0], 10), exp = parseInt(t[1], 10);
 	if (!(n > 0) || time() > exp) return;
+	var named = tok == b ? a : b;
+	if (named && system.matchuser(named) != n) return;
 	var u = new User(n);
 	if (bbs.login(u.alias, '', u.security.password)) exit();
 })();
@@ -260,7 +265,7 @@ import sys
 p=sys.argv[1]; s=open(p).read()
 k="var fTelnet = new fTelnetClient("
 if 'PKTOKEN' not in s.split(k)[0][-600:] and k in s:
-    s=s.replace(k,"if(window.PKTOKEN){Options.ConnectionType='rlogin';Options.Hostname=location.hostname;Options.Port=(location.protocol=='https:'?wssp:wsp)+'/?Port=513';Options.RLoginClientUsername=window.PKTOKEN;Options.RLoginServerUsername=window.PKTOKEN;Options.RLoginTerminalType='ansi-bbs';}\n\t\t\t\t"+k,1)
+    s=s.replace(k,"if(window.PKTOKEN){Options.ConnectionType='rlogin';Options.Hostname=location.hostname;Options.Port=(location.protocol=='https:'?wssp:wsp)+'/?Port=513';Options.RLoginClientUsername=window.PKNAME;Options.RLoginServerUsername=window.PKTOKEN;Options.RLoginTerminalType='ansi-bbs';}\n\t\t\t\t"+k,1)
 open(p,'w').write(s)
 PY2
 fi
