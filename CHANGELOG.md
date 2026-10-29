@@ -2,142 +2,209 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: text sizes tried and rolled back, v0.65
+**Thu Oct 29, 2026 · 9:40 AM HST** (pushed)
+
+- **Added, then removed:** the top bar text at 20 pixels and the footer line at 12 pixels (v0.65). Owner: "roll back one". It was undone with a new commit, so the BBS is on v0.64 again and its footer says v0.64.
+- **Removed:** the v0.65 text-size rule from the site's CSS.
+
+## BBS: taller letters, v0.64
+**Thu Oct 29, 2026 · 9:38 AM HST** (pushed)
+
+- **Added:** a small script on the home page that stretches the terminal picture 25% taller at the same width (still 80 columns by 40 lines). Footer v0.64.
+- **Removed:** nothing.
+
+## BBS: line above the footer gone, v0.63
+**Thu Oct 29, 2026 · 9:34 AM HST** (pushed)
+
+- **Changed:** the thin white line above the footer has no border and no height. Owner: "footer line is gone !". Footer v0.63.
+- **Removed:** the line.
+
+## BBS: terminal reachable for the tap script, v0.62
+**Thu Oct 29, 2026 · 9:34 AM HST** (pushed)
+
+- **Changed:** the home page puts the terminal on `window` (the page kept it in a local variable, so the v0.61 script could not find it); the script also accepts the Unicode box characters. Footer v0.62.
+- **Not working:** taps and clicks on menu letters still did nothing on the live site after this. Owner: "taps dont work, but dont worry about it anymore please". The script is still in the page; the cause was not looked into.
+
+## BBS: tap or click a menu letter, v0.61
+**Thu Oct 29, 2026 · 9:30 AM HST** (pushed)
+
+- **Added:** a script on the home page: a tap or click on a highlighted menu letter, or on a word of its item, was meant to press that key, by reading the tapped cell from the terminal. It never worked on the live site (see v0.62). No new buttons or boxes. Footer v0.61.
+- **Removed:** nothing.
+
+## BBS: no click spots, v0.60
+**Thu Oct 29, 2026 · 9:25 AM HST** (pushed)
+
+- **Removed:** the mouse click spots from bbs/menu/main.msg, main.40col.msg and maininfo.msg, and the mouse setting that setup.sh switched on for every user and for new users (it now switches it off). Owner: "let's not use click spots please". Footer v0.60.
+- **Changed:** nothing else; the menus look the same.
+
+## BBS: no border around the terminal, v0.59
+**Thu Oct 29, 2026 · 9:21 AM HST** (pushed)
+
+- **Added:** a CSS rule removing any border, outline and shadow on the terminal and its parts. It changed nothing you could see: the line the owner meant was the one above the footer (v0.63). Footer v0.59.
+
+## BBS: footer text on the right, v0.58
+**Thu Oct 29, 2026 · 9:18 AM HST** (pushed)
+
+- **Changed:** the footer text is on the right, right under the line, with the big gap gone (a CSS rule on the footer). Owner: "footer is good". Footer v0.58.
+
+## BBS: a dot between Main and the time, v0.57
+**Thu Oct 29, 2026 · 9:16 AM HST** (pushed)
+
+- **Added:** the small cyan dot between "Main" and the time in the prompt (ctrl/text.ini). Owner: "the dot is good". Footer v0.57.
+
+## BBS: the main menu without four options, v0.56
+**Thu Oct 29, 2026 · 9:14 AM HST** (pushed)
+
+- **Removed:** [T]ransfer Files, [G]eneral Text File Area, Get [Q]WK and List [U]sers from the 80-column main menu (the keys still work if typed), as in v0.40. The columns close up and the sysop [!] sits at the bottom of the right column. Footer v0.56.
+- **Changed:** bbs/menu/main.msg is rebuilt from Synchronet's own 80-column menu.
+
+## BBS: prompt colours fixed, v0.55
+**Thu Oct 29, 2026 · 9:11 AM HST** (pushed)
+
+- **Fixed:** the prompt showed `^An ^Ac^Ah` as plain text after "Main" (v0.52 wrote the colour codes as text instead of the real control characters). Footer v0.55.
+
+## BBS: logon screen back to Synchronet's own, v0.54
+**Thu Oct 29, 2026 · 9:08 AM HST** (pushed)
+
+- **Removed:** the three settings that made the logon screen fit 40 columns (the one-line caller list, the avatar above the box, and the avatar position), so Synchronet's own logon screen is back: full caller columns, avatar to the right. Footer v0.54.
+
 ## BBS: clickable menus at 80 columns, v0.53
-**Thu Oct 29, 2026 · 9:08 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 9:08 AM HST** (pushed)
 
 - **Added:** bbs/menu/main.msg, Synchronet's own 80-column main menu with a mouse click spot on each single key letter (21, counting the sysop [!]); the click spots in bbs/menu/maininfo.msg (Get Info: Y, I, V, S, Q). Footer v0.53.
 - **Removed:** nothing. The two-key cells (/A, /L, ^K) are not clickable. main.40col.msg stays, but only a 40-column terminal shows it now.
 
 ## BBS: "Main" back in the prompt, v0.52
-**Thu Oct 29, 2026 · 9:03 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 9:03 AM HST** (pushed)
 
 - **Changed:** the main prompt shows "Main" again before the time, with a space after it (ctrl/text.ini [default.js]). Footer v0.52.
 - **Removed:** the `Main = ^An` line that blanked the label (it was there to fit 40 columns).
 
 ## BBS: taller terminal, v0.51
-**Thu Oct 29, 2026 · 9:00 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 9:00 AM HST** (pushed)
 
 - **Changed:** the web terminal is 40 lines tall (was 25), still 80 columns. Footer v0.51.
 - **Removed:** nothing.
 
 ## BBS: back to 80 columns, v0.50
-**Thu Oct 29, 2026 · 8:56 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:56 AM HST** (pushed)
 
 - **Changed:** the web terminal is 80 columns again, like telnet. The home page is restored from its saved copy on every run, so nothing else is needed. Footer v0.50.
 - **Removed:** the line in setup.sh that set the web terminal to 40 columns. bbs/menu/main.40col.msg and bbs/text/answer.40col.msg stay in the repo, but only a 40-column terminal shows them now.
 
 ## BBS: tidier logon screen, v0.49
-**Thu Oct 29, 2026 · 8:33 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:33 AM HST** (pushed)
 
 - **Changed:** "Last few callers" is one short line per caller (name, time, how they connected), set in modopts.ini [logonlist] last_few_callers_fmt.
 - **Removed:** the node, call number, location and logons-today columns from that list; the avatar drawn to the right of the stats box (it's above it now). Footer v0.49.
 
 ## BBS: space under the top bar, v0.48
-**Thu Oct 29, 2026 · 8:27 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:27 AM HST** (pushed)
 
 - **Changed:** one empty line (16 more pixels) under the web top bar. **Removed:** the old 10-pixel gap. Footer v0.48.
 
 ## BBS: no pause on the connect screen in the web terminal, v0.47
-**Thu Oct 29, 2026 · 8:26 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:26 AM HST** (pushed)
 
 - **Added:** bbs/text/answer.40col.msg, the connect screen for 40-column terminals; setup.sh copies bbs/text into the BBS's text folder.
 - **Removed:** the big Synchronet logo from that screen at 40 columns, so it fits 25 lines and doesn't stop at [Hit a key]. Telnet (80 columns) keeps the full screen. Footer v0.47.
 
 ## BBS: Your statistics in one column, v0.46
-**Thu Oct 29, 2026 · 8:19 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:19 AM HST** (pushed)
 
 - **Added:** bbs/menu/userinfo.msg, the Your statistics screen with one item per line so it fits 40 columns.
 - **Removed:** the stock 3–4-columns-per-line layout (it wrapped at 40 columns). Telnet users see the one-column version too. Footer v0.46.
 
 ## BBS: "Logged in as" moved to Get Info, v0.45
-**Thu Oct 29, 2026 · 8:16 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:16 AM HST** (pushed)
 
 - **Added:** bbs/menu/maininfo.msg (the stock Get Info menu) with a "Logged in as <name>" line at the top; setup.sh now copies every menu in bbs/menu.
 - **Removed:** the user name under the BBS name on the main menu. Footer v0.45.
 
 ## BBS: a dot before the time in the prompt, v0.44
-**Thu Oct 29, 2026 · 8:13 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:13 AM HST** (pushed)
 
 - **Added:** a small cyan dot (CP437 ∙) at the start of the main prompt. **Removed:** nothing. Footer v0.44.
 
 ## BBS: space after the time in the prompt, v0.43
-**Thu Oct 29, 2026 · 8:12 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:12 AM HST** (pushed)
 
 - **Changed:** the prompt text starts with a color code, then the space (the ini file dropped a leading space, so the time ran into "[1]"). **Removed:** nothing. Footer v0.43.
 
 ## BBS: user name on the main menu, v0.42
-**Thu Oct 29, 2026 · 8:11 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:11 AM HST** (pushed)
 
 - **Added:** the signed-in user's name, centered under the BBS name on the 40-column main menu. **Removed:** nothing. Footer v0.42.
 
 ## BBS: one-line prompt, menu colors fixed, v0.41
-**Thu Oct 29, 2026 · 8:08 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 8:08 AM HST** (pushed)
 
 - **Added:** bbs/ctrl/text.ini (custom text for Synchronet's scripts), copied to ctrl/text.ini by setup.sh.
 - **Removed:** "■ Main ■" and the line break from the main prompt; it is now the time left, then group and area on one line.
 - **Changed:** the last two menu lines are bright again (v0.40 left them dim). Footer v0.41.
 
 ## BBS: shorter main menu, v0.40
-**Thu Oct 29, 2026 · 7:59 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:59 AM HST** (pushed)
 
 - **Removed:** [T]ransfer Files, [G]eneral Text File Area, Get [Q]WK and List [U]sers from the 40-column main menu (the keys still work if typed).
 - **Changed:** Log [O]ff moved up a line; the sysop-only [!] menu item is on the Chat line. Footer v0.40.
 
 ## BBS: user menu in the top bar, no User page, v0.39
-**Thu Oct 29, 2026 · 7:56 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:56 AM HST** (pushed)
 
 - **Added:** the user name on the right of the top bar ("Guest" when not signed in); clicking it opens a small menu: Log in with passkey, Link passkey (only when not linked yet), Log out.
 - **Removed:** the User page and its links (Mail, Register, BBS List and the sysop pages); "User" in the top bar. Footer v0.39.
 
 ## BBS: DOVE-Net connected, v0.38
-**Thu Oct 29, 2026 · 7:47 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:47 AM HST** (pushed)
 
 - **Added:** the stock VERT hub is turned on with the BBS's Vertrauen QWK password (repo secret DOVE_PASS, never printed); vps-tools passes it to the server like BBS_SYSPASS.
 - **Removed:** the placeholder password in the hub's call-out line. Footer v0.38.
 
 ## BBS: no Files web page, v0.37
-**Thu Oct 29, 2026 · 7:33 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:33 AM HST** (pushed)
 
 - **Removed:** the web Files page (the file areas are still on the BBS menu under [T]ransfer Files). Footer v0.37.
 
 ## BBS: User page trimmed, v0.36
-**Thu Oct 29, 2026 · 7:33 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:33 AM HST** (pushed)
 
 - **Removed:** the web Games page (its door programs are still on the BBS menu under [X]ternal programs).
 - **Changed:** User List is sysop-only (level 90) instead of every signed-in user. Footer v0.36.
 
 ## BBS: click the menu letters in the web terminal, v0.35
-**Thu Oct 29, 2026 · 7:31 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:31 AM HST** (pushed)
 
 - **Added:** bbs/menu/main.40col.msg, Synchronet's 40-column main menu with a click spot on each key letter; setup.sh copies it over the stock one.
 - **Added:** the mouse flag (MOUSE) is on for every user and for new users, next to the spinning cursor.
 - **Removed:** nothing. Other screens stay keyboard-only. Footer v0.35.
 
 ## BBS: 24-hour time, v0.34
-**Thu Oct 29, 2026 · 7:25 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:25 AM HST** (pushed)
 
 - **Added:** Synchronet's 24-hour time setting (SM_MILITARY) is turned on. **Removed:** am/pm times. Footer v0.34.
 
 ## BBS: 40-column web terminal, bigger letters, v0.33
-**Thu Oct 29, 2026 · 7:19 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:19 AM HST** (pushed)
 
 - **Removed:** the 40-line terminal (back to 25 lines).
 - **Added:** the web terminal is 40 columns wide, so letters are twice as big; Synchronet's stock 40-column main menu shows. Screens made for 80 columns may wrap. Footer v0.33.
 
 ## BBS: smooth letters again, v0.32
-**Thu Oct 29, 2026 · 7:15 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:15 AM HST** (pushed)
 
 - **Removed:** `image-rendering:pixelated` on the terminal. Since v0.31 the font is smaller, and stretching it with sharp pixels made the letters jagged.
 - **Changed:** the stretched terminal is smoothed by the browser. Footer v0.32.
 
 ## BBS: terminal fits the window on first load, v0.31
-**Thu Oct 29, 2026 · 7:14 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:14 AM HST** (pushed)
 
 - **Removed:** the fixed 12x23 font (`CP437_12x23`). fTelnet uses a font name with a size at exactly that size, so the terminal started too big; a resize then switched to the best fit.
 - **Changed:** the terminal uses plain `CP437`, so fTelnet picks the size that fits the window from the start, the same as after a resize. Footer v0.31.
 
 ## BBS: clean-up of the earlier work, v0.30
-**Thu Oct 29, 2026 · 7:13 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:13 AM HST** (pushed)
 
 - **Removed:** three copies of the code that fills in a new user's fields (web page account, passkey login, "New"). **Added:** one `fillUser()` in mods/rollname.js that all three use.
 - **Removed:** the "only add once" checks on the site's extra CSS, so edits in the repo never reached the site. **Changed:** custom.css lines are taken out and written fresh on every run.
@@ -145,13 +212,13 @@
 - Footer v0.30.
 
 ## BBS: passkey sign-ups get the same names as everyone else, v0.29
-**Thu Oct 29, 2026 · 7:11 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:11 AM HST** (pushed)
 
 - **Removed:** `freshName()` and its own word lists in api/passkey.ssjs (names like `BraveOwl123`).
 - **Changed:** a new user made by a passkey sign-in gets a rolled name from `rollName()` (like `Quiet Heron`), the same as the web page and "New". Footer v0.29.
 
 ## BBS: no _ cursor in the browser terminal, v0.28
-**Thu Oct 29, 2026 · 7:08 AM HST** (not pushed)
+**Thu Oct 29, 2026 · 7:08 AM HST** (pushed)
 
 - **Removed:** the old cursor patch (it sent every blink to the wrong handler, so the `_` was drawn and never erased: a frozen `_`).
 - **Added:** the `_` bar is drawn see-through instead, so only Synchronet's spinning cursor shows. Blinking text still blinks.
