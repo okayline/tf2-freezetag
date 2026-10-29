@@ -348,7 +348,7 @@ f=sys.argv[1];t=open(f).read()
 open(f,'w').write(re.sub(r'(?ms)(^\[\*userlist\.xjs\]\s*\n\s*AccessRequirements\s*=).*?$',r'\1 level 90',t))
 PY8
 if [ -n "$CSSD" ]; then
-  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 26px} #toplinks a{color:#8cf;margin-right:14px} #tlme{position:relative;display:inline-block;margin-left:6px} #tlme>a{color:#8cf} #tlmenu{display:none;position:absolute;right:0;bottom:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000;text-align:left;white-space:nowrap} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
+  echo '/* toplinks */ body{padding-top:12px !important} #toplinks{position:relative;padding:0 15px 26px} #toplinks a{color:#8cf;margin-right:14px} #tlme{position:relative;display:inline-block;margin-right:6px} #tlme>a{color:#8cf} #tlmenu{display:none;position:absolute;right:0;bottom:100%;background:#000;border:1px solid #a89f91;padding:4px 12px;z-index:1000;text-align:left;white-space:nowrap} #tlmenu.open{display:block} #tlmenu a{display:block;margin:6px 0} #tlpanel{display:none;width:100%;height:80vh;border:1px solid #a89f91;background:#000} .inframe #toplinks,.inframe footer,.inframe hr{display:none !important} .inframe body{padding-top:8px !important}' >> $CSSD/custom.css
 fi
 # page text in the terminal's DOS font: "Web437 IBM VGA 8x16" from the Ultimate Oldschool PC Font Pack by VileR (int10h.org),
 # CC BY-SA 4.0; the font and its LICENSE.TXT are kept together in webv4/root/fonts
@@ -362,20 +362,20 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.97
+BBS_VERSION=0.98
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
-# and after it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
+# and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)
 if [ -f $FT ]; then cat > $FT <<FOOT
 <?xjs var me = (user.number > 0 && user.alias !== settings.guest); ?>
-<p>&copy; <?xjs write(system.name + ", " + strftime("%Y")); ?> &middot; v$BBS_VERSION <span id="tlme"><a href="#" title="Account" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;">&#8801;</a><span id="tlmenu">
+<p>&copy; <?xjs write(system.name + ", " + strftime("%Y")); ?> &middot; <span id="tlme"><a href="#" title="Account" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;">&#8801;</a><span id="tlmenu">
 	<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
 <?xjs if (me) { ?>
 	<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
 	<a href="#" id="button-logout">Log out</a>
 <?xjs } ?>
-</span></span></p>
+</span></span> v$BBS_VERSION</p>
 <?xjs if (me) { ?>
 <script>(function(){ var l=document.getElementById('nav-pklink');
  fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
@@ -383,8 +383,8 @@ if [ -f $FT ]; then cat > $FT <<FOOT
 <script>document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)) m.classList.remove('open'); });</script>
 FOOT
 rm -f $D/webv4/components/footer.xjs.ssjs; fi
-# text sizes: the top bar bigger (20 px), the footer's menu character 16 px, the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
-if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a,#tlmenu a{font-size:20px !important} #tlme,#tlme>a{font-size:16px !important} #tlbrand,#tlbrand b{font-size:24px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
+# text sizes: the top bar bigger (20 px), the footer's menu character 16 px and its links 12 px, the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
+if [ -n "$CSSD" ]; then echo '/* textsize */ #toplinks,#toplinks a{font-size:20px !important} #tlmenu a{font-size:12px !important} #tlme,#tlme>a{font-size:16px !important} #tlbrand,#tlbrand b{font-size:24px !important} footer,footer p{font-size:12px !important}' >> $CSSD/custom.css; fi
 # the normal arrow over the terminal, not the text bar
 if [ -n "$CSSD" ]; then echo '/* cursor */ #fTelnetContainer,#fTelnetContainer *,#fTelnetContainer canvas{cursor:default !important}' >> $CSSD/custom.css; fi
 # no border around the terminal (the old one was a thin light line); everything around it is already black

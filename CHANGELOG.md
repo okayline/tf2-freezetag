@@ -2,8 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: footer menu left of the version, smaller links, v0.98
+**Thu Oct 29, 2026 · 1:11 PM HST** (not pushed)
+
+- **Changed:** the footer reads `© … · ≡ v0.98`: the `≡` sits before the version. Owner: "could you put it to the left of the version number please". **Removed:** the `≡` after the version.
+- **Changed:** the menu's links are 12 px, the same as the footer text. Owner: "could you make the text inside of it way smaller please". **Removed:** the 20 px link size in that menu (the top bar stays 20 px).
+
 ## BBS: no name or account menu in the top bar; account menu behind ≡ in the footer, v0.97
-**Thu Oct 29, 2026 · 1:10 PM HST** (not pushed)
+**Thu Oct 29, 2026 · 1:10 PM HST** (pushed)
 
 - **Changed:** the web page's top bar has only the BBS name and Forum. Owner: "i dont want the account thing there at all. maybe on the bottom footer, put a one-character symbol link that has a dropdown (or up)". **Removed:** your name (or Guest) and its menu from the top right.
 - **Added:** a `≡` after the version in the footer (`© … · v0.97 ≡`). It opens the same menu upward: Log in with passkey, and when logged in Link passkey and Log out. `≡` is in the page's DOS font (code page 437). Footer v0.97. **Removed:** nothing else; the menu's links and passkey code are unchanged.
