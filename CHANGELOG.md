@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Your statistics in one column, v0.46
+**Thu Oct 29, 2026 · 8:19 AM HST** (not pushed)
+
+- **Added:** bbs/menu/userinfo.msg, the Your statistics screen with one item per line so it fits 40 columns.
+- **Removed:** the stock 3–4-columns-per-line layout (it wrapped at 40 columns). Telnet users see the one-column version too. Footer v0.46.
+
 ## BBS: "Logged in as" moved to Get Info, v0.45
 **Thu Oct 29, 2026 · 8:16 AM HST** (not pushed)
 
