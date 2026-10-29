@@ -62,6 +62,16 @@ def esc(text, n):
 GAME = "l4d"
 GAP = 2.5          # seconds between Discord posts (about 24 a minute, under Discord's ~30)
 LAST_SPAWN = {}
+LAST_POST = {}     # key -> time it was last posted, to skip the game's repeated lines
+
+
+def once(key, secs):
+    """True the first time a key is seen within secs seconds; False for the repeats."""
+    now = time.time()
+    if now - LAST_POST.get(key, 0) < secs:
+        return False
+    LAST_POST[key] = now
+    return True
 BOT_NAMES = {"Bill", "Francis", "Louis", "Zoey"}
 
 
@@ -99,10 +109,6 @@ def format_ev(g):
         return "\U0001F4AA **The Tank went down%s!**" % took
     if ev == "safe_room" and ah and opt.get("order") == "1":
         return "\U0001F6AA **%s** reached the safe room first" % A
-    if ev == "finale_win":
-        return "\U0001F681 **Rescued! The finale is won!**"
-    if ev == "mission_lost":
-        return "\U0001F480 Everyone went down. Mission lost."
     return None
 
 
@@ -210,12 +216,16 @@ def format_line(raw):
                 return "\U0001F3C1 **%s wins the round!**" % esc(w.group(1), 16)
             if ev in ("Round_Start", "Round_Setup_Begin", "Round_Setup_End", "Round_Overtime", "Round_Length",
                       "Mini_Round_Selected", "Mini_Round_Start", "Mini_Round_End", "Mini_Round_Win", "Mini_Round_Length"):
-                return None if ev != "Round_Start" else "\U0001F7E2 Round started"
+                if ev != "Round_Start" or not once("round_start", 10):
+                    return None                   # the game logs Round_Start twice in a row
+                return "\U0001F7E2 Round started"
             if ev.lower() in ("round_start", "round_end", "finale_start", "finale_vehicle_ready", "finale_win", "game_over", "mission_lost"):
                 nice = {"round_start": "\U0001F7E2 Round started", "round_end": "\U0001F534 Round over",
                         "finale_start": "\U0001F525 **FINALE started!**", "finale_vehicle_ready": "\U0001F681 Rescue is here!",
                         "finale_win": "\U0001F3C6 **Survivors escaped!**", "game_over": "\u2620\ufe0f Game over",
                         "mission_lost": "\u2620\ufe0f **Everyone died**"}
+                if not once(ev.lower(), 10):
+                    return None                   # same event again within seconds: skip the copy
                 return nice[ev.lower()]
             return "\u2699\ufe0f %s" % esc(ev, 40)
         if kind == "cap":
@@ -226,6 +236,8 @@ def format_line(raw):
             return "\U0001F3C1 %s scored %s (%s players)" % (esc(g[0], 16), esc(g[1], 10), esc(g[2], 4))
         if kind == "map" and GAME == "tf2":
             return None                           # the relay already posts map changes
+        if kind == "map" and not once("map:" + g[0], 60):
+            return None                           # the rotation plugin logs the same map again a few seconds later
         if kind == "map":
             c = re.match(r"l4d_(hospital|garage|smalltown|airport|farm|river)0?(\d+)", g[0])
             if c:
