@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: terminal no wider than 960 pixels, v0.22
+**Thu Oct 29, 2026 · 6:41 AM HST** (waiting for "push")
+
+- **Changed:** the terminal stretches to the page width but stops at 960 pixels (the 12x23 letters at their own size), so it isn't huge on a big screen. Narrow windows still shrink it. The footer is v0.22.
+- **Removed:** stretching past 960 pixels, and the footer's v0.21.
+
 ## BBS: smoother letters, v0.21
 **Thu Oct 29, 2026 · 6:40 AM HST** (waiting for "push")
 
