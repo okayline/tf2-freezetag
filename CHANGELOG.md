@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: card taps rolled back, v0.90
+**Thu Oct 29, 2026 · 11:23 AM HST** (committed, not pushed)
+
+- **Removed:** the v0.87 tap rule (a tap inside a box presses the key above it). Taps are back to the v0.86 rules. Owner: "the taps are way off right now, maybe roll back one with the tap screen". Footer v0.90.
+- **Kept:** the v0.88 end-screen fix and the v0.89 [B]ACK label.
+
 ## BBS: scoundrel board's back button tappable, v0.89
 **Thu Oct 29, 2026 · 11:20 AM HST** (committed, not pushed)
 

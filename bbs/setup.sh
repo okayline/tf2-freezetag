@@ -186,23 +186,6 @@ function tapKey(row, x) {
 }
 
 	var t = setInterval(function () { var C = window.fTelnet && fTelnet._Crt; if (!C || !C.Canvas || !C.SaveScreen) return; clearInterval(t); hook(C); }, 300);
-	// a tap inside a box (or on the line just under it) presses the key shown on the line above the box, like a card with [1] over it
-	function rowAt(C, cols, y) { var c = C.SaveScreen(1, y, cols, y)[0], r = []; for (var i = 0; i < cols; i++) r.push({ ch: c[i].Ch, fg: c[i].Attr & 15 }); return r; }
-	function boxKey(C, cols, x, y) {
-		var TL = '\xDA┌', TR = '\xBF┐', H = '\xC4─';
-		for (var yy = y - 1; yy >= 2 && y - yy <= 8; yy--) {
-			var r = rowAt(C, cols, yy), a = x;
-			while (a > 0 && H.indexOf(r[a].ch) >= 0) a--;
-			if (TL.indexOf(r[a].ch) < 0 || (a === x && H.indexOf(r[Math.min(x + 1, cols - 1)].ch) < 0)) continue;   // not this box's top edge
-			var b = a + 1;
-			while (b < cols - 1 && H.indexOf(r[b].ch) >= 0) b++;
-			if (TR.indexOf(r[b].ch) < 0 || x > b) return null;
-			var above = rowAt(C, cols, yy - 1);
-			for (var i = a; i <= b; i++) { var k = tapKey(above, i); if (k) return k; }
-			return null;
-		}
-		return null;
-	}
 	function hook(C) {
 		var cv = C.Canvas, d = null;
 		// phones: the phone's own keyboard instead of fTelnet's on-screen one. An invisible text field gets focus when you tap the
@@ -251,7 +234,7 @@ function tapKey(row, x) {
 			if (x < 0 || x >= cols || y < 1 || y > rows) return;
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
-			var k = boxKey(C, cols, x, y) || tapKey(row, x);
+			var k = tapKey(row, x);
 			if (k) C.PushKeyPress(k.charCodeAt(0), 0, false, false, false);
 			else if (ta) wantKb = true;
 		});
@@ -382,7 +365,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.89
+BBS_VERSION=0.90
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
