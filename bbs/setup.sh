@@ -94,7 +94,7 @@ body{background:#000;color:#ccc}
 (function(){
  var bar=document.getElementById('pkbar'),a=document.getElementById('pklogin'),msg=document.getElementById('pkmsg');
  if(!window.PublicKeyCredential||!bar)return;
- fetch('./api/auth.ssjs').then(function(r){return r.json();}).then(function(j){bar.style.display='block'; if(j.authenticated)a.textContent='Link a passkey to this account';}).catch(function(){bar.style.display='block';});
+ fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&j.linked)return; bar.style.display='block'; if(j.signedIn)a.textContent='Link a passkey to this account';}).catch(function(){bar.style.display='block';});
  var b=function(s){return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),function(c){return c.charCodeAt(0);});};
  var e=function(x){return btoa(String.fromCharCode.apply(null,new Uint8Array(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
  a.addEventListener('click',async function(ev){
@@ -186,6 +186,11 @@ function ipOf() {
 	var q = http_request.query || {};
 	var action = q.action ? q.action[0] : '';
 	if (action == 'options') return reply(call('passkeyLoginOptions', [{ origin: ORIGIN, ip: ipOf() }]));
+	if (action == 'status') {
+		if (!is_user()) return reply({ signedIn: false });
+		var st = call('accountOf', [GAME, user.number]);
+		return reply({ signedIn: true, linked: !!(st && st.accountId), name: user.alias });
+	}
 	if (action == 'token') {
 		// a one-time code for the web terminal: good for 60 seconds, once (mods/login.js reads it)
 		if (!is_user()) return reply({ error: 'Not signed in.' });
