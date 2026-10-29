@@ -247,7 +247,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.59
+BBS_VERSION=0.60
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 [ -f $FT ] && echo "<p>&copy; <?xjs write(system.name + \", \" + strftime(\"%Y\")); ?> &middot; v$BBS_VERSION</p>" > $FT && rm -f $D/webv4/components/footer.xjs.ssjs
@@ -482,15 +482,15 @@ chown -R $U:$U $D
 echo 'var u = new User(system.matchuser("Guest")); if (u.number) u.settings &= ~((1 << 14) | (1 << 16));' > /tmp/guestfix.js && chmod 644 /tmp/guestfix.js
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/guestfix.js 2>&1 | tail -n 1) || true
 rm -f /tmp/guestfix.js
-# spinning cursor (user setting SPIN, 1 << 5) and mouse clicks (MOUSE, 1 << 31) on for every user, and for new users (main.ini [newuser] settings)
-echo 'for (var n = 1; n <= system.lastuser; n++) { var u = new User(n); u.settings = (u.settings | (1 << 5) | 0x80000000) >>> 0; }' > /tmp/spinfix.js && chmod 644 /tmp/spinfix.js
+# spinning cursor (user setting SPIN, 1 << 5) on and mouse clicks (MOUSE, 1 << 31) off for every user, and for new users (main.ini [newuser] settings)
+echo 'for (var n = 1; n <= system.lastuser; n++) { var u = new User(n); u.settings = ((u.settings | (1 << 5)) & 0x7fffffff) >>> 0; }' > /tmp/spinfix.js && chmod 644 /tmp/spinfix.js
 (cd $D/exec && sudo -u $U env SBBSCTRL=$D/ctrl ./jsexec -n /tmp/spinfix.js 2>&1 | tail -n 1) || true
 rm -f /tmp/spinfix.js
 python3 - $D/ctrl/main.ini <<'PY6'
 import re,sys
 f=sys.argv[1];t=open(f).read()
 m=re.search(r'(?ms)^\[newuser\][^\n]*\n(.*?)(?=^\[|\Z)',t)
-b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<5)|(1<<31)),m.group(1),count=1)
+b=re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex((int(x.group(2),0)|(1<<5))&~(1<<31)),m.group(1),count=1)
 open(f,'w').write(t[:m.start(1)]+b+t[m.end(1):])
 PY6
 # DOVE-Net: the VERT hub (stock, already mapped to the DOVE-Net areas) turned on with this BBS's Vertrauen QWK password
@@ -515,7 +515,7 @@ PY7
 cp "$(dirname "$0")/ctrl/text.ini" $D/ctrl/text.ini 2>/dev/null || echo "text.ini: not copied (run setup.sh from the repo's bbs folder)"
 # our screens from the repo's bbs/text: the 40-column connect screen without the big logo (so it fits 25 lines and never pauses)
 cp "$(dirname "$0")"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
-# our menus from the repo's bbs/menu: the 40-column main menu (mouse click spots: Ctrl-A ~ before each key letter), Get Info and Your statistics (one column)
+# our menus from the repo's bbs/menu: the main menu, Get Info and Your statistics (one column), no mouse click spots
 cp "$(dirname "$0")"/menu/*.msg $D/text/menu/ 2>/dev/null || echo "menus: not copied (run setup.sh from the repo's bbs folder)"
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
