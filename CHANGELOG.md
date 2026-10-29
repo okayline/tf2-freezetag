@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: tap a menu letter, fixed, v0.68
+**Thu Oct 29, 2026 · 9:56 AM HST** (committed, not pushed)
+
+- **Added back:** the v0.61 tap script and the v0.62 line that puts the terminal on `window`. Tapping or clicking a menu letter, or the words of its item, presses that key: it reads whatever is on screen at the tapped spot, so no screen needs a map. Owner: the tap screen is the better way. Footer v0.68.
+- **Fixed:** why it never worked. fTelnet keeps its terminal at `fTelnet._Crt`; the old script waited for `fTelnet.Crt`, which does not exist, so it never hooked in. It now also uses fTelnet's own mouse-to-cell function, which allows for the scrollback area the old math left out.
+- **Not changed:** no click spots; mouse setting stays off.
+
 ## BBS: terminal stretch removed, v0.67
 **Thu Oct 29, 2026 · 9:49 AM HST** (committed, not pushed)
 
