@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: v0.11
+**Thu Oct 29, 2026 · 5:37 AM HST**
+
+- **Changed:** the footer is v0.11. It covers the two changes below (no Bulletins screen at logon, no terminal cursor), which went out without a version bump.
+- **Removed:** the footer's v0.10.
+
 ## BBS: no terminal cursor (trial)
 **Thu Oct 29, 2026 · 5:34 AM HST** (on the live BBS as a trial; setup change waiting for "push")
 
