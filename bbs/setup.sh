@@ -5,7 +5,7 @@
 # Does NOT start/restart it.
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
-U=bbs; D=/sbbs; NAME="88x31 BBS"
+U=bbs; D=/sbbs; NAME="~*~88x31~*~ BbS"
 
 echo "== packages =="
 DEBIAN_FRONTEND=noninteractive apt-get install -y -qq build-essential git pkgconf perl python3 zip unzip \
