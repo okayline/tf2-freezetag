@@ -193,7 +193,7 @@ function pkSignIn(el){
   var c=await navigator.credentials.get({publicKey:{challenge:b(o.challenge),rpId:o.rpId,userVerification:o.userVerification||'preferred',timeout:o.timeout}});
   var cred={id:c.id,type:c.type,response:{clientDataJSON:e(c.response.clientDataJSON),authenticatorData:e(c.response.authenticatorData),signature:e(c.response.signature),userHandle:c.response.userHandle?e(c.response.userHandle):null}};
   var r=await (await fetch('./api/passkey.ssjs?action=login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential:cred})})).json();
-  if(r.error) throw r.error; location.reload();
+  if(r.error) throw r.error; window.top.location.href='./';   // whole page: the terminal logs in again as the passkey's user
  }catch(x){ el.textContent=label; el.title=(x&&x.message)?x.message:String(x); } })();
  return false;
 }

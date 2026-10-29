@@ -5,7 +5,7 @@
 ## BBS: no Home link, v0.18
 **Thu Oct 29, 2026 · 6:17 AM HST** (waiting for "push")
 
-- **Changed:** the BBS name at the top takes you back to the terminal. The footer is v0.18.
+- **Changed:** the BBS name at the top takes you back to the terminal. After "Sign in with passkey" (or "Link passkey") the whole page reloads, so the terminal logs in again as that user; before, only the User panel reloaded and the terminal stayed on the old user. The footer is v0.18.
 - **Removed:** the "Home" link, and the footer's v0.17.
 
 ## BBS: the terminal stays connected, v0.17
