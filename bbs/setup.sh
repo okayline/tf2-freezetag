@@ -121,7 +121,7 @@ CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.2
+BBS_VERSION=0.3
 # the version is real footer text (selectable), written into the footer component; the old CSS version rule is removed
 [ -n "$CSSD" ] && touch $CSSD/custom.css && sed -i '/^footer p.*::after/d' $CSSD/custom.css
 FT=$D/webv4/components/footer.xjs
@@ -260,7 +260,7 @@ import sys
 p=sys.argv[1]; s=open(p).read()
 k="var fTelnet = new fTelnetClient("
 if 'PKTOKEN' not in s.split(k)[0][-600:] and k in s:
-    s=s.replace(k,"if(window.PKTOKEN){Options.ConnectionType='rlogin';Options.ProxyHostname=location.hostname;Options.ProxyPort=wsp;Options.ProxyPortSecure=wssp;Options.Hostname='127.0.0.1';Options.Port=513;Options.RLoginClientUsername=window.PKTOKEN;Options.RLoginServerUsername=window.PKTOKEN;Options.RLoginTerminalType='ansi-bbs';}\n\t\t\t\t"+k,1)
+    s=s.replace(k,"if(window.PKTOKEN){Options.ConnectionType='rlogin';Options.Hostname=location.hostname;Options.Port=(location.protocol=='https:'?wssp:wsp)+'/?Port=513';Options.RLoginClientUsername=window.PKTOKEN;Options.RLoginServerUsername=window.PKTOKEN;Options.RLoginTerminalType='ansi-bbs';}\n\t\t\t\t"+k,1)
 open(p,'w').write(s)
 PY2
 fi
