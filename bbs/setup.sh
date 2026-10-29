@@ -40,6 +40,8 @@ setk('UNIX','User','bbs'); setk('UNIX','Group','bbs')
 open(f,'w').write(t)
 PY
 sed -i -E "s/^(\s*name\s*=).*/\1 $NAME/" $D/ctrl/main.ini
+# system password (needed to create the sysop account): from repo secret BBS_SYSPASS, put in /root/bbs-syspass by vps-tools
+if [ -s /root/bbs-syspass ]; then P=$(tr -cd 'A-Za-z0-9' < /root/bbs-syspass); sed -i -E "0,/^password=/s/^password=.*/password=$P/" $D/ctrl/main.ini; P=; echo "system password set (not shown)"; fi
 
 # NetHack door (flag values read from this build's own headers)
 H=$D/repo/src/sbbs3/sbbsdefs.h

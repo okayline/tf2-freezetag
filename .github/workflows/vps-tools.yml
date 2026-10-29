@@ -48,6 +48,7 @@ jobs:
       MC_DISCORD_TOKEN: ${{ secrets.MC_DISCORD_TOKEN }}
       TF2_GSLT: ${{ secrets.TF2_GSLT }}
       STORIES_KEY: ${{ secrets.STORIES_KEY }}
+      BBS_SYSPASS: ${{ secrets.BBS_SYSPASS }}
       DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
       PCLOUD_RCLONE_TOKEN: ${{ secrets.PCLOUD_RCLONE_TOKEN }}
       PCLOUD_HOST: ${{ secrets.PCLOUD_HOST }}
@@ -82,6 +83,8 @@ jobs:
               # root shell: runs the text in the box as root on the VPS. The repo is public, so the output is public: never print passwords, tokens, IPs or Steam IDs.
               # keeps the story door's key (repo secret STORIES_KEY) on the server for the story tools; never printed
               [ -n "$STORIES_KEY" ] && printf '%s' "$STORIES_KEY" | vps 'umask 077; mkdir -p /etc/l4d-story; cat > /etc/l4d-story/stories.key' >> "$R" 2>&1
+              # the BBS system password (repo secret BBS_SYSPASS) for bbs/setup.sh; never printed
+              [ -n "$BBS_SYSPASS" ] && printf '%s' "$BBS_SYSPASS" | vps 'umask 077; cat > /root/bbs-syspass' >> "$R" 2>&1
               [ -n "$COMMAND" ] && vps "$COMMAND" 2>&1 | hide | tail -c 8000 >> "$R" || echo "Put a command in the box." >> "$R" ;;
             status) vps "systemctl is-active tf2; df -h /home | tail -1; free -m | sed -n 2p" >> "$R" 2>&1 ;;
             l4d-deploy)
