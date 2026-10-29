@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## DDNet server; TF2 sleeps when empty
+**Thu Oct 29, 2026 · HST**
+- **Added:** `ddnet/` with the DDNet (DDRace) server settings (`autoexec_server.cfg`) and `setup.sh`, which installs the newest DDNet release in `/home/tf2/ddnet` plus the `ddnet` service (UDP 8303). It never starts the server.
+- **Changed:** TF2 is named "88x31 | Freeze Tag | US West | Snow Maps". It runs 8 bots (4v4), and they only join once a real player is on (`tf_bot_join_after_player 1`).
+- **Changed:** the nightly backup also covers TF2's `tf/logs` and `tf/custom`.
+
 ## Vanilla friendly fire; live log writing; one-by-one Discord posts; new chapter card; story series numbers
 **Wed Oct 28, 2026 · 10:27 PM – 11:50 PM HST** (commits 80b5f90 … 3489d8c)
 - **Removed:** Reverse FF on every L4D server (`REVERSE_FF=0` in `l4d/servers/*.conf`). Friendly fire is vanilla again: the victim takes normal damage for the lobby's difficulty, nothing is reflected and nobody is kicked for it. It had kicked a Tank player, split a lobby with a ban and incapped and kicked the owner, and never caught a griefer. Unloaded live with `sm plugins unload` and its file moved to `plugins/disabled` (no restarts). Before that, the same night: bots no longer counted (`reverseff_bot "0"`), reflected damage 75%, kick at 400; those settings stay in `l4d/base/reverse_ff.cfg` in case it comes back. Its kick cannot work with reflected damage at 0 (it adds up the reflected amount), so "normal FF plus a kick" would need our own code.
