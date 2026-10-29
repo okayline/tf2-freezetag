@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: clickable menus at 80 columns, v0.53
+**Thu Oct 29, 2026 · 9:08 AM HST** (not pushed)
+
+- **Added:** bbs/menu/main.msg, Synchronet's own 80-column main menu with a mouse click spot on each single key letter (21, counting the sysop [!]); the click spots in bbs/menu/maininfo.msg (Get Info: Y, I, V, S, Q). Footer v0.53.
+- **Removed:** nothing. The two-key cells (/A, /L, ^K) are not clickable. main.40col.msg stays, but only a 40-column terminal shows it now.
+
 ## BBS: "Main" back in the prompt, v0.52
 **Thu Oct 29, 2026 · 9:03 AM HST** (not pushed)
 
