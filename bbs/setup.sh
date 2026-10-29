@@ -120,7 +120,9 @@ fi
 CSSD=$(find $D/webv4 -maxdepth 2 -type d -name css 2>/dev/null | head -1)
 if [ -n "$CSSD" ] && ! grep -qs 'dark-switch' $CSSD/custom.css; then echo '.dark-switch{display:none !important}' >> $CSSD/custom.css; fi
 # version number in the footer, next to the year
-if [ -n "$CSSD" ] && ! grep -qs 'v0.1' $CSSD/custom.css; then echo 'footer p::after{content:" \00b7  v0.1"}' >> $CSSD/custom.css; fi
+# BBS web version: bump it on every release (pushed change to the site)
+BBS_VERSION=0.2
+if [ -n "$CSSD" ]; then touch $CSSD/custom.css; sed -i '/^footer p.*::after/d' $CSSD/custom.css; echo "footer p:last-child::after{content:\" \\00b7  v$BBS_VERSION\"}" >> $CSSD/custom.css; fi
 # phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
 if [ -n "$CSSD" ] && ! grep -qs 'offcanvas' $CSSD/custom.css; then echo '@media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
 # take the Recent Visitors block out of the sidebar (files kept in $D/webv4-sidebar-removed)
