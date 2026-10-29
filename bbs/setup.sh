@@ -672,6 +672,7 @@ Group=$U
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 WorkingDirectory=$D/ctrl
 Environment=SBBSCTRL=$D/ctrl
+Environment=TZ=Pacific/Honolulu
 ExecStart=$D/exec/sbbs nd
 Restart=always
 RestartSec=10

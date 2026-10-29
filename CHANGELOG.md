@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Hawaii time
+**Thu Oct 29, 2026 · 11:47 AM HST** (not pushed)
+
+- **Changed:** the BBS runs on Hawaii time (`TZ=Pacific/Honolulu` in the sbbs service in `bbs/setup.sh`). Its time zone setting is auto (`timezone=-1` in main.ini), so it followed the VPS clock (Asia/Singapore, +08). Only the BBS changes; the VPS clock and the game servers stay as they are. **Removed:** nothing.
+
 ## BBS: phone fixes (Enter, width, landscape, scrollback), v0.93 to v0.95
 **Thu Oct 29, 2026 · 11:10 AM – 11:35 AM HST** (pushed)
 
