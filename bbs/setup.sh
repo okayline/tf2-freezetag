@@ -260,7 +260,13 @@ hook="""
 				var n = parseInt(t[0], 10), exp = parseInt(t[1], 10);
 				if (!(n > 0) || time() > exp) return false;
 				var u = new User(n);
-				return bbs.login(u.alias, '', u.security.password);
+				// no new-user questions for passkey users: fill the fields the stock logon.js asks about when they are blank
+					if (!u.name) u.name = u.alias;
+					if (!u.handle) u.handle = u.alias;
+					if (!u.location) u.location = 'Unknown';
+					if (!u.birthdate) u.birthdate = '1970-01-01';
+					if (!u.netmail) u.netmail = u.alias.replace(/ /g, '_') + '@bbs.88x31.app';
+					return bbs.login(u.alias, '', u.security.password);
 			})(String(str).toLowerCase());
 			if (_ok) { bbs.logon(); exit(); }
 			continue;
