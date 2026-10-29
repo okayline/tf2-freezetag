@@ -3,12 +3,12 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## BBS: terminal 45 lines tall, v0.75
-**Thu Oct 29, 2026 · 10:07 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:07 AM HST** (pushed)
 
 - **Changed:** the web terminal is 45 lines tall (was 40), still 80 columns. Owner: "could you give us a few more lines vertically please". Footer v0.75.
 
 ## BBS: phone keyboard stays open, v0.74
-**Thu Oct 29, 2026 · 10:06 AM HST** (committed, not pushed)
+**Thu Oct 29, 2026 · 10:06 AM HST** (pushed)
 
 - **Fixed:** tapping an empty spot made the phone keyboard flash on and off. The text field took focus on the tap's first event and the phone's follow-up mousedown took it away again. It now takes focus on the tap's last event (click), and mousedown on the terminal no longer moves focus (phones only). Owner: "it like flashes on and off when i tap an empty space". Footer v0.74.
 
