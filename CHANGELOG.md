@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: slower welcome screen and typing, v1.14
+**Thu Oct 29, 2026 · 9:35 PM HST** (committed, not pushed)
+
+- **Changed:** each welcome-screen line now waits 0.4 s (was 0.2 s), and the login code is typed slower (0.09-0.22 s a letter, was 0.04-0.12 s). The server sent each line 0.2 s apart (measured), but they reached the browser 2-3 at a time; further apart, they come one by one. Owner: "can it be one line at a time? and can overall the animations/scroll in appear a little slower please". Footer v1.14.
+- **Removed:** nothing.
+
 ## BBS: no splash screen on the web terminal, v1.13
 **Thu Oct 29, 2026 · 9:28 PM HST** (committed, not pushed)
 

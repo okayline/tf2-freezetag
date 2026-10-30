@@ -408,7 +408,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.13
+BBS_VERSION=1.14
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -644,8 +644,8 @@ if r not in src: sys.exit("login.js: rlogin print not found")
 src=src.replace(r,"{ str=bbs.rlogin_name; type88(str); }",1)
 src=src.replace("for(var c=0;","""function type88(s) {   // 88x31: type it out like a person, with a _ cursor
 	console.print("_");
-	for (var i = 0; i < s.length; i++) { mswait(40 + random(80)); console.print("\\b" + s[i] + "_"); }
-	mswait(250);
+	for (var i = 0; i < s.length; i++) { mswait(90 + random(130)); console.print("\\b" + s[i] + "_"); }
+	mswait(400);
 	console.print("\\b \\b\\r\\n");
 }
 
@@ -781,12 +781,14 @@ t,n=re.subn(r"(?m)^\s*login_prompt\s*=.*$","\t"+v,t)
 if not n: t=re.sub(r"(?m)^\[login\][^\n]*\n",lambda m:m.group(0)+"\t"+v+"\n",t,count=1)
 open(f,"w",encoding="latin-1").write(t)
 PY9
-# the welcome screen scrolls slowly: a short pause (two Ctrl-A commas, 0.2 s) at the end of each line of the stock logo
-# screens (text/banner*.msg; our answer screens have them already). Owner: "could we have it scroll more slowly?"
+# the welcome screen scrolls slowly: a pause (four Ctrl-A commas, 0.4 s) at the end of each line of the stock logo
+# screens (text/banner*.msg; our answer screens have them already). Owner: "could we have it scroll more slowly?",
+# then "one line at a time" and "a little slower" (0.2 s lines reached the browser 2-3 at a time).
 for b in $D/text/banner*.msg; do [ -f "$b" ] && python3 - "$b" <<'PY10'
 import sys
-f=sys.argv[1];t=open(f,"rb").read();D=b"\x01,\x01,"
-open(f,"wb").write(b"\r\n".join(l if (l.endswith(D) or not l.strip()) else l+D for l in t.split(b"\r\n")))
+f=sys.argv[1];t=open(f,"rb").read();D=b"\x01,\x01,\x01,\x01,"
+lines=[l[:-4] if (l.endswith(b"\x01,\x01,") and not l.endswith(D)) else l for l in t.split(b"\r\n")]   # older 0.2 s pauses
+open(f,"wb").write(b"\r\n".join(l if (l.endswith(D) or not l.strip()) else l+D for l in lines))
 PY10
 done
 # our screens from the repo's bbs/text: the connect screens (80 and 40 columns) without the "If you are a new user" lines; the 40-column one also without the big logo (so it fits 25 lines and never pauses)
