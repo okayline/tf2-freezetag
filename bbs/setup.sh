@@ -475,7 +475,7 @@ sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 # outside IRC apps reach it at bbs.88x31.app port 6667.
 sed -i -E '/^\[IRC\]/,/^\[/s/^(\s*Enabled\s*=\s*).*/\1true/' $D/ctrl/services.ini
 grep -q '^\[Info\]' $D/ctrl/ircd.ini || printf '\n[Info]\nServername=bbs.88x31.app\nDescription=%s\n' "$NAME" >> $D/ctrl/ircd.ini
-# IRC operator (server admin): /oper kura <BBS system password>. Only from a connection on the VPS itself (The Lounge, the BBS),
+# IRC operator (server admin): /oper kura <BBS system password>. Only from a connection on the VPS itself (WeeChat, the BBS),
 # which the server sees as bbs.88x31.app; flags O (operator) and S (checks the BBS system password, so none is stored here)
 grep -q '^\[Operator:kura\]' $D/ctrl/ircd.ini || printf '\n[Operator:kura]\nNick=kura\nMask=*@bbs.88x31.app\nFlags=OS\nClass=10\n' >> $D/ctrl/ircd.ini
 grep -q '^\[chat_sec\]' $D/ctrl/modopts.ini || printf '\n[chat_sec]\n' >> $D/ctrl/modopts.ini

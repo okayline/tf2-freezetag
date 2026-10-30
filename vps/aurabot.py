@@ -108,7 +108,7 @@ def load_feed(tag):
 
 
 # emoji -> (IRC color, symbol): the BBS's IRC screen cannot draw emoji (they come out as ¿), so every feed line uses
-# colored plain symbols instead, the same in The Lounge and on the BBS. Colors: 03 green, 04 red, 05 brown, 06 purple,
+# colored plain symbols instead, the same in WeeChat and on the BBS. Colors: 03 green, 04 red, 05 brown, 06 purple,
 # 07 orange, 08 yellow, 09 light green, 10 teal, 11 cyan, 12 blue, 13 pink, 14 grey.
 EMOJI = {
     "\u2620": ("04", "x"), "\U0001F480": ("14", "x"), "\U0001F6AA": ("03", "#"), "\U0001F3AF": ("07", "o"),

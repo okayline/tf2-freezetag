@@ -83,8 +83,8 @@ jobs:
               [ -n "$STORIES_KEY" ] && printf '%s' "$STORIES_KEY" | vps 'umask 077; mkdir -p /etc/l4d-story; cat > /etc/l4d-story/stories.key' >> "$R" 2>&1
               # the BBS system password (repo secret BBS_SYSPASS) for bbs/setup.sh; never printed
               [ -n "$BBS_SYSPASS" ] && printf '%s' "$BBS_SYSPASS" | vps 'umask 077; cat > /root/bbs-syspass' >> "$R" 2>&1
-              # the login password for The Lounge (repo secret LOUNGE_PASS) for vps/lounge-setup.sh; never printed
-              [ -n "$LOUNGE_PASS" ] && printf '%s' "$LOUNGE_PASS" | vps 'umask 077; cat > /root/lounge-pass' >> "$R" 2>&1
+              # WeeChat's relay password (repo secret LOUNGE_PASS, kept from The Lounge) for vps/weechat-setup.sh; never printed
+              [ -n "$LOUNGE_PASS" ] && printf '%s' "$LOUNGE_PASS" | vps 'umask 077; cat > /root/weechat-pass' >> "$R" 2>&1
               # AuraBot's admin login password (repo secret AURABOT_PASS) for vps/aurabot-setup.sh; never printed
               [ -n "$AURABOT_PASS" ] && printf '%s' "$AURABOT_PASS" | vps 'umask 077; cat > /root/aurabot-pass' >> "$R" 2>&1
               # the BBS's DOVE-Net (Vertrauen QWK account) password (repo secret DOVE_PASS) for bbs/setup.sh; never printed
