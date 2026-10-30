@@ -1,5 +1,6 @@
 @TRUNCATE@@INCLUDE:%zmenu/head.msg@hc@HOT@n
  bþhþ wMain Menu
+
 @POS:2@nhcan  wauto-msg@POS:21@nhcpn  wopen doors
 @POS:2@nhcbn  wbbs list@POS:21@nhcqn  wquickie menu
 @POS:2@nhccn  wpage sysop@POS:21@nhcsn  wsystem info
@@ -12,4 +13,5 @@
 @POS:2@nhckn  wuser config@POS:21@nhc+n  wchange pw
 @POS:2@nhcln  wuser list@POS:21@nhc/gn wfast logoff
 @POS:2@nhcmn  wmessages
+
 @HOT:OFF@@INCLUDE:%zmenu/tail.msg@
