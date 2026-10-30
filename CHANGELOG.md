@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: NANO PITCH door, v1.05
+**Thu Oct 29, 2026 · 3:05 PM HST** (committed, not pushed)
+
+- **Added:** NANO PITCH in the BBS games (`bbs/xtrn/pitch.js`): the same numbered games and shared Daily game as pitch.88x31.app, dealt and played (bots too) on its server. A NANO PITCH guest player per BBS user, no account (nano-pitch v0.15.4); the shared Guest gets a new player each visit. The screen the owner designed with mockups: the table as a small + on the left with big cards (suits as card symbols, red and blue), your hand along the bottom with numbers over the playable cards, what just happened down the top right (newest at the bottom), and trump, bid, High, Low, Jack and everyone's game points under it. Footer v1.05.
+- **Removed:** nothing.
+
 ## BBS: Drugwar's price column fits six-figure prices, v1.04
 **Thu Oct 29, 2026 · 2:38 PM HST** (committed, not pushed)
 

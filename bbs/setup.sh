@@ -98,6 +98,25 @@ X
   echo "scoundrel door added to section $SEC"
 fi
 
+# NANO PITCH door: the card game from pitch.88x31.app, played in the BBS (bbs/xtrn/pitch.js); a NANO PITCH guest player per
+# BBS user, no 88x31 account (nano-pitch v0.15.4 /api/bbs-enter)
+mkdir -p $D/xtrn/pitch $D/data/pitch
+cp "$HERE/xtrn/pitch.js" $D/xtrn/pitch/pitch.js 2>/dev/null || echo "pitch door: not copied (run setup.sh from the repo's bbs folder)"
+if ! grep -qi '^\[prog:.*PITCH\]' $X; then
+  SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
+  cat >> $X <<X
+
+[prog:$SEC:PITCH]
+	name = NANO PITCH
+	cmd = ?$D/xtrn/pitch/pitch.js
+	settings = $(( $(flag XTRN_MULTIUSER) ))
+	type = 0
+	event = 0
+	ars =
+X
+  echo "pitch door added to section $SEC"
+fi
+
 # Drugwar door: the game from dw.88x31.app, played in the BBS (bbs/xtrn/drugwar.js); one Drugwar bank per BBS user
 mkdir -p $D/xtrn/drugwar $D/data/drugwar
 cp "$HERE/xtrn/drugwar.js" $D/xtrn/drugwar/drugwar.js 2>/dev/null || echo "drugwar door: not copied (run setup.sh from the repo's bbs folder)"
@@ -380,7 +399,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.04
+BBS_VERSION=1.05
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
