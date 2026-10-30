@@ -417,27 +417,31 @@ fi
 if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
-# version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.15
-# the version is real footer text (selectable), written into the footer component
-FT=$D/webv4/components/footer.xjs
-# and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
+BBS_VERSION=1.16
+# the footer is the shared one every 88x31 game shows (dungeon-items footer.js): "🄯 ~*~88x31~*~ · § ≡ v<version>".
+# Its ≡ goes to #account, which opens the BBS's own account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)
+FT=$D/webv4/components/footer.xjs
 if [ -f $FT ]; then cat > $FT <<FOOT
 <?xjs var me = (user.number > 0 && user.alias !== settings.guest); ?>
-<p>&copy; <?xjs write(system.name + ", " + strftime("%Y")); ?> &middot; <span id="tlme"><a href="#" title="Account" onclick="document.getElementById('tlmenu').classList.toggle('open');return false;">&#8801;</a><span id="tlmenu">
+<script src="https://dungeon-items.ddddungeon.workers.dev/footer.js" data-version="v$BBS_VERSION" data-carry="#account"></script>
+<span id="tlme"><span id="tlmenu">
 	<a href="#" onclick="return pkSignIn(this)">Log in with passkey</a>
 <?xjs if (me) { ?>
 	<a href="#" id="nav-pklink" style="display:none" onclick="return pkSignIn(this)">Link passkey</a>
 	<a href="#" id="button-logout">Log out</a>
 <?xjs } ?>
-</span></span> v$BBS_VERSION</p>
+</span></span>
 <?xjs if (me) { ?>
 <script>(function(){ var l=document.getElementById('nav-pklink');
  fetch('./api/passkey.ssjs?action=status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.signedIn&&!j.linked) l.style.display=''; }).catch(function(){}); })();</script>
 <?xjs } ?>
-<script>document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)) m.classList.remove('open'); });</script>
+<script>
+window.addEventListener('hashchange',function(){ if(location.hash!=='#account') return;
+ document.getElementById('tlmenu').classList.toggle('open'); history.replaceState(null,'',location.pathname+location.search); });
+document.addEventListener('click',function(e){ var m=document.getElementById('tlmenu'); if(m&&!document.getElementById('tlme').contains(e.target)&&!e.target.closest('.ddacct')) m.classList.remove('open'); });
+</script>
 FOOT
 rm -f $D/webv4/components/footer.xjs.ssjs; fi
 # text sizes: the top bar bigger (20 px), the footer's menu character 16 px and its links 12 px, the BBS name 24 px, the footer line smaller (12 px); the page text is 16 px
@@ -447,7 +451,7 @@ if [ -n "$CSSD" ]; then echo '/* cursor */ #fTelnetContainer,#fTelnetContainer *
 # no border around the terminal (the old one was a thin light line); everything around it is already black
 if [ -n "$CSSD" ]; then echo '/* termborder */ #fTelnetContainer,#fTelnetContainer *,.fTelnetContainer,.fTelnetClientContainer,.fTelnetClientContainer canvas{border:0 !important;outline:0 !important;box-shadow:0 !important}' >> $CSSD/custom.css; fi
 # footer text on the right, right under the line (the stock footer leaves a big gap under it)
-if [ -n "$CSSD" ]; then echo '/* footerpos */ hr{margin:12px 0 4px !important;border:0 !important;height:0 !important} footer{text-align:right !important;margin:0 !important;padding:0 !important;height:auto !important;min-height:0 !important} footer p{margin:0 !important;padding:0 !important;text-align:right !important}' >> $CSSD/custom.css; fi
+if [ -n "$CSSD" ]; then echo '/* footerpos */ hr{margin:12px 0 4px !important;border:0 !important;height:0 !important} footer{text-align:right !important;margin:0 !important;padding:0 !important;height:auto !important;min-height:0 !important} footer p{margin:0 !important;padding:0 !important;text-align:right !important} footer{position:relative !important} #tlme{position:static !important} footer .ddfoot{font-size:12px !important}' >> $CSSD/custom.css; fi
 # phones: no Sidebar button and no sliding sidebar panel (desktop keeps the sidebar)
 if [ -n "$CSSD" ]; then echo '/* offcanvas */ @media (max-width:767px){#sidebar,[data-toggle="offcanvas"]{display:none !important}}' >> $CSSD/custom.css; fi
 # no Recent Visitors block in the sidebar

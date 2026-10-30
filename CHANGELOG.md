@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: the shared 88x31 footer on the web site, v1.16
+**Thu Oct 29, 2026 · 9:55 PM HST** (committed, not pushed)
+
+- **Changed:** the web site's footer is now the one every 88x31 game shows (dungeon-items `footer.js`): "🄯 ~*~88x31~*~ · § ≡ v1.16". Its ≡ opens the same account menu as before (Log in with passkey, Link passkey, Log out). The footer text is 12px like before, since 9px is too small in the IBM VGA font.
+- **Removed:** the BBS's own footer line ("© 88x31 BBS, year · ≡ version") and its ≡ link.
+
 ## BBS: the logon page comes in slowly too, v1.15
 **Thu Oct 29, 2026 · 9:45 PM HST** (committed, not pushed)
 
