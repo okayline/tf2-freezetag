@@ -14,6 +14,9 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
   The login belongs to that nickname only while it shares a channel with AuraBot: when it quits, leaves every shared
   channel or changes nickname, it is logged out, so nobody can take over a logged-in nickname. Wrong passwords are
   slowed down (one try every 10 seconds) and written to the journal. "!help" lists the commands.
+  An IRC operator (/oper, which needs the BBS system password and a connection from the VPS itself) needs no login:
+  their first command makes AuraBot check WHOIS, and an operator who shares a channel is logged in by that.
+  A login also survives AuraBot restarting (see Admin).
 - Uses what the Discord bot set up: its sudo rules (/etc/sudoers.d/discord-bot, from discord-bot-setup.sh) for
   start/stop/restart/pause/resume, and its database (/home/tf2/discord/bot.db) for !history and !seen. Keep both
   when the Discord bot is retired.
@@ -354,6 +357,7 @@ class Admin:
         self.irc, self.logged_in, self.last_try, self.pending_ban = irc, set(), {}, {}
         self.signon = {}                       # nickname -> sign-on time, for the logged-in ones (and those being checked)
         self.checking = {}                     # nickname -> saved sign-on time, waiting for its WHOIS answer
+        self.asking = {}                       # nickname -> [command waiting, is an IRC operator?] while WHOIS answers
 
     def save(self):
         try:
@@ -392,6 +396,20 @@ class Admin:
         elif cmd in ("401", "318") and len(args) >= 2 and args[1].lower() in self.checking:
             self.checking.pop(args[1].lower())  # gone, or no sign-on time: that login is over
             self.save()
+        if cmd == "313" and len(args) >= 3 and "Operator" in args[-1] and args[1].lower() in self.asking:
+            self.asking[args[1].lower()][1] = True          # "is an IRC operator"
+        elif cmd in ("318", "401") and len(args) >= 2 and args[1].lower() in self.asking:
+            nick = args[1]
+            text, oper = self.asking.pop(nick.lower())
+            if oper and self.irc.shares(nick):
+                # an IRC operator (/oper needs the BBS system password, from the VPS itself): logged in without a password
+                self.logged_in.add(nick.lower())
+                self.signon.pop(nick.lower(), None)
+                self.irc.raw("WHOIS " + nick)
+                print("AuraBot: %s logged in (IRC operator)" % nick.lower(), flush=True)
+                self.handle(nick, text)
+            else:
+                self.irc.tell(nick, "Log in first: login <password> (IRC operators are logged in by themselves)")
 
     def forget(self, nicks):
         changed = False
@@ -411,8 +429,9 @@ class Admin:
         if word == "login":
             return self.login(nick, text[6:])
         if n not in self.logged_in:
-            if text.startswith("!"):
-                self.irc.tell(nick, "Log in first: login <password>")
+            if text.startswith("!") and n not in self.asking:
+                self.asking[n] = [text, False]                  # is this an IRC operator? WHOIS says (313)
+                self.irc.raw("WHOIS " + nick)
             return
         if not text.startswith("!"):
             return
