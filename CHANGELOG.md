@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## L4D: the round goes on when the last human survivor leaves
+**Fri Oct 30, 2026 · 12:10 AM HST** (committed, not pushed; goes live on the next l4d-deploy of each server)
+
+- **Changed:** `sb_all_bot_team 1` in `l4d/base/server.cfg`, so a survivor team of only bots keeps playing. Before, when the last human survivor quit or used `!afk`, the game counted it as "survivors dead" and restarted the chapter (seen on classic: the round was lost with four bots at full health, and the next player joined into a restart). Owner: "can you fix the round loss bug?"
+- **Removed:** nothing.
+
 ## BBS: the shared 88x31 footer on the web site, v1.16
 **Thu Oct 29, 2026 · 9:55 PM HST** (pushed; goes live when the BBS setup is run on the VPS)
 
