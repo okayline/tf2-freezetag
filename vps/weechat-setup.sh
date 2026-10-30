@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Installs WeeChat (always connected to the BBS's IRC server, running inside tmux as the "weechat" service) and two ways in:
-#   - Glowing Bear, WeeChat's web page, at irc.88x31.app (WeeChat's relay on 127.0.0.1:9001; vps/Caddyfile)
-#   - the real terminal WeeChat in the browser at irc.88x31.app/term (ttyd attaches to the tmux session; Caddy asks for a
-#     login first: user "kura", the same password as the relay)
+#   - Glowing Bear, WeeChat's web page, at irc.88x31.app/bear/ (WeeChat's relay on 127.0.0.1:9001; vps/Caddyfile)
+#   - the real terminal WeeChat in the browser, the main page at irc.88x31.app (ttyd attaches to the tmux session; Caddy asks for
+#     a login first: user "kura", the same password as the relay). Glowing Bear is at irc.88x31.app/bear/
 # Replaces The Lounge: removes it if it is still installed (its old settings and logs are kept once in /root/thelounge-old.tgz).
 # Run as root, from the repo's vps folder or anywhere. The password is read from /root/weechat-pass (repo secret LOUNGE_PASS,
 # put there by vps-tools' run action; never printed). Re-running updates Glowing Bear and re-applies the settings below; every
@@ -35,6 +35,31 @@ mkdir -p $D; chown weechat:weechat $D; chmod 700 $D
 echo "== Glowing Bear (web page) =="
 T=$(mktemp -d); curl -fsSL -m 120 https://github.com/glowing-bear/glowing-bear/archive/refs/heads/gh-pages.tar.gz | tar -xz -C "$T" --strip-components 1
 [ -f "$T/index.html" ] && { rm -rf $WWW; mkdir -p $(dirname $WWW); mv "$T" $WWW; chmod -R a+rX $WWW; echo "glowing bear: $WWW"; } || { rm -rf "$T"; echo "glowing bear: download failed, kept the old one"; }
+
+# no uploads: Glowing Bear's picture button, drag-and-drop and paste-an-image all send the picture to Imgur (a third party).
+# The button, the drop and the Imgur settings are taken out of the page; a script stops image paste and drop; and Caddy sends a
+# header that forbids the page from contacting anything but this site (vps/Caddyfile), so Imgur could not be reached anyway.
+python3 - $WWW <<'PYG'
+import re, sys, os
+w = sys.argv[1]
+p = w + "/directives/input.html"
+if os.path.exists(p):
+    s = open(p, encoding="utf-8").read()
+    s = re.sub(r'\s*<label class="btn btn-send-image.*?</label>', '', s, flags=re.S)
+    s = re.sub(r'\s*<div id="imgur-upload-progress"></div>', '', s)
+    s = s.replace(' imgur-drop', '')
+    open(p, "w", encoding="utf-8").write(s)
+p = w + "/index.html"
+s = open(p, encoding="utf-8").read()
+s = re.sub(r'<li class="standard-labels">(?:(?!</li>).)*?iToken.*?</li>', '', s, count=1, flags=re.S)
+inj = ('<style id="no-uploads">.btn-send-image,.imgur-upload,#imgur-upload,#imgur-upload-progress,.upload-error{display:none !important}</style>'
+       '<script id="no-uploads-js">(function(){function f(e){var d=e.clipboardData||e.dataTransfer;if(d&&d.files&&d.files.length){e.preventDefault();e.stopImmediatePropagation();}}'
+       '["paste","drop","dragover"].forEach(function(n){window.addEventListener(n,f,true);});})();</script>')
+if 'id="no-uploads"' not in s:
+    s = s.replace("</head>", inj + "</head>", 1)
+open(p, "w", encoding="utf-8").write(s)
+print("glowing bear: uploads off")
+PYG
 
 echo "== settings =="
 [ -s /root/weechat-pass ] || { echo "no /root/weechat-pass (repo secret LOUNGE_PASS): run this through vps-tools' run action"; exit 1; }
@@ -90,12 +115,12 @@ if [ "$(ttyd --version 2>/dev/null | awk '{print $3}' | cut -d- -f1)" != "$TV" ]
 fi
 echo "ttyd $(ttyd --version 2>/dev/null)"
 # the terminal's look: ttyd's own page with a starfield behind a see-through terminal (vps/ttyd-space.html). The stock page is
-# read from a throwaway ttyd (so it matches this ttyd version and the /term base path), then patched. Without it, plain ttyd.
+# read from a throwaway ttyd (so it matches this ttyd version), then patched. Without it, plain ttyd.
 TOPTS=""
 if [ -s "$HERE/ttyd-space.html" ]; then
-  ttyd -i /tmp/ttyd-stock.sock -b /term true >/dev/null 2>&1 & TP=$!
+  ttyd -i /tmp/ttyd-stock.sock true >/dev/null 2>&1 & TP=$!
   sleep 2
-  if curl -fsS --compressed -m 15 --unix-socket /tmp/ttyd-stock.sock http://localhost/term/ -o /tmp/ttyd-stock.html 2>/dev/null && grep -q "</head>" /tmp/ttyd-stock.html; then
+  if curl -fsS --compressed -m 15 --unix-socket /tmp/ttyd-stock.sock http://localhost/ -o /tmp/ttyd-stock.html 2>/dev/null && grep -q "</head>" /tmp/ttyd-stock.html; then
     python3 - "$HERE/ttyd-space.html" <<'PYX'
 import sys
 s = open("/tmp/ttyd-stock.html", encoding="utf-8").read()
@@ -111,7 +136,7 @@ fi
 # ttyd listens on a socket only Caddy (group caddy) can reach, never on a port: nothing else on the VPS can type into WeeChat
 cat > /etc/systemd/system/ttyd.service <<UNIT
 [Unit]
-Description=ttyd (WeeChat in the browser: irc.88x31.app/term; Caddy asks for the login)
+Description=ttyd (WeeChat in the browser: irc.88x31.app; Caddy asks for the login)
 After=weechat.service
 Wants=weechat.service
 
@@ -122,19 +147,18 @@ UMask=0007
 RuntimeDirectory=ttyd
 RuntimeDirectoryMode=0750
 Environment=LANG=C.UTF-8
-ExecStart=/usr/local/bin/ttyd -i /run/ttyd/ttyd.sock -b /term -W -O $TOPTS -t fontSize=15 -t cursorBlink=true -t titleFixed=WeeChat $(command -v tmux) -u -L weechat attach -t weechat
+ExecStart=/usr/local/bin/ttyd -i /run/ttyd/ttyd.sock -W -O $TOPTS -t fontSize=15 -t cursorBlink=true -t titleFixed=WeeChat $(command -v tmux) -u -L weechat attach -t weechat
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 UNIT
-# the /term part of the site, with its login (a bcrypt hash of /root/weechat-pass; this file stays on the server). The Caddyfile
-# imports it; without the file /term does not exist, so it can never be open without a login.
+# the main part of the site (everything except /weechat and /bear/), with its login (a bcrypt hash of /root/weechat-pass; this file
+# stays on the server). The Caddyfile imports it; without the file the site answers 404, so it can never be open without a login.
 mkdir -p /etc/caddy/irc-term
 H=$(caddy hash-password --plaintext "$(cat /root/weechat-pass)")
 cat > /etc/caddy/irc-term/term.caddy <<SNIP
-redir /term /term/
-handle /term/* {
+handle {
 	basicauth {
 		kura $H
 	}
