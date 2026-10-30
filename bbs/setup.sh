@@ -449,10 +449,10 @@ sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 # outside IRC apps reach it at bbs.88x31.app port 6667.
 sed -i -E '/^\[IRC\]/,/^\[/s/^(\s*Enabled\s*=\s*).*/\1true/' $D/ctrl/services.ini
 grep -q '^\[Info\]' $D/ctrl/ircd.ini || printf '\n[Info]\nServername=bbs.88x31.app\nDescription=%s\n' "$NAME" >> $D/ctrl/ircd.ini
-grep -q '^\[chat\]' $D/ctrl/modopts.ini || printf '\n[chat]\n' >> $D/ctrl/modopts.ini
+grep -q '^\[chat_sec\]' $D/ctrl/modopts.ini || printf '\n[chat_sec]\n' >> $D/ctrl/modopts.ini
 for kv in 'irc_server=127.0.0.1 6667' 'irc_channel=#88x31'; do k=${kv%%=*}
   if grep -qE "^\s*$k\s*=" $D/ctrl/modopts.ini; then sed -i -E "s/^(\s*$k\s*=).*/\1${kv#*=}/" $D/ctrl/modopts.ini
-  else sed -i -E "/^\[chat\]/a\    $kv" $D/ctrl/modopts.ini; fi
+  else sed -i -E "/^\[chat_sec\]/a\    $kv" $D/ctrl/modopts.ini; fi
 done
 # one place for the name rolling (two words like the games, word lists from scoundrel.exe src/names.js); the new-user script
 # (mods/newuser_prompts.js) and the web page's automatic account (api/passkey.ssjs, action anon) both load it
@@ -735,11 +735,11 @@ e=re.search(r'(?m)^\[',t); e=e.start() if e else len(t)   # the top part, before
 open(f,'w').write(re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda x:x.group(1)+hex(int(x.group(2),0)|(1<<18)),t[:e],count=1)+t[e:])
 PY7
 # custom text for Synchronet's scripts (the one-line main prompt), from the repo's bbs/ctrl
-cp "$(dirname "$0")/ctrl/text.ini" $D/ctrl/text.ini 2>/dev/null || echo "text.ini: not copied (run setup.sh from the repo's bbs folder)"
+cp "$HERE/ctrl/text.ini" $D/ctrl/text.ini 2>/dev/null || echo "text.ini: not copied (run setup.sh from the repo's bbs folder)"
 # our screens from the repo's bbs/text: the 40-column connect screen without the big logo (so it fits 25 lines and never pauses)
-cp "$(dirname "$0")"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
+cp "$HERE"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
 # our menus from the repo's bbs/menu: the main menu, Get Info and Your statistics (one column), no mouse click spots
-cp "$(dirname "$0")"/menu/*.msg $D/text/menu/ 2>/dev/null || echo "menus: not copied (run setup.sh from the repo's bbs folder)"
+cp "$HERE"/menu/*.msg $D/text/menu/ 2>/dev/null || echo "menus: not copied (run setup.sh from the repo's bbs folder)"
 chmod g+s /usr/games/nethack 2>/dev/null || true
 
 cat > /etc/systemd/system/sbbs.service <<S

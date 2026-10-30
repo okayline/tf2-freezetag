@@ -5,7 +5,7 @@
 ## BBS: its own IRC server, v1.07
 **Thu Oct 29, 2026 · 7:45 PM HST** (committed, not pushed)
 
-- **Added:** the BBS's own IRC server: Synchronet's built-in ircd (it shipped off: `Enabled=false` under `[IRC]` in `services.ini`, now on), port 6667, not linked to the Synchronet IRC network, named `bbs.88x31.app` (`[Info]` in `ctrl/ircd.ini`). The chat section's IRC ([i] chat section, then IRC) now goes to it and joins `#88x31` (modopts `[chat]` `irc_server`, `irc_channel`). Outside IRC apps can join at bbs.88x31.app:6667. Owner: "BBS comes with a free built in IRC server? Yes Please !!" Footer v1.07.
+- **Added:** the BBS's own IRC server: Synchronet's built-in ircd (it shipped off: `Enabled=false` under `[IRC]` in `services.ini`, now on), port 6667, not linked to the Synchronet IRC network, named `bbs.88x31.app` (`[Info]` in `ctrl/ircd.ini`). The chat section's IRC ([i] chat section, then IRC) now goes to it and joins `#88x31` (modopts `[chat_sec]` `irc_server`, `irc_channel`). Outside IRC apps can join at bbs.88x31.app:6667. Owner: "BBS comes with a free built in IRC server? Yes Please !!" Footer v1.07.
 - **Removed:** the chat section's IRC going to irc.synchro.net #Synchronet.
 ## BBS: Oblivion/2's menus inside the Default shell, v1.06
 **Thu Oct 29, 2026 · 7:40 PM HST** (committed, not pushed)
