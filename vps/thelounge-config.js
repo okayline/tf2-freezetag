@@ -1,4 +1,4 @@
-// The Lounge (web IRC client) settings, installed by vps/lounge-setup.sh into /var/lib/thelounge/config.js.
+// The Lounge (web IRC client) settings, installed by vps/lounge-setup.sh into /etc/thelounge/config.js.
 // Private: only accounts made on the server can log in. Locked to the BBS's own IRC server (127.0.0.1:6667),
 // which is reached at irc.88x31.app through Caddy (vps/Caddyfile). Anything not set here is The Lounge's default.
 "use strict";
