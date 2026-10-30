@@ -293,6 +293,10 @@ function tapKey(row, x) {
 			if (m > 8 || ms > 600) return;
 			var p = C.MousePositionToScreenPosition(e.offsetX, e.offsetY), cols = C.ScreenCols, rows = C.ScreenRows, x = p.x - 1, y = p.y;
 			if (x < 0 || x >= cols || y < 1 || y > rows) return;
+			// a [Hit a key] prompt on the cursor's line: a tap or click anywhere on the screen presses Enter
+			var cy = C.WhereY(), pl = C.SaveScreen(1, cy, cols, cy)[0], ps = '';
+			for (var j = 0; j < cols; j++) ps += pl[j].Ch;
+			if (ps.indexOf('[Hit a key]') >= 0) { C.PushKeyDown(0, 13, false, false, false); return; }
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
 			var k = tapKey(row, x);
@@ -420,7 +424,7 @@ if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.17
+BBS_VERSION=1.18
 # the footer is the shared one every 88x31 game shows (dungeon-items footer.js): "🄯 ~*~88x31~*~ · § ≡ v<version>".
 # Its ≡ goes to #account, which opens the BBS's own account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)
