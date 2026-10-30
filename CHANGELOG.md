@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Drugwar's price column fits six-figure prices, v1.04
+**Thu Oct 29, 2026 · 2:38 PM HST** (committed, not pushed)
+
+- **Changed:** the BUY AT column in the Drugwar door is 9 wide (was 7), so a price like $120,580 (the coke bust) lines up instead of pushing its row right; the COAT and FREE line moved with it. Owner: "sure !haha". Footer v1.04.
+- **Removed:** the 7-wide price column.
+
 ## BBS: scoundrel.exe is back, as a guest, v1.03
 **Thu Oct 29, 2026 · 2:40 PM HST** (committed, not pushed)
 

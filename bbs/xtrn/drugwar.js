@@ -95,10 +95,10 @@ function draw(said, bottom) {
 	console.print(' \1h\1yDRUGWAR v2.00\1n  //  \1h\1w' + system.name + '\1n  //  DAY ' + Math.min(g.move, 30) + ' OF 30  //  \1h\1c' + PLACES[g.loc] + '\1n\r\n');
 	console.print('\1n\1b' + Array(81).join('\xc4') + '\1n\r\n\r\n');
 	console.print('  CASH \1h\1w$' + pad(fmt(g.cash), 9) + '\1n  DEBT \1h\1w$' + pad(fmt(g.debt), 9) + '\1n  BANK \1h\1w$' + pad(fmt(V), 9) + '\1n  GUNS \1h\1w' + pad(g.guns, 4) + '\1n  DAMMAGE \1h\1w' + g.damage + '\1n\r\n\r\n');
-	console.print('  ' + pad('DRUG', 15) + lpad('BUY AT', 7) + lpad('SELLS FOR', 14) + lpad('IN COAT', 13) + '\r\n');
+	console.print('  ' + pad('DRUG', 15) + lpad('BUY AT', 9) + lpad('SELLS FOR', 14) + lpad('IN COAT', 13) + '\r\n');
 	for (var i = 0; i < 6; i++)
-		console.print('  ' + k(i + 1) + ' ' + pad(DRUGS[i], 11) + lpad('$' + fmt(g.prices[i]), 7) + lpad('$' + fmt(g.sell[i]), 14) + lpad(g.st[i], 13) + '\r\n');
-	console.print(lpad('', 37) + 'COAT ' + g.coat + '   FREE ' + g.free + '\r\n\r\n');
+		console.print('  ' + k(i + 1) + ' ' + pad(DRUGS[i], 11) + lpad('$' + fmt(g.prices[i]), 9) + lpad('$' + fmt(g.sell[i]), 14) + lpad(g.st[i], 13) + '\r\n');
+	console.print(lpad('', 39) + 'COAT ' + g.coat + '   FREE ' + g.free + '\r\n\r\n');
 	var lines = [];
 	(said || []).forEach(function (m) { lines = lines.concat(wrap(m, 76)); });
 	lines.slice(-6).forEach(function (l) { console.print('  \1h\1y' + l + '\1n\r\n'); });
