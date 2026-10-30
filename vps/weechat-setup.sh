@@ -77,6 +77,15 @@ sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev
 echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
 
+echo "== scripts =="
+# WeeChat scripts from weechat.org's script library, loaded at start (autoload). Add a file name to the list to add a script.
+SCRIPTS="colorize_nicks.py"
+install -d -o weechat -g weechat $D/python/autoload
+for f in $SCRIPTS; do
+  curl -fsSL -m 30 -o $D/python/$f https://weechat.org/files/scripts/$f && ln -sf ../$f $D/python/autoload/$f && echo "script: $f" || echo "script: $f could not be downloaded, kept as is"
+done
+chown -R weechat:weechat $D/python
+
 echo "== terminal WeeChat (tmux) =="
 # tmux: no prefix key (WeeChat uses Ctrl-B and other keys itself), no status bar, the window follows the newest client's size
 cat > /etc/weechat-tmux.conf <<'CONF'
