@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: IRC operator for kura, v1.09
+**Thu Oct 29, 2026 · 8:12 PM HST** (committed, not pushed)
+
+- **Added:** an IRC operator entry (`[Operator:kura]` in `ctrl/ircd.ini`): `/oper kura <BBS system password>`, only from connections on the VPS itself (The Lounge, the BBS), checked against the BBS system password (flag S, nothing stored). Owner: "can you make me the sysop haha" (the stock ircd.ini had no operator entry: "No O:Lines for your host"). Footer v1.09.
+- **Removed:** nothing.
+
 ## BBS: IRC welcome message and full nicknames, v1.08
 **Thu Oct 29, 2026 · 7:50 PM HST** (committed, not pushed)
 
