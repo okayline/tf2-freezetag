@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: IRC welcome message and full nicknames, v1.08
+**Thu Oct 29, 2026 · 7:50 PM HST** (committed, not pushed)
+
+- **Changed:** IRC's welcome message (MOTD) is our own short one (`bbs/text/ircmotd.txt`, copied to `text/ircmotd.txt`): fits 80 columns and points to #88x31. Owner: "hehe, yes please !!"
+- **Changed:** the BBS's IRC uses your full name as your nickname (Windy_Kingfisher, not Windy_Ki): `mods/irc.js` is the stock `exec/irc.js` with the nickname taken from the user name instead of the 8-letter chat handle. Footer v1.08.
+- **Removed:** the stock MOTD (too wide, said to join #synchronet).
+
 ## BBS: its own IRC server, v1.07
 **Thu Oct 29, 2026 · 7:45 PM HST** (committed, not pushed)
 

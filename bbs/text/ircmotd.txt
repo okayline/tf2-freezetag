@@ -1,0 +1,9 @@
+
+ ~*~88x31~*~ BbS  -  IRC
+
+ #88x31 is the chat room for everyone on the BBS. Say hi!
+ (From the BBS you land there on your own; elsewhere: /join #88x31)
+
+ /help for commands, /quit to leave.
+ Outside the BBS: bbs.88x31.app, port 6667
+

@@ -406,7 +406,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.07
+BBS_VERSION=1.08
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -454,6 +454,12 @@ for kv in 'irc_server=127.0.0.1 6667' 'irc_channel=#88x31'; do k=${kv%%=*}
   if grep -qE "^\s*$k\s*=" $D/ctrl/modopts.ini; then sed -i -E "s/^(\s*$k\s*=).*/\1${kv#*=}/" $D/ctrl/modopts.ini
   else sed -i -E "/^\[chat_sec\]/a\    $kv" $D/ctrl/modopts.ini; fi
 done
+# the IRC welcome message (the MOTD), from the repo's bbs/text; the stock one was too wide and pointed to #synchronet
+cp "$HERE/text/ircmotd.txt" $D/text/ircmotd.txt 2>/dev/null || echo "ircmotd: not copied (run setup.sh from the repo's bbs folder)"
+# the BBS's IRC uses the user's full name as the nickname (stock exec/irc.js uses the chat handle, cut to 8 letters);
+# spaces become _ as before. mods/irc.js is the stock file with that one line changed (the server allows 30 letters).
+sed 's/^var nick=user\.handle;/var nick=user.alias;  \/\/ 88x31: full name, not the 8-letter chat handle (made by bbs\/setup.sh; do not edit)/' $D/exec/irc.js > $D/mods/irc.js
+grep -q 'nick=user.alias' $D/mods/irc.js || { rm -f $D/mods/irc.js; echo "irc nick: stock irc.js changed, kept the stock one"; }
 # one place for the name rolling (two words like the games, word lists from scoundrel.exe src/names.js); the new-user script
 # (mods/newuser_prompts.js) and the web page's automatic account (api/passkey.ssjs, action anon) both load it
 mkdir -p $D/mods
