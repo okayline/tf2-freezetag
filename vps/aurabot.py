@@ -15,7 +15,8 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
   channel or changes nickname, it is logged out, so nobody can take over a logged-in nickname. Wrong passwords are
   slowed down (one try every 10 seconds) and written to the journal. "!help" lists the commands.
   An IRC operator (/oper, which needs the BBS system password and a connection from the VPS itself) needs no login:
-  their first command makes AuraBot check WHOIS, and an operator who shares a channel is logged in by that.
+  joining one of AuraBot's channels (or their first command) makes AuraBot check WHOIS, and an operator who shares
+  a channel is logged in by that, and gets @ wherever AuraBot has it.
   A login also survives AuraBot restarting (see Admin).
 - Background jobs (taken over from the Discord bot, in a thread of their own, every 30 seconds; see Watcher):
   in-game announcements every 65 minutes (announcements-<server>.txt), playtime for !seen, server offline/back
@@ -434,9 +435,17 @@ class Admin:
                 self.signon.pop(nick.lower(), None)
                 self.irc.raw("WHOIS " + nick)
                 print("AuraBot: %s logged in (IRC operator)" % nick.lower(), flush=True)
-                self.handle(nick, text)
-            else:
+                if text:
+                    self.handle(nick, text)
+            elif text:
                 self.irc.tell(nick, "Log in first: login <password> (IRC operators are logged in by themselves)")
+
+    def check_oper(self, nick):
+        """Someone joined one of our channels: if they are an IRC operator, log them in (no command, no message)."""
+        n = nick.lower()
+        if n != NICK.lower() and n not in self.logged_in and n not in self.asking:
+            self.asking[n] = [None, False]
+            self.irc.raw("WHOIS " + nick)
 
     def forget(self, nicks):
         changed = False
@@ -954,6 +963,8 @@ def main():
                     admin.forget(irc.track(prefix, cmd, args))
                     admin.whois_reply(cmd, args)
                     topics.seen(prefix, cmd, args)
+                    if cmd == "JOIN" and "!" in prefix:          # an IRC operator joining is logged in (and gets @)
+                        admin.check_oper(prefix.split("!")[0])
                     if cmd == "001":                        # Irc.pump has just sent JOIN; WHOIS answers come after the NAMES
                         admin.check_saved()
                     # private messages only (target is our own nickname); channel messages are never commands
