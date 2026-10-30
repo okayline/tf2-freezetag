@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: emoji as text in IRC, v1.10
+**Thu Oct 29, 2026 · 9:15 PM HST** (committed, not pushed)
+
+- **Changed:** the BBS's IRC screen turns emoji into text for terminals that are not UTF-8, like the web terminal (😀 → `:D`, ❤️ → `<3`, 👍 → `+1`; any other emoji → `*`). They showed as an upside-down question mark, since the BBS's character set (CP437) has none. The list is `bbs/mods/irc_emoji.js`; `mods/irc.js` loads it. UTF-8 terminals still get the real emoji. Owner: "okay let's do the swap !" Footer v1.10.
+- **Removed:** nothing.
+
 ## BBS: IRC operator for kura, v1.09
 **Thu Oct 29, 2026 · 8:12 PM HST** (committed, not pushed)
 
