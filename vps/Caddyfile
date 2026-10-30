@@ -4,7 +4,7 @@
 #   stats.88x31.app -> public stats page (files in /var/www/stats, rebuilt every 5 minutes by vps/stats-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   status.88x31.app -> Uptime Kuma (127.0.0.1:3001, installed by vps/kuma-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   bbs.88x31.app   -> 88x31 BBS web site (Synchronet, 127.0.0.1:8023); its browser terminal's websocket goes to 1123. Real certificate (DNS-only record, telnet uses the same name)
-#   irc.88x31.app   -> WeeChat in the browser: the main page is its terminal (ttyd, behind a login); /bear/ is Glowing Bear (/var/www/glowing-bear);
+#   irc.88x31.app   -> Glowing Bear, WeeChat's web page (/var/www/glowing-bear); /term/ is WeeChat's terminal (ttyd, behind a login);
 #                      /weechat is WeeChat's relay (127.0.0.1:9001); all installed by vps/weechat-setup.sh; self-signed certificate for Cloudflare "Full" mode
 #   anything else on port 80 (the bare IP) -> log page
 
@@ -39,18 +39,14 @@ irc.88x31.app {
 	handle /weechat {
 		reverse_proxy 127.0.0.1:9001
 	}
-	# Glowing Bear, WeeChat's phone-friendly web page, is at /bear/. It may only talk to this site (no picture uploads to Imgur)
-	redir /bear /bear/
-	handle_path /bear/* {
+	# WeeChat's terminal (ttyd) at /term/ behind a login: the file is made by vps/weechat-setup.sh and stays on the server;
+	# without it /term/ is just a missing page
+	import /etc/caddy/irc-term/*.caddy
+	# everything else is Glowing Bear. It may only talk to this site (no picture uploads to Imgur)
+	handle {
 		header Content-Security-Policy "connect-src 'self' wss://irc.88x31.app"
 		root * /var/www/glowing-bear
 		file_server
-	}
-	# everything else is WeeChat's terminal (ttyd) behind a login: the file is made by vps/weechat-setup.sh and stays on the server;
-	# without it the next block answers 404
-	import /etc/caddy/irc-term/*.caddy
-	handle {
-		respond "Not found" 404
 	}
 }
 
