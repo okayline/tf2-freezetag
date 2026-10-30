@@ -313,13 +313,13 @@ X
   sed -i -E "s#Options\.SplashScreen = '[^']*';#Options.SplashScreen = 'G1swbRtbMko=';#" "$H"
   # taller terminal: 45 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\145;/' "$H"
-  # phones (a finger, not a mouse): 40 columns, so letters are twice as big and Synchronet shows the .40col.msg menus; PCs keep 80
-  sed -i -E "s/(Options\.ScreenColumns *= *)80;/\1((window.matchMedia \&\& matchMedia('(pointer:coarse)').matches) ? 40 : 80);/" "$H"
+  # phones (a finger, not a mouse, and a window under 700px wide: touchscreen PCs are not phones): 40 columns, so letters are twice as big and Synchronet shows the .40col.msg menus; PCs keep 80
+  sed -i -E "s/(Options\.ScreenColumns *= *)80;/\1((window.matchMedia \&\& matchMedia('(pointer:coarse)').matches \&\& window.innerWidth < 700) ? 40 : 80);/" "$H"
   # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it (fTelnet._Crt)
   # phones: no fTelnet on-screen keyboard (the tap script brings up the phone's own keyboard instead)
   sed -i -E 's/(Options\.ScreenRows *= *45;)/\1 Options.VirtualKeyboardVisible = false;/' "$H"
-  # desktop (a mouse, not a finger): 30 lines, so the wide screen is not mostly empty rows; phones keep 45
-  sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 if (!(window.matchMedia \&\& matchMedia('(pointer:coarse)').matches)) Options.ScreenRows = 30;/" "$H"
+  # desktop (a mouse, or a window 700px or wider): 30 lines, so the wide screen is not mostly empty rows; phones keep 45
+  sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 if (!(window.matchMedia \&\& matchMedia('(pointer:coarse)').matches \&\& window.innerWidth < 700)) Options.ScreenRows = 30;/" "$H"
   # phones (40 columns, so each line is twice as tall): as many lines as fit the screen's height (20 to 45), not a fixed 45 that
   # ran far below the screen. A line is the screen width / 40 wide and 23/12 of that tall (the 12x23 font); 60px for the top bar
   sed -i -E "s#(Options\.ScreenRows = 30;)#\1 else Options.ScreenRows = Math.max(20, Math.min(45, Math.floor((window.innerHeight - 60) / (window.innerWidth / 40 * 23 / 12))));#" "$H"
