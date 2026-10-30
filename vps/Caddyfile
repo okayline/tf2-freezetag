@@ -5,7 +5,7 @@
 #   status.88x31.app -> Uptime Kuma (127.0.0.1:3001, installed by vps/kuma-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   bbs.88x31.app   -> 88x31 BBS web site (Synchronet, 127.0.0.1:8023); its browser terminal's websocket goes to 1123. Real certificate (DNS-only record, telnet uses the same name)
 #   irc.88x31.app   -> Glowing Bear, WeeChat's web page (/var/www/glowing-bear); /weechat goes to WeeChat's relay (127.0.0.1:9001);
-#                      both installed by vps/weechat-setup.sh; self-signed certificate for Cloudflare "Full" mode
+#                      /term is WeeChat's terminal in the browser (ttyd, with a login); all installed by vps/weechat-setup.sh; self-signed certificate for Cloudflare "Full" mode
 #   anything else on port 80 (the bare IP) -> log page
 
 map.88x31.app {
@@ -36,6 +36,8 @@ bbs.88x31.app {
 
 irc.88x31.app {
 	tls internal
+	# /term: the real WeeChat in the browser, behind a login (the file is made by vps/weechat-setup.sh and stays on the server)
+	import /etc/caddy/irc-term/*.caddy
 	handle /weechat {
 		reverse_proxy 127.0.0.1:9001
 	}

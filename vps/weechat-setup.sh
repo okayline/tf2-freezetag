@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Installs WeeChat (headless, always connected to the BBS's IRC server) as the "weechat" service, and Glowing Bear
-# (WeeChat's web page) for irc.88x31.app (vps/Caddyfile). Replaces The Lounge: removes it if it is still installed
-# (its old settings and logs are kept once in /root/thelounge-old.tgz). Run as root, from the repo's vps folder or anywhere.
-# The relay password (what Glowing Bear asks for) is read from /root/weechat-pass (repo secret LOUNGE_PASS, put there by
-# vps-tools' run action; never printed). Re-running updates Glowing Bear and re-applies the settings below; every other
-# WeeChat setting you change in the app is kept. Restarts weechat (not a game server).
+# Installs WeeChat (always connected to the BBS's IRC server, running inside tmux as the "weechat" service) and two ways in:
+#   - Glowing Bear, WeeChat's web page, at irc.88x31.app (WeeChat's relay on 127.0.0.1:9001; vps/Caddyfile)
+#   - the real terminal WeeChat in the browser at irc.88x31.app/term (ttyd attaches to the tmux session; Caddy asks for a
+#     login first: user "kura", the same password as the relay)
+# Replaces The Lounge: removes it if it is still installed (its old settings and logs are kept once in /root/thelounge-old.tgz).
+# Run as root, from the repo's vps folder or anywhere. The password is read from /root/weechat-pass (repo secret LOUNGE_PASS,
+# put there by vps-tools' run action; never printed). Re-running updates Glowing Bear and re-applies the settings below; every
+# other WeeChat setting you change in the app is kept. Restarts weechat and ttyd (not a game server).
 set -euo pipefail
 D=/var/lib/weechat; WWW=/var/www/glowing-bear
 # the identity and channels (the same ones The Lounge used)
@@ -24,8 +26,8 @@ if [ -d /etc/thelounge ] || systemctl list-unit-files thelounge.service >/dev/nu
 else echo "the lounge: not installed"; fi
 
 echo "== WeeChat =="
-apt-get install -y -qq weechat-headless weechat-core >/dev/null
-echo "weechat $(weechat-headless --version 2>/dev/null | head -n 1)"
+apt-get install -y -qq weechat-curses weechat-headless weechat-core tmux >/dev/null
+echo "weechat $(weechat --version 2>/dev/null | head -n 1), $(tmux -V)"
 id weechat >/dev/null 2>&1 || useradd -r -m -d $D -s /usr/sbin/nologin weechat
 mkdir -p $D; chown weechat:weechat $D; chmod 700 $D
 
@@ -49,21 +51,82 @@ sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev
 echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
 
+echo "== terminal WeeChat (tmux) =="
+# tmux: no prefix key (WeeChat uses Ctrl-B and other keys itself), no status bar, the window follows the newest client's size
+cat > /etc/weechat-tmux.conf <<'CONF'
+set -g prefix None
+unbind-key C-b
+set -g status off
+set -g window-size latest
+set -g escape-time 0
+set -g default-terminal "tmux-256color"
+set -sa terminal-features ",xterm-256color:RGB"
+CONF
 cat > /etc/systemd/system/weechat.service <<UNIT
 [Unit]
-Description=WeeChat (headless IRC client, relay for Glowing Bear)
+Description=WeeChat in tmux (IRC client; relay for Glowing Bear; terminal for ttyd)
 After=network-online.target sbbs.service
 
 [Service]
+Type=forking
 User=weechat
-ExecStart=$(command -v weechat-headless) --dir $D
+Environment=LANG=C.UTF-8
+ExecStart=$(command -v tmux) -u -f /etc/weechat-tmux.conf -L weechat new-session -d -s weechat $(command -v weechat) --dir $D
+ExecStop=-$(command -v tmux) -L weechat kill-server
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+echo "== web terminal (ttyd) =="
+# ttyd is not in Debian 13: the release binary, pinned and checked against its published SHA-256
+TV=1.7.7; TSUM=8a217c968aba172e0dbf3f34447218dc015bc4d5e59bf51db2f2cd12b7be4f55
+if [ "$(ttyd --version 2>/dev/null | awk '{print $3}' | cut -d- -f1)" != "$TV" ]; then
+  curl -fsSL -m 120 -o /tmp/ttyd.new "https://github.com/tsl0922/ttyd/releases/download/$TV/ttyd.x86_64" \
+    && echo "$TSUM  /tmp/ttyd.new" | sha256sum -c - >/dev/null && install -m 755 /tmp/ttyd.new /usr/local/bin/ttyd; rm -f /tmp/ttyd.new
+fi
+echo "ttyd $(ttyd --version 2>/dev/null)"
+# ttyd listens on a socket only Caddy (group caddy) can reach, never on a port: nothing else on the VPS can type into WeeChat
+cat > /etc/systemd/system/ttyd.service <<UNIT
+[Unit]
+Description=ttyd (WeeChat in the browser: irc.88x31.app/term; Caddy asks for the login)
+After=weechat.service
+Wants=weechat.service
+
+[Service]
+User=weechat
+Group=caddy
+UMask=0007
+RuntimeDirectory=ttyd
+RuntimeDirectoryMode=0750
+Environment=LANG=C.UTF-8
+ExecStart=/usr/local/bin/ttyd -i /run/ttyd/ttyd.sock -b /term -W -O -t fontSize=15 -t cursorBlink=true -t titleFixed=WeeChat $(command -v tmux) -u -L weechat attach -t weechat
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 UNIT
+# the /term part of the site, with its login (a bcrypt hash of /root/weechat-pass; this file stays on the server). The Caddyfile
+# imports it; without the file /term does not exist, so it can never be open without a login.
+mkdir -p /etc/caddy/irc-term
+H=$(caddy hash-password --plaintext "$(cat /root/weechat-pass)")
+cat > /etc/caddy/irc-term/term.caddy <<SNIP
+redir /term /term/
+handle /term/* {
+	basicauth {
+		kura $H
+	}
+	reverse_proxy unix//run/ttyd/ttyd.sock
+}
+SNIP
+chown root:caddy /etc/caddy/irc-term/term.caddy; chmod 640 /etc/caddy/irc-term/term.caddy
+
 systemctl daemon-reload
-systemctl enable weechat >/dev/null 2>&1
+systemctl enable weechat ttyd >/dev/null 2>&1
 systemctl start weechat
 sleep 3
-echo "weechat: $(systemctl is-active weechat), relay listening: $(ss -ltnH '( sport = :9001 )' | wc -l)"
+systemctl restart ttyd
+if caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1; then systemctl reload caddy && echo "caddy: reloaded"; else echo "caddy: config did not validate, not reloaded"; fi
+echo "weechat: $(systemctl is-active weechat), relay listening: $(ss -ltnH '( sport = :9001 )' | wc -l), ttyd: $(systemctl is-active ttyd)"
