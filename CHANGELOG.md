@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Drugwar header shows the BBS name, v1.01
+**Thu Oct 29, 2026 · 2:16 PM HST** (committed, not pushed)
+
+- **Changed:** the Drugwar door's header shows the BBS's name (`system.name`) where the bank's dealer name was. Owner: "maybe take it off, i dont want to display username so prominently ! what about showing the bbs name?". Footer v1.01.
+- **Removed:** the dealer name from the door's header. It still shows in VISIT BANK after NAME, and on the board.
+
 ## BBS: Drugwar door, v1.00
 **Thu Oct 29, 2026 · 2:10 PM HST** (pushed)
 

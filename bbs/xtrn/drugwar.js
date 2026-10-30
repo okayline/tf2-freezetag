@@ -90,7 +90,7 @@ function take(r) { if (r.run) g = r.run; if (r.balance != null) V = r.balance; }
 // the whole screen: header, money, prices and coat, what happened, then the bottom prompt lines
 function draw(said, bottom) {
 	console.clear();
-	console.print(' \1h\1yDRUGWAR v2.00\1n  //  \1h\1w' + (NAME || 'NO NAME').toUpperCase() + '\1n  //  DAY ' + Math.min(g.move, 30) + ' OF 30  //  \1h\1c' + PLACES[g.loc] + '\1n\r\n');
+	console.print(' \1h\1yDRUGWAR v2.00\1n  //  \1h\1w' + system.name + '\1n  //  DAY ' + Math.min(g.move, 30) + ' OF 30  //  \1h\1c' + PLACES[g.loc] + '\1n\r\n');
 	console.print('\1n\1b' + Array(81).join('\xc4') + '\1n\r\n\r\n');
 	console.print('  CASH \1h\1w$' + pad(fmt(g.cash), 9) + '\1n  DEBT \1h\1w$' + pad(fmt(g.debt), 9) + '\1n  BANK \1h\1w$' + pad(fmt(V), 9) + '\1n  GUNS \1h\1w' + pad(g.guns, 4) + '\1n  DAMMAGE \1h\1w' + g.damage + '\1n\r\n\r\n');
 	console.print('  ' + pad('DRUG', 15) + lpad('BUY AT', 7) + lpad('SELLS FOR', 14) + lpad('IN COAT', 13) + '\r\n');

@@ -366,7 +366,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.00
+BBS_VERSION=1.01
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
