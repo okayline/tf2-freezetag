@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# RETIRED (Oct 29, 2026): replaced by AuraBot on IRC (vps/aurabot.py). Stopped and disabled on the VPS;
+# re-running this would turn it back on.
 # Installs the live TF2 feed (chat, kills, joins and leaves, round wins, map changes) to Discord:
 # vps/discord-feed.py as an always-on systemd service. Run as root. Re-running is safe.
 # Needs /home/tf2/discord/discord-status.py from discord-status-setup.sh (it shares that script's helpers).

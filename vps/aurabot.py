@@ -20,6 +20,7 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
 - Background jobs (taken over from the Discord bot, in a thread of their own, every 30 seconds; see Watcher):
   in-game announcements every 65 minutes (announcements-<server>.txt), playtime for !seen, server offline/back
   posts, low memory/disk warnings, the nightly backup result, and the Sunday weekly stats (leaderboard.py).
+- Each server channel's topic shows the server's status (map, who is playing), like the Discord status message did.
 - Start/stop/restart/pause/resume use AuraBot's sudo rules (/etc/sudoers.d/aurabot, from aurabot-setup.sh).
   Kicks, bans and playtime go in the Discord bot's old database (/home/tf2/discord/bot.db), kept for its history.
 Python standard library only."""
@@ -181,11 +182,12 @@ class Irc:
     def __init__(self):
         self.sock, self.buf, self.queue, self.urgent, self.last_send, self.ready = None, b"", [], [], 0.0, False
         self.members = {}                     # channel -> nicknames in it (lowercase), to know who shares a channel with us
+        self.ops = {}                         # channel -> nicknames with @ in it (lowercase)
 
     def connect(self, chans):
         self.sock = socket.create_connection(IRC, timeout=10)
         self.sock.settimeout(0.2)
-        self.buf, self.ready, self.members = b"", False, {}
+        self.buf, self.ready, self.members, self.ops = b"", False, {}, {}
         self.raw("NICK " + NICK)
         self.raw("USER aurabot 0 * :AuraBot, the 88x31 game feeds")
         self.chans = chans
@@ -202,6 +204,9 @@ class Irc:
         for chunk in [text[i:i + 400] for i in range(0, len(text), 400)] or [""]:
             self.urgent.append("PRIVMSG %s :%s" % (nick, chunk))
 
+    def is_op(self, chan, nick=NICK):
+        return nick.lower() in self.ops.get(chan.lower(), set())
+
     def shares(self, nick):
         n = nick.lower()
         return any(n in m for m in self.members.values())
@@ -212,21 +217,33 @@ class Irc:
         gone = []
         if cmd == "353" and len(args) >= 4:                       # NAMES reply
             self.members.setdefault(args[2].lower(), set()).update(n.lstrip("@+").lower() for n in args[3].split())
+            self.ops.setdefault(args[2].lower(), set()).update(n[1:].lower() for n in args[3].split() if n.startswith("@"))
+        elif cmd == "MODE" and len(args) >= 3 and args[0].startswith("#"):   # +o/-o (simple: one mode letter per target)
+            add, targets = True, args[2:]
+            for ch in args[1]:
+                if ch in "+-":
+                    add = ch == "+"
+                elif ch == "o" and targets:
+                    (self.ops.setdefault(args[0].lower(), set()).add if add else self.ops.setdefault(args[0].lower(), set()).discard)(targets.pop(0).lower())
+                elif ch in "vbklIe" and targets and (add or ch != "l"):
+                    targets.pop(0)
         elif cmd == "JOIN" and args:
             for c in args[0].split(","):
                 self.members.setdefault(c.lower(), set()).add(who)
         elif cmd == "PART" and args:
             self.members.get(args[0].lower(), set()).discard(who)
+            self.ops.get(args[0].lower(), set()).discard(who)
             gone.append(who)
         elif cmd == "KICK" and len(args) >= 2:
             self.members.get(args[0].lower(), set()).discard(args[1].lower())
+            self.ops.get(args[0].lower(), set()).discard(args[1].lower())
             gone.append(args[1].lower())
         elif cmd == "QUIT":
-            for m in self.members.values():
+            for m in list(self.members.values()) + list(self.ops.values()):
                 m.discard(who)
             gone.append(who)
         elif cmd == "NICK" and args:
-            for m in self.members.values():
+            for m in list(self.members.values()) + list(self.ops.values()):
                 if who in m:
                     m.discard(who)
                     m.add(args[0].lower())
@@ -734,7 +751,18 @@ class Watcher(threading.Thread):
         self.last_backup = None
 
     def say(self, chan, text):
-        self.out.put((chan, text))
+        self.out.put(("say", chan, text))
+
+    def topic(self, key, names, info):
+        """The channel topic: the server's status (map, players), like the Discord status message was."""
+        s = ADMIN[key]
+        if names is None:
+            text = "%s · offline" % s["label"]
+        else:
+            who = ", ".join(n for _, n in names[:6]) + (" +%d" % (len(names) - 6) if len(names) > 6 else "")
+            text = "%s · %s · %s" % (s["label"], info.get("map") or "?",
+                                     ("%d playing: %s" % (len(names), who)) if names else "nobody on")
+        self.out.put(("topic", CHAN[key], text[:300]))
 
     def advert(self, key, humans):
         """One random line from announcements-<server>.txt into that server's chat every 65 minutes, only while someone is on."""
@@ -785,10 +813,10 @@ class Watcher(threading.Thread):
     def tick(self):
         for key, s in ADMIN.items():
             try:
-                names, _ = players(key)
+                names, info = players(key)
                 up = True
             except Exception:
-                names, up = None, False
+                names, info, up = None, {}, False
             if names is not None:
                 now = time.time()
                 sample = now - self.last_sample.get(key, 0) >= 300
@@ -804,6 +832,8 @@ class Watcher(threading.Thread):
                     print("AuraBot: announcement error %s" % type(e).__name__, flush=True)
             st = self.state.setdefault(key, {"up": None, "fails": 0})
             st["fails"] = 0 if up else st["fails"] + 1
+            if up or st["fails"] >= 3:
+                self.topic(key, names, info)
             if up and st["up"] is False:
                 self.say(CHAN[key], I + "%s is back online" % s["label"] + I)
             if st["up"] is None:
@@ -842,6 +872,42 @@ class Watcher(threading.Thread):
             time.sleep(30)
 
 
+class Topics:
+    """Keeps each server channel's topic set to the server's status. Setting a topic needs @ in the channel:
+    AuraBot gets it by being first into the channel after the IRC server restarts (it reconnects within seconds),
+    or from an op (/op AuraBot). Without it, it tells a logged-in admin once. With it, logged-in admins get @ too."""
+    def __init__(self, irc, admin):
+        self.irc, self.admin = irc, admin
+        self.reset()
+
+    def reset(self):
+        self.want, self.have, self.sent, self.asked = {}, {}, {}, set()
+
+    def seen(self, prefix, cmd, args):
+        if cmd == "332" and len(args) >= 3:                       # topic on join
+            self.have[args[1].lower()] = args[2]
+        elif cmd == "TOPIC" and len(args) >= 2:
+            self.have[args[0].lower()] = args[1]
+
+    def sync(self):
+        now = time.time()
+        for chan, text in self.want.items():
+            if not self.irc.is_op(chan):
+                if chan not in self.asked:
+                    for n in self.admin.logged_in:
+                        if n in self.irc.members.get(chan, set()):
+                            self.irc.tell(n, "I need @ in %s to keep its topic up to date: /op %s there." % (chan, NICK))
+                            self.asked.add(chan)
+                continue
+            if self.have.get(chan) != text and now - self.sent.get(chan, 0) > 20:
+                self.irc.raw("TOPIC %s :%s" % (chan, text))
+                self.sent[chan] = now
+            for n in self.admin.logged_in:                        # admins in the channel get @ too
+                if n in self.irc.members.get(chan, set()) and not self.irc.is_op(chan, n) and now - self.sent.get(chan + n, 0) > 60:
+                    self.irc.raw("MODE %s +o %s" % (chan, n))
+                    self.sent[chan + n] = now
+
+
 def main():
     global ADMIN_DS
     spec = importlib.util.spec_from_file_location("ds", os.path.join(HERE, "discord-status.py"))
@@ -852,11 +918,13 @@ def main():
     watcher.start()
     irc = Irc()
     admin = Admin(irc)
+    topics = Topics(irc, admin)
     last_report, posted = time.time(), 0
     while True:
         try:
             irc.connect([fd.chan for fd in feeds])
             admin.restore()
+            topics.reset()
             print("AuraBot: connected", flush=True)
             while True:
                 for fd in feeds:
@@ -865,9 +933,13 @@ def main():
                         for l in lines:
                             irc.say(fd.chan, l)
                             posted += 1
-                while not watcher.out.empty():               # the background jobs' posts
-                    chan, text = watcher.out.get()
-                    irc.say(chan, text)
+                while not watcher.out.empty():               # the background jobs' posts and wanted topics
+                    kind, chan, text = watcher.out.get()
+                    if kind == "say":
+                        irc.say(chan, text)
+                    else:
+                        topics.want[chan.lower()] = text
+                topics.sync()
                 if len(irc.queue) > 60:                     # far behind: drop the oldest
                     dropped = len(irc.queue) - 40
                     irc.queue = irc.queue[dropped:]
@@ -875,6 +947,7 @@ def main():
                 for prefix, cmd, args in irc.pump():
                     admin.forget(irc.track(prefix, cmd, args))
                     admin.whois_reply(cmd, args)
+                    topics.seen(prefix, cmd, args)
                     if cmd == "001":                        # Irc.pump has just sent JOIN; WHOIS answers come after the NAMES
                         admin.check_saved()
                     # private messages only (target is our own nickname); channel messages are never commands
@@ -888,13 +961,13 @@ def main():
                     print("AuraBot: last 5 min: %d lines posted" % posted, flush=True)
                     posted, last_report = 0, time.time()
         except (OSError, ConnectionError) as e:
-            print("AuraBot: %s; reconnecting in 15 s" % e, flush=True)
+            print("AuraBot: %s; reconnecting in 3 s" % e, flush=True)
             try:
                 irc.sock.close()
             except Exception:
                 pass
             irc.queue, irc.urgent = [], []
-            time.sleep(15)
+            time.sleep(3)                    # back quickly: the first one into an empty channel gets its @
 
 
 if __name__ == "__main__":

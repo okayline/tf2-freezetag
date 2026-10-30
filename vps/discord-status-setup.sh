@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# RETIRED (Oct 29, 2026): replaced by AuraBot on IRC (vps/aurabot.py). Stopped and disabled on the VPS;
+# re-running this would turn it back on.
 # Installs the Discord status poster on the VPS: vps/discord-status.py plus a systemd timer that runs it
 # every minute for the TF2 and L4D1 servers (each edits one Discord message through a webhook).
 # Run as root. Re-running is safe.

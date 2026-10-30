@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# RETIRED (Oct 29, 2026): replaced by AuraBot on IRC (vps/aurabot.py). Stopped and disabled on the VPS;
+# re-running this would turn it back on.
 # Installs the chat relay plugin sp-discordrelay (log-ical) on the TF2 server, plus the three things it needs:
 #   ripext (REST extension), SteamWorks (extension), SMJansson (JSON extension, needed by discord-api),
 #   discord-api (plugin, Cruze03/sourcemod-discord).
