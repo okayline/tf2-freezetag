@@ -17,14 +17,20 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
   An IRC operator (/oper, which needs the BBS system password and a connection from the VPS itself) needs no login:
   their first command makes AuraBot check WHOIS, and an operator who shares a channel is logged in by that.
   A login also survives AuraBot restarting (see Admin).
-- Uses what the Discord bot set up: its sudo rules (/etc/sudoers.d/discord-bot, from discord-bot-setup.sh) for
-  start/stop/restart/pause/resume, and its database (/home/tf2/discord/bot.db) for !history and !seen. Keep both
-  when the Discord bot is retired.
+- Background jobs (taken over from the Discord bot, in a thread of their own, every 30 seconds; see Watcher):
+  in-game announcements every 65 minutes (announcements-<server>.txt), playtime for !seen, server offline/back
+  posts, low memory/disk warnings, the nightly backup result, and the Sunday weekly stats (leaderboard.py).
+- Start/stop/restart/pause/resume use AuraBot's sudo rules (/etc/sudoers.d/aurabot, from aurabot-setup.sh).
+  Kicks, bans and playtime go in the Discord bot's old database (/home/tf2/discord/bot.db), kept for its history.
 Python standard library only."""
 import hmac
 import json
 import glob
+import datetime
 import importlib.util
+import queue
+import random
+import threading
 import os
 import re
 import shutil
@@ -61,6 +67,10 @@ CAMPAIGNS = {"nomercy": ("No Mercy", "hospital01_apartment"), "crashcourse": ("C
              "deathtoll": ("Death Toll", "smalltown01_caves"), "deadair": ("Dead Air", "airport01_greenhouse"),
              "bloodharvest": ("Blood Harvest", "farm01_hilltop"), "sacrifice": ("The Sacrifice", "river01_docks")}
 DIFFICULTIES = ["Easy", "Normal", "Hard", "Impossible"]
+AD_EVERY = 65 * 60                     # seconds between in-game chat announcements per server
+ALERT_CHANNEL = "#tf2-freezetag"       # low memory / disk warnings and the nightly backup result (same as on Discord)
+LB_IGNORE = "/home/tf2/leaderboard-ignore.txt"
+LB_KIND = {"tf2": "tf2", "classic": "l4d", "vs": "l4dvs", "vintage": "l4d"}
 NOISE = re.compile(r'rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b'
                    r'|server cvars (start|end)|^\S+ "[^"]+" = "[^"]*"\s*$|^L \d+/\d+/\d+ - \d+:\d+:\d+: "[^"]+" = "[^"]*"\s*$'
                    r'|NAV_MOB_ONLY|Computing Flow Distances|Preventing spawning')
@@ -700,12 +710,146 @@ class Admin:
             self.irc.tell(nick, "Nobody by that name on %s yet." % ADMIN[k]["label"])
 
 
+# ---------- background jobs (were the Discord bot's) ----------
+CHAN = {"tf2": "#tf2-freezetag", "classic": "#l4d-classic", "vs": "#l4d-vs", "vintage": "#l4d-vintage"}
+
+
+def record_players(key, names, seconds, sample):
+    now = int(time.time())
+    with db() as c:
+        for n in names:
+            c.execute("INSERT INTO playtime VALUES (?,?,?,?) ON CONFLICT(server,name) DO UPDATE SET seconds=seconds+?, last_seen=?",
+                      (DB_KEY[key], n, seconds, now, seconds, now))
+        if sample:
+            c.execute("INSERT INTO samples VALUES (?,?,?)", (now, DB_KEY[key], len(names)))
+
+
+class Watcher(threading.Thread):
+    """Every 30 s: who is on (playtime), announcements, server up/down, memory/disk, backups, the weekly post.
+    Runs in its own thread so slow servers never hold up the feeds; posts go through self.out to the main loop."""
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.out = queue.Queue()
+        self.state, self.last_sample, self.last_ad, self.last_line, self.last_alert = {}, {}, {}, {}, {}
+        self.last_backup = None
+
+    def say(self, chan, text):
+        self.out.put((chan, text))
+
+    def advert(self, key, humans):
+        """One random line from announcements-<server>.txt into that server's chat every 65 minutes, only while someone is on."""
+        now = time.time()
+        last = self.last_ad.setdefault(key, now)    # first sight: start the clock, not right after a restart
+        if humans == 0 or now - last < AD_EVERY:
+            return
+        try:
+            lines = [l.strip() for l in open(os.path.join(HERE, "announcements-%s.txt" % DB_KEY[key]), encoding="utf-8")
+                     if l.strip() and not l.startswith("//")]
+        except OSError:
+            return
+        if lines:
+            pick = random.choice([l for l in lines if l != self.last_line.get(key)] or lines)
+            self.last_line[key], self.last_ad[key] = pick, now
+            rcon(key, 'say "[88x31] %s"' % safe_text(pick, 200))
+
+    def weekly(self, now):
+        """Sunday 18:00+ (VPS time): each server's 7-day totals, once a week (a marker file keeps it to one post)."""
+        t = datetime.datetime.fromtimestamp(now)
+        if t.weekday() != 6 or t.hour < 18:
+            return
+        week = t.strftime("%G-W%V")
+        marker = os.path.join(HERE, "weekly-posted.txt")
+        try:
+            done = open(marker).read().split()
+        except OSError:
+            done = []
+        for key, s in ADMIN.items():
+            if "%s:%s" % (week, key) in done:
+                continue
+            try:
+                spec = importlib.util.spec_from_file_location("lb", os.path.join(HERE, "leaderboard.py"))
+                lb = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(lb)
+                rows, people = lb.week_summary(LB_KIND[key], s["logs"], LB_IGNORE)
+            except Exception as e:
+                print("AuraBot: weekly error %s %s" % (key, type(e).__name__), flush=True)
+                continue
+            done.append("%s:%s" % (week, key))
+            with open(marker, "w") as f:
+                f.write("\n".join(done[-40:]))
+            if people:
+                self.say(CHAN[key], "%s%s, this past week%s (%d players)" % (B, s["label"], B, people))
+                for n, v in rows:
+                    self.say(CHAN[key], "%s: %s%s%s" % (n, B, format(v, ","), B))
+
+    def tick(self):
+        for key, s in ADMIN.items():
+            try:
+                names, _ = players(key)
+                up = True
+            except Exception:
+                names, up = None, False
+            if names is not None:
+                now = time.time()
+                sample = now - self.last_sample.get(key, 0) >= 300
+                try:
+                    record_players(key, [n for _, n in names], 30, sample)
+                    if sample:
+                        self.last_sample[key] = now
+                except Exception as e:
+                    print("AuraBot: db error %s" % type(e).__name__, flush=True)
+                try:
+                    self.advert(key, len(names))
+                except Exception as e:
+                    print("AuraBot: announcement error %s" % type(e).__name__, flush=True)
+            st = self.state.setdefault(key, {"up": None, "fails": 0})
+            st["fails"] = 0 if up else st["fails"] + 1
+            if up and st["up"] is False:
+                self.say(CHAN[key], I + "%s is back online" % s["label"] + I)
+            if st["up"] is None:
+                st["up"] = up
+            elif up:
+                st["up"] = True
+            elif st["fails"] >= 3 and st["up"]:           # 90 s of silence, so restarts don't spam
+                st["up"] = False
+                why = "stopped" if not is_active(s["service"]) else "not answering"
+                self.say(CHAN[key], I + "%s went offline (%s)" % (s["label"], why) + I)
+        now = time.time()
+        du = shutil.disk_usage("/")
+        if mem_free_mb() < 300 and now - self.last_alert.get("mem", 0) > 6 * 3600:
+            self.last_alert["mem"] = now
+            self.say(ALERT_CHANNEL, I + "the VPS is low on memory (%d MB free)" % mem_free_mb() + I)
+        if du.used / du.total > 0.90 and now - self.last_alert.get("disk", 0) > 6 * 3600:
+            self.last_alert["disk"] = now
+            self.say(ALERT_CHANNEL, I + "the VPS disk is %d%% full" % (100 * du.used / du.total) + I)
+        self.weekly(now)
+        out = subprocess.run(["systemctl", "show", "vps-backup.service", "-p", "Result", "-p", "ExecMainExitTimestamp"],
+                             capture_output=True, text=True).stdout
+        kv = dict(l.split("=", 1) for l in out.splitlines() if "=" in l)
+        stamp = kv.get("ExecMainExitTimestamp", "")
+        if stamp and stamp != self.last_backup:
+            first = self.last_backup is None
+            self.last_backup = stamp
+            if not first:
+                self.say(ALERT_CHANNEL, I + "the backup finished: %s" % ("ok" if kv.get("Result") == "success" else "FAILED (%s)" % kv.get("Result")) + I)
+
+    def run(self):
+        while True:
+            try:
+                self.tick()
+            except Exception as e:
+                print("AuraBot: watch error %s" % type(e).__name__, flush=True)
+            time.sleep(30)
+
+
 def main():
     global ADMIN_DS
     spec = importlib.util.spec_from_file_location("ds", os.path.join(HERE, "discord-status.py"))
     ADMIN_DS = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(ADMIN_DS)
     feeds = [Feed(*s) for s in SERVERS]
+    watcher = Watcher()
+    watcher.start()
     irc = Irc()
     admin = Admin(irc)
     last_report, posted = time.time(), 0
@@ -721,6 +865,9 @@ def main():
                         for l in lines:
                             irc.say(fd.chan, l)
                             posted += 1
+                while not watcher.out.empty():               # the background jobs' posts
+                    chan, text = watcher.out.get()
+                    irc.say(chan, text)
                 if len(irc.queue) > 60:                     # far behind: drop the oldest
                     dropped = len(irc.queue) - 40
                     irc.queue = irc.queue[dropped:]

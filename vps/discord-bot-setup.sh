@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# RETIRED (Oct 29, 2026): AuraBot (vps/aurabot.py) took over its commands and background jobs; the service is
+# stopped and disabled. Re-running this would turn the Discord bot back on.
 # Installs the Discord control bot (vps/discord-bot.py) as the systemd service "discord-bot", running as user tf2.
 # Run as root. Re-running is safe (it also restarts the bot, which picks up a new script or token).
 # Needs /root/discord-bot.py, /root/discord-status.py and the bot token in /home/tf2/discord/bot.token
