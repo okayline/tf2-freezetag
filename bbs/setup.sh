@@ -320,6 +320,9 @@ X
   sed -i -E 's/(Options\.ScreenRows *= *45;)/\1 Options.VirtualKeyboardVisible = false;/' "$H"
   # desktop (a mouse, not a finger): 30 lines, so the wide screen is not mostly empty rows; phones keep 45
   sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 if (!(window.matchMedia \&\& matchMedia('(pointer:coarse)').matches)) Options.ScreenRows = 30;/" "$H"
+  # phones (40 columns, so each line is twice as tall): as many lines as fit the screen's height (20 to 45), not a fixed 45 that
+  # ran far below the screen. A line is the screen width / 40 wide and 23/12 of that tall (the 12x23 font); 60px for the top bar
+  sed -i -E "s#(Options\.ScreenRows = 30;)#\1 else Options.ScreenRows = Math.max(20, Math.min(45, Math.floor((window.innerHeight - 60) / (window.innerWidth / 40 * 23 / 12))));#" "$H"
   # no scrollback inside the terminal: fTelnet's "modern scrollback" puts old lines above the screen in a box that scrolls, so a
   # phone could get stuck scrolled up with the green SCROLLBACK bar showing. The terminal is now only the screen itself.
   sed -i -E "s/(Options\.VirtualKeyboardVisible = false;)/\1 Options.AllowModernScrollback = false;/" "$H"
