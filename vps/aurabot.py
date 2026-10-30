@@ -19,6 +19,7 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
   when the Discord bot is retired.
 Python standard library only."""
 import hmac
+import json
 import glob
 import importlib.util
 import os
@@ -51,6 +52,7 @@ ADMIN = {
 ALIASES = {"freezetag": "tf2", "l4d": "classic", "l4d-classic": "classic", "l4db": "vs", "versus": "vs", "l4d-vs": "vs",
            "l4dc": "vintage", "l4d-vintage": "vintage"}
 PASS_FILE = os.path.join(HERE, "admin-pass")
+LOGINS_FILE = os.path.join(HERE, "logins.json")   # who is logged in, with their connection's sign-on time (no passwords)
 DB = "/home/tf2/discord/bot.db"   # the Discord bot's log of kicks/bans and playtime; shared, so both bots see one history
 CAMPAIGNS = {"nomercy": ("No Mercy", "hospital01_apartment"), "crashcourse": ("Crash Course", "garage01_alleys"),
              "deathtoll": ("Death Toll", "smalltown01_caves"), "deadair": ("Dead Air", "airport01_greenhouse"),
@@ -345,15 +347,63 @@ def ago(ts):
 
 
 class Admin:
+    """Logins: nickname -> the IRC server's sign-on time of that connection (from WHOIS). Kept in LOGINS_FILE, so a
+    login survives AuraBot restarting: on (re)connect it asks WHOIS again and only keeps a login whose connection has
+    the same sign-on time (the same connection, not someone who took the nickname in between)."""
     def __init__(self, irc):
         self.irc, self.logged_in, self.last_try, self.pending_ban = irc, set(), {}, {}
+        self.signon = {}                       # nickname -> sign-on time, for the logged-in ones (and those being checked)
+        self.checking = {}                     # nickname -> saved sign-on time, waiting for its WHOIS answer
+
+    def save(self):
+        try:
+            with open(LOGINS_FILE + ".tmp", "w") as f:
+                json.dump({n: self.signon[n] for n in self.logged_in if n in self.signon}, f)
+            os.replace(LOGINS_FILE + ".tmp", LOGINS_FILE)
+        except OSError as e:
+            print("AuraBot: could not save logins (%s)" % type(e).__name__, flush=True)
+
+    def restore(self):
+        """On connecting: forget the old connection's logins and load the saved ones to check."""
+        self.logged_in, self.signon = set(), {}
+        try:
+            self.checking = {n: int(s) for n, s in json.load(open(LOGINS_FILE)).items()}
+        except (OSError, ValueError):
+            self.checking = {}
+
+    def check_saved(self):
+        """Once welcomed and joined (after 001): ask WHOIS for each saved login; whois_reply decides."""
+        for n in self.checking:
+            self.irc.raw("WHOIS " + n)
+
+    def whois_reply(self, cmd, args):
+        """317: me nick idle signon :text ; 401/318: no such nick / end of WHOIS."""
+        if cmd == "317" and len(args) >= 4 and args[3].isdigit():
+            n, s = args[1].lower(), int(args[3])
+            if n in self.checking:
+                if self.checking.pop(n) == s and self.irc.shares(n):
+                    self.logged_in.add(n)
+                    self.signon[n] = s
+                    print("AuraBot: %s still logged in (same connection)" % n, flush=True)
+                self.save()
+            elif n in self.logged_in and n not in self.signon:
+                self.signon[n] = s             # a fresh login: remember its connection
+                self.save()
+        elif cmd in ("401", "318") and len(args) >= 2 and args[1].lower() in self.checking:
+            self.checking.pop(args[1].lower())  # gone, or no sign-on time: that login is over
+            self.save()
 
     def forget(self, nicks):
+        changed = False
         for n in nicks:
             if n in self.logged_in:
                 self.logged_in.discard(n)
+                self.signon.pop(n, None)
+                changed = True
                 print("AuraBot: %s logged out (left, quit or renamed)" % n, flush=True)
             self.pending_ban.pop(n, None)
+        if changed:
+            self.save()
 
     def handle(self, nick, text):
         n, text = nick.lower(), text.strip()
@@ -388,6 +438,8 @@ class Admin:
             return self.irc.tell(nick, "Join one of my channels first (like #tf2-freezetag), then log in.")
         if want and hmac.compare_digest(given.strip().encode(), want.encode()):
             self.logged_in.add(n)
+            self.signon.pop(n, None)
+            self.irc.raw("WHOIS " + nick)          # its sign-on time, so the login survives an AuraBot restart
             print("AuraBot: %s logged in" % n, flush=True)
             self.irc.tell(nick, "Logged in. You stay logged in until you quit, leave my channels or change nickname. !help for commands.")
         else:
@@ -409,7 +461,7 @@ class Admin:
             self.irc.tell(nick, l)
 
     def c_logout(self, nick, rest):
-        self.logged_in.discard(nick.lower())
+        self.forget([nick.lower()])
         self.irc.tell(nick, "Logged out.")
 
     def c_status(self, nick, rest):
@@ -641,7 +693,7 @@ def main():
     while True:
         try:
             irc.connect([fd.chan for fd in feeds])
-            admin.logged_in.clear()
+            admin.restore()
             print("AuraBot: connected", flush=True)
             while True:
                 for fd in feeds:
@@ -656,6 +708,9 @@ def main():
                     print("AuraBot: dropped %d queued lines (busy)" % dropped, flush=True)
                 for prefix, cmd, args in irc.pump():
                     admin.forget(irc.track(prefix, cmd, args))
+                    admin.whois_reply(cmd, args)
+                    if cmd == "001":                        # Irc.pump has just sent JOIN; WHOIS answers come after the NAMES
+                        admin.check_saved()
                     # private messages only (target is our own nickname); channel messages are never commands
                     if cmd == "PRIVMSG" and len(args) >= 2 and args[0].lower() == NICK.lower() and "!" in prefix:
                         try:
