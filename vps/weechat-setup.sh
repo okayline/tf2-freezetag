@@ -38,7 +38,8 @@ echo "== settings =="
 # the password goes inside a quoted /set value, in a list of commands split on ";": escape \ " and ;
 P=$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/[;]/\\&/g' /root/weechat-pass)
 S="irc.server.88x31"
-CMDS="/set relay.network.bind_address \"127.0.0.1\";/set relay.network.password \"$P\""
+# ipv6 off: with it on (the default), WeeChat refuses the IPv4 address 127.0.0.1 and the relay never listens
+CMDS="/set relay.network.ipv6 off;/set relay.network.bind_address \"127.0.0.1\";/set relay.network.password \"$P\""
 CMDS="$CMDS;/set relay.network.websocket_allowed_origins \"^https://irc.88x31.app$\";/relay add weechat 9001"
 CMDS="$CMDS;/server add 88x31 127.0.0.1/6667 -notls;/set $S.tls off;/set $S.nicks \"$NICK\";/set $S.username \"$USERNAME\""
 CMDS="$CMDS;/set $S.realname \"$REALNAME\";/set $S.autoconnect on;/set $S.autojoin \"$CHANNELS\";/save;/quit"
