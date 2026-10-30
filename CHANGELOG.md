@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: its own IRC server, v1.07
+**Thu Oct 29, 2026 · 7:45 PM HST** (committed, not pushed)
+
+- **Added:** the BBS's own IRC server: Synchronet's built-in ircd (on by default in `services.ini`, port 6667, not linked to the Synchronet IRC network), named `bbs.88x31.app` (the M:Line in `ctrl/ircd.conf`). The chat section's IRC ([i] chat section, then IRC) now goes to it and joins `#88x31` (modopts `[chat]` `irc_server`, `irc_channel`). Port 6667 opened in the firewall so outside IRC apps can join at bbs.88x31.app:6667. Owner: "BBS comes with a free built in IRC server? Yes Please !!" Footer v1.07.
+- **Removed:** the chat section's IRC going to irc.synchro.net #Synchronet.
 ## BBS: Oblivion/2's menus inside the Default shell, v1.06
 **Thu Oct 29, 2026 · 7:40 PM HST** (committed, not pushed)
 

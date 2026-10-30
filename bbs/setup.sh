@@ -406,7 +406,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.06
+BBS_VERSION=1.07
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -443,6 +443,15 @@ rm -rf $D/webv4/sidebar/002-recent-visitors.xjs* $D/webv4-sidebar-removed
 sed -i -E 's/^(\s*addr\s*=\s*)mybbs\.com/\1bbs.88x31.app/' $D/ctrl/msgs.ini
 sed -i -E 's/^(\s*qwk_id\s*=).*/\1BBS88X31/' $D/ctrl/main.ini
 [ -f $D/ctrl/ircbot.ini ] && sed -i -E 's/^(\s*channels\s*=\s*)#MyBBS/\1#88x31/' $D/ctrl/ircbot.ini
+# our own IRC server: Synchronet's built-in ircd (in services.ini, on by default, port 6667, not linked to any network).
+# Its name is bbs.88x31.app (the M:Line in ircd.conf). The BBS chat section ([i] on the main menu, then IRC) goes to it and joins #88x31;
+# outside IRC apps reach it at bbs.88x31.app port 6667.
+[ -f $D/ctrl/ircd.conf ] && sed -i -E '0,/^M:/s/^M:[^:]*:([^:]*):[^:]*:/M:bbs.88x31.app:\1:88x31 BBS:/' $D/ctrl/ircd.conf
+grep -q '^\[chat\]' $D/ctrl/modopts.ini || printf '\n[chat]\n' >> $D/ctrl/modopts.ini
+for kv in 'irc_server=127.0.0.1 6667' 'irc_channel=#88x31'; do k=${kv%%=*}
+  if grep -qE "^\s*$k\s*=" $D/ctrl/modopts.ini; then sed -i -E "s/^(\s*$k\s*=).*/\1${kv#*=}/" $D/ctrl/modopts.ini
+  else sed -i -E "/^\[chat\]/a\    $kv" $D/ctrl/modopts.ini; fi
+done
 # one place for the name rolling (two words like the games, word lists from scoundrel.exe src/names.js); the new-user script
 # (mods/newuser_prompts.js) and the web page's automatic account (api/passkey.ssjs, action anon) both load it
 mkdir -p $D/mods
@@ -754,5 +763,5 @@ WantedBy=multi-user.target
 S
 systemctl daemon-reload
 systemctl enable sbbs >/dev/null 2>&1
-command -v ufw >/dev/null && ufw status | grep -q active && { ufw allow 23/tcp >/dev/null; ufw allow 8023/tcp >/dev/null; }
+command -v ufw >/dev/null && ufw status | grep -q active && { ufw allow 23/tcp >/dev/null; ufw allow 8023/tcp >/dev/null; ufw allow 6667/tcp >/dev/null; }
 echo "Installed. Start with: systemctl start sbbs   (then: telnet <host> 23, or http://<host>:8023 in a browser)"
