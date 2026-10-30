@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Drugwar door, v1.00
+**Thu Oct 29, 2026 · 2:10 PM HST** (pushed)
+
+- **Added:** Drugwar in the BBS games (`bbs/xtrn/drugwar.js`): the same game, prices, bank and board as dw.88x31.app, played on its server. One Drugwar bank per BBS user, made the first time; VISIT BANK, CODE shows the code and can switch to another bank (one from the web site). One screen shows the money, the prices and your coat at once, with letter keys: [B]UY, [S]ELL, [J]ET, [L]OAN SHARK, [V]ISIT BANK, [Q]UIT (owner picked this layout over a PC-style one). Needs Drugwar v2.3.0, which gives each BBS user their own limits. Footer v1.00.
+- **Removed:** nothing. Left out of the original menu: SEE PRICES and TRENCHCOAT (always on screen now).
+
 ## BBS: scoundrel.exe door taken off for now, v0.99
 **Thu Oct 29, 2026 · 1:15 PM HST** (not pushed)
 

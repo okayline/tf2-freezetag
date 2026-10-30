@@ -84,6 +84,24 @@ fi
 awk '/^\[/{skip = (tolower($0) ~ /^\[prog:[a-z]+[.:]scoundrel\]/)} !skip' $X > $X.new && cat $X.new > $X && rm -f $X.new   # cat keeps the file's owner
 rm -rf $D/xtrn/scoundrel
 
+# Drugwar door: the game from dw.88x31.app, played in the BBS (bbs/xtrn/drugwar.js); one Drugwar bank per BBS user
+mkdir -p $D/xtrn/drugwar $D/data/drugwar
+cp "$HERE/xtrn/drugwar.js" $D/xtrn/drugwar/drugwar.js 2>/dev/null || echo "drugwar door: not copied (run setup.sh from the repo's bbs folder)"
+if ! grep -qi '^\[prog:.*DRUGWAR\]' $X; then
+  SEC=GAMES; grep -q '^\[sec:GAMES\]' $X || SEC=MAIN
+  cat >> $X <<X
+
+[prog:$SEC:DRUGWAR]
+	name = Drugwar
+	cmd = ?$D/xtrn/drugwar/drugwar.js
+	settings = $(( $(flag XTRN_MULTIUSER) ))
+	type = 0
+	event = 0
+	ars =
+X
+  echo "drugwar door added to section $SEC"
+fi
+
 # no Bulletins screen at logon: BullsEye stays in the programs menu, but is no longer a logon event (event 1 -> 0)
 python3 - $X <<'PY4'
 import re,sys
@@ -348,7 +366,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=0.99
+BBS_VERSION=1.00
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
