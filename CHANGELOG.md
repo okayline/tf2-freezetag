@@ -2,6 +2,15 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: 40 columns on phones, 80 on PCs, v1.17
+**Fri Oct 30, 2026 · 12:25 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
+
+- **Changed:** on the web terminal, phones (a finger, not a mouse: the same `pointer:coarse` check as the 45/30 lines) get 40 columns, so letters are twice as big; PCs keep 80. Telnet and SyncTERM are unchanged. Owner: "is it possible to have 80 column view on PC and 40 column view on mobile", then "yeah, just for the phone layout please!" Footer v1.17.
+- **Changed:** `bbs/menu/main.40col.msg` is now Oblivion's a b c main menu in two columns (it was the old Default menu, with keys that no longer worked since v1.06).
+- **Added:** two-column 40-column screens for the sub-menus: `obvmsg.40col.msg`, `obvmail.40col.msg`, `obvfiles.40col.msg`, `obvquick.40col.msg`. Same keys and order as the 80-column ones; five labels shortened to fit (continuous scan, view sent mail, extended list, sysop want list, newscan msgs).
+- **Not done:** the door games (Drug Wars, Scoundrel, NANO PITCH) still draw 80 wide and will wrap on a phone; the Get Info and Your statistics screens have no 40-column versions.
+- **Removed:** nothing.
+
 ## L4D: the round goes on when the last human survivor leaves
 **Fri Oct 30, 2026 · 12:10 AM HST** (committed, not pushed; goes live on the next l4d-deploy of each server)
 

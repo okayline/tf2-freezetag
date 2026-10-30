@@ -1,19 +1,15 @@
-@TRUNCATE@N@CLS@HG@BBS-C39@
-WÚÄNÄÄÄÄÄÄÄÄÄ¿
-³H B@MessagesNoun@W N³
-ÀÄÄÄÄÄÄÄÄÄHÄÙ
- B[CNB]ew @MessageNoun@ scan [C&B]N HBconfig/reset
- [CJB]ump to a @MessageNoun@ @Area@
- [CRB]ead @MessagesNoun@
- [CPB]ost a @MessageNoun@
- [CFB]ind @Text@ in @MessagesNoun@
- [CSB]can for @MessagesNoun@ to you
- [CEB]mail
-NHC@Main@ @MenuNoun@
-WÚÄNÄÄÄÄÄÄ¿…HM~~~~~~~~~NƒHBGet [CIB]nfo
-N³H BGo ToW N³’HBLog [COB]ff
-NÀÄÄÄÄÄÄHÄÙ
-HB [CCB]hat @Section@N @POS:27@@SYSONLY@HBSysop [C!B]menuN@SYSONLY@
-HB [CXB]ternal programs
- [CDB]isplay/change your configuration
-Z
+@TRUNCATE@@INCLUDE:%zmenu/head.msg@hc@HOT@n
+ bşhş wMain Menu
+@POS:2@nhcan  wauto-msg@POS:21@nhcpn  wopen doors
+@POS:2@nhcbn  wbbs list@POS:21@nhcqn  wquickie menu
+@POS:2@nhccn  wpage sysop@POS:21@nhcsn  wsystem info
+@POS:2@nhcdn  wdaily log@POS:21@nhctn  wfiles section
+@POS:2@nhcen  wemail@POS:21@nhcun  wtime bank
+@POS:2@nhcfn  wfeedback@POS:21@nhcwn  wrecent calls
+@POS:2@nhcgn  wlogoff@POS:21@nhcxn  wexpert mode
+@POS:2@nhchn  wwho's online@POS:21@nhcyn  wuser info
+@POS:2@nhcin  wchat section@POS:21@nhczn  wreset msg pts
+@POS:2@nhckn  wuser config@POS:21@nhc+n  wchange pw
+@POS:2@nhcln  wuser list@POS:21@nhc/gn wfast logoff
+@POS:2@nhcmn  wmessages
+@HOT:OFF@@INCLUDE:%zmenu/tail.msg@
