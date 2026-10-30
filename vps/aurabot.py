@@ -14,13 +14,19 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
   The login belongs to that nickname only while it shares a channel with AuraBot: when it quits, leaves every shared
   channel or changes nickname, it is logged out, so nobody can take over a logged-in nickname. Wrong passwords are
   slowed down (one try every 10 seconds) and written to the journal. "!help" lists the commands.
+- Uses what the Discord bot set up: its sudo rules (/etc/sudoers.d/discord-bot, from discord-bot-setup.sh) for
+  start/stop/restart/pause/resume, and its database (/home/tf2/discord/bot.db) for !history and !seen. Keep both
+  when the Discord bot is retired.
 Python standard library only."""
 import hmac
 import glob
 import importlib.util
 import os
 import re
+import shutil
 import socket
+import sqlite3
+import subprocess
 import sys
 import time
 
@@ -37,14 +43,19 @@ SERVERS = [
 B, I = "\x02", "\x1d"   # IRC bold, italic
 # admin: key -> label, game, RCON port, server.cfg (for the RCON password), log folder (same servers as discord-bot.py)
 ADMIN = {
-    "tf2":     dict(label="TF2 Freeze Tag", game="tf2", port=27015, cfg="/home/tf2/server/tf/cfg/server.cfg", logs="/home/tf2/server/tf/logs"),
-    "classic": dict(label="cLaSSiC", game="l4d", port=27016, cfg="/home/tf2/l4d/left4dead/cfg/server.cfg", logs="/home/tf2/l4d/left4dead/logs"),
-    "vs":      dict(label="VeRsUs", game="l4d", port=27017, cfg="/home/tf2/l4d-b/left4dead/cfg/server.cfg", logs="/home/tf2/l4d-b/left4dead/logs"),
-    "vintage": dict(label="ViNtaGe", game="l4d", port=27018, cfg="/home/tf2/l4d-c/left4dead/cfg/server.cfg", logs="/home/tf2/l4d-c/left4dead/logs"),
+    "tf2":     dict(label="TF2 Freeze Tag", game="tf2", service="tf2", port=27015, cfg="/home/tf2/server/tf/cfg/server.cfg", logs="/home/tf2/server/tf/logs"),
+    "classic": dict(label="cLaSSiC", game="l4d", service="l4d", port=27016, cfg="/home/tf2/l4d/left4dead/cfg/server.cfg", logs="/home/tf2/l4d/left4dead/logs"),
+    "vs":      dict(label="VeRsUs", game="l4d", service="l4db", vs=True, port=27017, cfg="/home/tf2/l4d-b/left4dead/cfg/server.cfg", logs="/home/tf2/l4d-b/left4dead/logs"),
+    "vintage": dict(label="ViNtaGe", game="l4d", service="l4dc", port=27018, cfg="/home/tf2/l4d-c/left4dead/cfg/server.cfg", logs="/home/tf2/l4d-c/left4dead/logs"),
 }
 ALIASES = {"freezetag": "tf2", "l4d": "classic", "l4d-classic": "classic", "l4db": "vs", "versus": "vs", "l4d-vs": "vs",
            "l4dc": "vintage", "l4d-vintage": "vintage"}
 PASS_FILE = os.path.join(HERE, "admin-pass")
+DB = "/home/tf2/discord/bot.db"   # the Discord bot's log of kicks/bans and playtime; shared, so both bots see one history
+CAMPAIGNS = {"nomercy": ("No Mercy", "hospital01_apartment"), "crashcourse": ("Crash Course", "garage01_alleys"),
+             "deathtoll": ("Death Toll", "smalltown01_caves"), "deadair": ("Dead Air", "airport01_greenhouse"),
+             "bloodharvest": ("Blood Harvest", "farm01_hilltop"), "sacrifice": ("The Sacrifice", "river01_docks")}
+DIFFICULTIES = ["Easy", "Normal", "Hard", "Impossible"]
 NOISE = re.compile(r'rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b'
                    r'|server cvars (start|end)|^\S+ "[^"]+" = "[^"]*"\s*$|^L \d+/\d+/\d+ - \d+:\d+:\d+: "[^"]+" = "[^"]*"\s*$'
                    r'|NAV_MOB_ONLY|Computing Flow Distances|Preventing spawning')
@@ -58,6 +69,15 @@ HELP = [
     "!map tf2 <map>  change the TF2 map",
     "!restartround <server>  restart the round (TF2) or the chapter (L4D)",
     "!logs <server> [lines] [filter]  last log lines, IPs and Steam IDs removed (up to 25)",
+    "!start / !stop / !restart <server>  the server itself (stop and restart ask for !yes)",
+    "!pause <server>  stop it and keep it off after reboots (asks for !yes); !resume <server> undoes it",
+    "!campaign <server> <name>  L4D from chapter 1: nomercy, crashcourse, deathtoll, deadair, bloodharvest, sacrifice",
+    "!difficulty <server> <easy|normal|hard|impossible>  L4D, this game only",
+    "!bots <0-24>  TF2 bots (0 = none, until the next restart)",
+    "!scramble  scramble the TF2 teams",
+    "!health  memory, disk, load, which servers are on",
+    "!history  the last 10 kicks and bans (Discord and IRC)",
+    "!seen <server> <name>  last seen and total playtime",
     "!logout",
 ]
 
@@ -283,6 +303,47 @@ def find_player(key, part):
     return None, "More than one match: %s. Type more of the name." % ", ".join(n for _, n in hits[:6])
 
 
+def sudo(*args):
+    """Only the exact systemctl commands allowed for the tf2 user in /etc/sudoers.d/discord-bot."""
+    r = subprocess.run(["sudo", "-n", "/usr/bin/systemctl", *args], capture_output=True, text=True, timeout=60)
+    return r.returncode == 0, (r.stderr or r.stdout).strip()[-200:]
+
+
+def is_active(service):
+    return subprocess.run(["systemctl", "is-active", "--quiet", service]).returncode == 0
+
+
+def mem_free_mb():
+    for line in open("/proc/meminfo"):
+        if line.startswith("MemAvailable"):
+            return int(line.split()[1]) // 1024
+    return 0
+
+
+def db():
+    return sqlite3.connect(DB, timeout=10)
+
+
+def log_action(key, by, what, target, reason=""):
+    """Into the Discord bot's moderation log, so !history and /history show the same list."""
+    try:
+        with db() as c:
+            c.execute("INSERT INTO actions VALUES (?,?,?,?,?,?)", (int(time.time()), DB_KEY[key], by + " (IRC)", what, target, reason))
+    except Exception as e:
+        print("AuraBot: db error %s" % type(e).__name__, flush=True)
+
+
+DB_KEY = {"tf2": "tf2", "classic": "l4d", "vs": "l4db", "vintage": "l4dc"}   # the Discord bot's names for the servers
+
+
+def ago(ts):
+    s = int(time.time() - ts)
+    for n, unit in ((86400, "day"), (3600, "hour"), (60, "minute")):
+        if s >= n:
+            return "%d %s%s ago" % (s // n, unit, "s" if s // n != 1 else "")
+    return "just now"
+
+
 class Admin:
     def __init__(self, irc):
         self.irc, self.logged_in, self.last_try, self.pending_ban = irc, set(), {}, {}
@@ -382,6 +443,7 @@ class Admin:
         if err:
             return self.irc.tell(nick, err)
         rcon(k, 'kickid %s "kicked by an admin"' % hit[0])
+        log_action(k, nick, "kick", hit[1], "kicked by an admin")
         print("AuraBot: kick on %s" % k, flush=True)
         self.irc.tell(nick, "Kicked %s from %s." % (hit[1], ADMIN[k]["label"]))
 
@@ -393,17 +455,22 @@ class Admin:
         hit, err = find_player(k, name.strip())
         if err:
             return self.irc.tell(nick, err)
-        self.pending_ban[nick.lower()] = (k, hit, time.time())
-        self.irc.tell(nick, "Permanently ban %s from %s? Type !yes within 30 seconds." % (hit[1], ADMIN[k]["label"]))
+        def do():
+            rcon(k, 'sm_ban #%s 0 "banned by an admin"' % hit[0])
+            log_action(k, nick, "ban", hit[1], "banned by an admin")
+            print("AuraBot: ban on %s" % k, flush=True)
+            self.irc.tell(nick, "Banned %s from %s." % (hit[1], ADMIN[k]["label"]))
+        self.ask(nick, "Permanently ban %s from %s?" % (hit[1], ADMIN[k]["label"]), do)
+
+    def ask(self, nick, question, do):
+        self.pending_ban[nick.lower()] = (do, time.time())
+        self.irc.tell(nick, question + " Type !yes within 30 seconds.")
 
     def c_yes(self, nick, rest):
         p = self.pending_ban.pop(nick.lower(), None)
-        if not p or time.time() - p[2] > 30:
+        if not p or time.time() - p[1] > 30:
             return self.irc.tell(nick, "Nothing waiting for a yes.")
-        k, hit, _ = p
-        rcon(k, 'sm_ban #%s 0 "banned by an admin"' % hit[0])
-        print("AuraBot: ban on %s" % k, flush=True)
-        self.irc.tell(nick, "Banned %s from %s." % (hit[1], ADMIN[k]["label"]))
+        p[0]()
 
     def c_map(self, nick, rest):
         word, _, mp = rest.partition(" ")
@@ -453,6 +520,113 @@ class Admin:
                 break
         for r in rows[-n:] or ["(nothing in the recent logs)"]:
             self.irc.tell(nick, r[:300])
+
+
+    # ----- the server itself (systemctl through the sudo rules) -----
+    def service(self, nick, rest, verb, past, question=None):
+        k = self.server(nick, rest.split(" ")[0])
+        if not k:
+            return
+        s = ADMIN[k]
+
+        def do():
+            if verb in ("start", "enable") and mem_free_mb() < 900:
+                return self.irc.tell(nick, "Only %d MB of memory is free, not starting (pause something first)." % mem_free_mb())
+            args = {"start": ["start"], "stop": ["stop"], "restart": ["restart"], "pause": ["disable", "--now"],
+                    "enable": ["enable", "--now"]}[verb]
+            self.irc.tell(nick, "Working...")
+            ok, err = sudo(*args, s["service"])
+            print("AuraBot: %s %s: %s" % (verb, k, "ok" if ok else "failed"), flush=True)
+            self.irc.tell(nick, "%s %s." % (past.capitalize(), s["label"]) if ok else "Didn't work: %s" % err)
+        if question:
+            self.ask(nick, question % s["label"], do)
+        else:
+            do()
+
+    def c_start(self, nick, rest):
+        self.service(nick, rest, "start", "started")
+
+    def c_stop(self, nick, rest):
+        self.service(nick, rest, "stop", "stopped", "Stop %s? (It starts again on a VPS reboot.)")
+
+    def c_restart(self, nick, rest):
+        self.service(nick, rest, "restart", "restarted", "Restart %s? Players will be dropped.")
+
+    def c_pause(self, nick, rest):
+        self.service(nick, rest, "pause", "paused", "Pause %s? It stays off, even after reboots, until !resume.")
+
+    def c_resume(self, nick, rest):
+        self.service(nick, rest, "enable", "resumed")
+
+    # ----- game settings -----
+    def c_campaign(self, nick, rest):
+        word, _, name = rest.partition(" ")
+        k = self.server(nick, word)
+        if not k:
+            return
+        key = re.sub(r"[^a-z]", "", name.lower())
+        c = CAMPAIGNS.get(key[3:] if key.startswith("the") else key)
+        if ADMIN[k]["game"] != "l4d" or not c:
+            return self.irc.tell(nick, "!campaign <classic|vs|vintage> <" + "|".join(CAMPAIGNS) + ">")
+        rcon(k, "changelevel " + ("l4d_vs_" if ADMIN[k].get("vs") else "l4d_") + c[1])
+        self.irc.tell(nick, "Starting %s on %s." % (c[0], ADMIN[k]["label"]))
+
+    def c_difficulty(self, nick, rest):
+        word, _, level = rest.partition(" ")
+        k = self.server(nick, word)
+        if not k:
+            return
+        level = level.strip().capitalize()
+        if ADMIN[k]["game"] != "l4d" or level not in DIFFICULTIES:
+            return self.irc.tell(nick, "!difficulty <classic|vs|vintage> <easy|normal|hard|impossible>")
+        rcon(k, "z_difficulty " + level)
+        self.irc.tell(nick, "%s is on %s (this game only)." % (ADMIN[k]["label"], level))
+
+    def c_bots(self, nick, rest):
+        n = rest.split(" ")[-1]
+        if not n.isdigit() or int(n) > 24:
+            return self.irc.tell(nick, "!bots <0-24>")
+        rcon("tf2", "tf_bot_quota %d" % int(n))
+        if int(n) == 0:
+            rcon("tf2", "tf_bot_kick all")
+        self.irc.tell(nick, "TF2 bots set to %d (until the next restart)." % int(n))
+
+    def c_scramble(self, nick, rest):
+        rcon("tf2", "mp_scrambleteams 1")
+        self.irc.tell(nick, "Scrambled the TF2 teams.")
+
+    # ----- looking things up -----
+    def c_health(self, nick, rest):
+        du = shutil.disk_usage("/")
+        load = " ".join(open("/proc/loadavg").read().split()[:3])
+        up = float(open("/proc/uptime").read().split()[0]) / 86400
+        self.irc.tell(nick, "Memory free: %d MB · Disk: %d GB free of %d GB · Load: %s · VPS up %.1f days"
+                      % (mem_free_mb(), du.free // 2**30, du.total // 2**30, load, up))
+        self.irc.tell(nick, ", ".join("%s %s" % (s["label"], "on" if is_active(s["service"]) else "off") for s in ADMIN.values()))
+
+    def c_history(self, nick, rest):
+        with db() as c:
+            rows = c.execute("SELECT at, server, by, what, target FROM actions ORDER BY at DESC LIMIT 10").fetchall()
+        names = {v: ADMIN[k]["label"] for k, v in DB_KEY.items()}
+        for at, sv, by, what, target in rows or []:
+            self.irc.tell(nick, "%s: %s %s %s on %s" % (ago(at), by, what, target, names.get(sv, sv)))
+        if not rows:
+            self.irc.tell(nick, "Nothing logged yet.")
+
+    def c_seen(self, nick, rest):
+        word, _, name = rest.partition(" ")
+        k = self.server(nick, word)
+        if not k:
+            return
+        if not name.strip():
+            return self.irc.tell(nick, "!seen <server> <part of a name>")
+        with db() as c:
+            rows = c.execute("SELECT name, seconds, last_seen FROM playtime WHERE server=? AND name LIKE ? ORDER BY last_seen DESC LIMIT 5",
+                             (DB_KEY[k], "%" + name.strip().replace("%", "").replace("_", "") + "%")).fetchall()
+        for n, sec, ls in rows:
+            self.irc.tell(nick, "%s: last seen %s, %.1f hours total" % (n, ago(ls), sec / 3600))
+        if not rows:
+            self.irc.tell(nick, "Nobody by that name on %s yet." % ADMIN[k]["label"])
 
 
 def main():
