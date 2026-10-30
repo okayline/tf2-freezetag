@@ -1,7 +1,7 @@
 // Drugwar in the 88x31 BBS: the same game, bank, prices and board as dw.88x31.app.
 // The game runs on Drugwar's server (rules, prices and dice); this door only draws it and sends the moves.
 // Who you are: a Drugwar bank (an 8-digit code) made for this BBS user the first time and kept in
-// data/drugwar/<user number>.code. VISIT BANK, CODE shows it, and can switch to another bank (one from the web site).
+// data/drugwar/<user number>.code (the shared Guest account gets a new bank each visit, not kept). VISIT BANK, CODE shows it, and can switch to another bank (one from the web site).
 // Every request sends the BBS user number with the shared accounts key, so the server counts its limits (new banks,
 // runs, moves) for each BBS user instead of for the BBS's one internet address.
 // (made by bbs/setup.sh from the repo's bbs/xtrn/drugwar.js; do not edit here)
@@ -47,12 +47,14 @@ function post(path, body) {
 }
 
 // this BBS user's bank code: kept from last time, or a new bank
+// the BBS's one shared Guest account (telnet): a bank just for this visit, never kept, so guests don't share a game
+var GUEST = (typeof UFLAG_G !== 'undefined' && (user.security.restrictions & UFLAG_G)) || String(user.alias).toLowerCase() === 'guest';
 function codeFile() { return new File(DIR + user.number + '.code'); }
-function saveCode(c) { mkpath(DIR); var f = codeFile(); if (f.open('w')) { f.write(c); f.close(); } }
+function saveCode(c) { if (GUEST) return; mkpath(DIR); var f = codeFile(); if (f.open('w')) { f.write(c); f.close(); } }
 var CODE = null, NAME = '';
 function loadBank() {
 	var f = codeFile(), c = '';
-	if (f.exists && f.open('r')) { c = f.read().replace(/\s+$/, ''); f.close(); }
+	if (!GUEST && f.exists && f.open('r')) { c = f.read().replace(/\s+$/, ''); f.close(); }
 	var r = c ? get('/api/bank?code=' + c) : null;
 	if (!r || r._code == 404) {   // no code yet, or the bank is gone: a new one
 		r = post('/api/bank/new', {});

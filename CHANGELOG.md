@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: telnet Guest gets a Drugwar bank just for the visit, v1.02
+**Thu Oct 29, 2026 · 2:20 PM HST** (committed, not pushed)
+
+- **Changed:** in the Drugwar door, the BBS's one shared Guest account (telnet) gets a new bank each visit, never kept, so telnet guests don't share a game. Web visitors are unaffected (each has their own BBS user; read live: 7 users, only `Guest` has the guest flag). Owner: "okay yeah add that please !" (after choosing to keep the telnet Guest account). Footer v1.02.
+- **Removed:** one Drugwar bank shared by every telnet guest.
+
 ## BBS: Drugwar header shows the BBS name, v1.01
 **Thu Oct 29, 2026 · 2:16 PM HST** (committed, not pushed)
 
