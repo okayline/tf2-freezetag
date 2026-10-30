@@ -53,7 +53,7 @@ SERVERS = [
     ("#l4d-vintage", "~*~88x31~*~ L4D ViNtaGe Edition", "/home/tf2/l4d-c/left4dead/logs", "l4d"),
 ]
 B, I = "\x02", "\x1d"   # IRC bold, italic
-# admin: key -> label, game, RCON port, server.cfg (for the RCON password), log folder (same servers as discord-bot.py)
+# admin: key -> label, game, service, RCON port, server.cfg (for the RCON password), log folder
 ADMIN = {
     "tf2":     dict(label="TF2 Freeze Tag", game="tf2", service="tf2", port=27015, cfg="/home/tf2/server/tf/cfg/server.cfg", logs="/home/tf2/server/tf/logs"),
     "classic": dict(label="cLaSSiC", game="l4d", service="l4d", port=27016, cfg="/home/tf2/l4d/left4dead/cfg/server.cfg", logs="/home/tf2/l4d/left4dead/logs"),

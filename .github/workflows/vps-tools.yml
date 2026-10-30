@@ -12,7 +12,6 @@ name: VPS tools (manual only)
 #   generate-navs    builds bot navigation (.nav) files for the maps in the box (stops tf2, runs a temporary server per map, starts tf2 again; progress in /home/tf2/navgen.log, read it with run: tail -n 50 /home/tf2/navgen.log)
 #   install-maps     downloads maps from fastdl.serveme.tf into the TF2 maps folder (map names in the box, separated by spaces, like koth_coldline cp_glacier)
 #   system-check     OS, uptime, load, memory, disk, listening ports, firewall
-#   discord          Discord jobs: status (status timer), feed (live TF2 feed), urls (copies the Discord secrets), l4d-feed-channel, relay (sp-discordrelay for TF2), relay-l4d, bot (control bot), bot-status.
 #   web              Web jobs: stats (public stats page), logs (password-protected log page; box: its password), https (Caddy on ports 80/443).
 #   mc               Minecraft jobs. The box starts with the job: setup, set, motd, discord-install, discord-format, bluemap-install, plugin-install, bluemap-render, import; the rest of the box is that job's own text (for example "set ..." or "plugin <modrinth name>"). Details are in the comments of each job in the workflow.
 #   leaderboard      Welcome-page stats board: install (box after the job: tf2, l4d, l4dvs, l4dc or all, then optional days, like "install tf2 5"), ignore (box after the job: a Steam ID to leave out of the boards).
@@ -30,7 +29,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, discord, web, motd, l4d-sessions, leaderboard, tf2-gslt, mc, backup, vintage]
+        options: [run, l4d-deploy, ban-player, tf2-prune-maps, setup, status, system-check, l4d-setup, add-admin, install-maps, generate-navs, web, motd, l4d-sessions, leaderboard, tf2-gslt, mc, backup, vintage]
       command:
         description: "command: a TF2 console command (command action), or the text to run as root (run action)."
         required: false
@@ -53,14 +52,9 @@ jobs:
       AURABOT_PASS: ${{ secrets.AURABOT_PASS }}
       DOVE_PASS: ${{ secrets.DOVE_PASS }}
       ACCOUNTS_KEY: ${{ secrets.ACCOUNTS_KEY }}
-      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
       PCLOUD_RCLONE_TOKEN: ${{ secrets.PCLOUD_RCLONE_TOKEN }}
       PCLOUD_HOST: ${{ secrets.PCLOUD_HOST }}
       RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
-      DISCORD_L4DB_STATUS_URL: ${{ secrets.DISCORD_L4DB_STATUS_URL }}
-      DISCORD_L4DB_FEED_URL: ${{ secrets.DISCORD_L4DB_FEED_URL }}
-      DISCORD_L4DC_STATUS_URL: ${{ secrets.DISCORD_L4DC_STATUS_URL }}
-      DISCORD_L4DC_FEED_URL: ${{ secrets.DISCORD_L4DC_FEED_URL }}
     steps:
       - uses: actions/checkout@v4
       - name: Run
@@ -180,40 +174,6 @@ jobs:
               scp $SSHO vps/Caddyfile vps/logweb.py vps/logweb-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
                 && vps 'bash /root/logweb-setup.sh 2>&1 | tail -n 3; command -v caddy >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq caddy >/dev/null; caddy version | head -1; install -m 644 /root/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile 2>&1 | tail -n 2; systemctl enable caddy >/dev/null 2>&1; systemctl restart caddy; sleep 20; systemctl is-active caddy; journalctl -u caddy -n 40 --no-pager -o cat | grep -iE "certificate obtained|error|could not" | tail -n 6; curl -s -o /dev/null -w "map via caddy: HTTP %{http_code}\n" --resolve map.88x31.app:443:127.0.0.1 https://map.88x31.app/; curl -s -o /dev/null -w "logs on port 80: HTTP %{http_code}\n" http://127.0.0.1/' 2>&1 | tail -c 2500 >> "$R" ;;
                 *) echo "Box: one of: stats logs https" >> "$R" ;;
-              esac ;;
-            discord)
-              # box: the job, then its own text. Jobs: status, feed, urls, l4d-feed-channel, relay, relay-l4d, bot, bot-status.
-              SUB=${COMMAND%% *}; COMMAND=${COMMAND#"$SUB"}; COMMAND=${COMMAND# }
-              case "$SUB" in
-              status)
-              scp $SSHO vps/discord-status.py "$VPS_USER@$VPS_HOST:/root/discord-status.py" >> "$R" 2>&1 \
-                && scp $SSHO vps/discord-status-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-status-setup.sh" >> "$R" 2>&1 \
-                && vps "bash /root/discord-status-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-              feed)
-              scp $SSHO vps/discord-feed.py vps/discord-feed-l4d.py "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                && scp $SSHO vps/discord-feed-setup.sh "$VPS_USER@$VPS_HOST:/root/discord-feed-setup.sh" >> "$R" 2>&1 \
-                && vps "bash /root/discord-feed-setup.sh" 2>&1 | tail -c 2500 >> "$R" ;;
-              relay)
-              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
-                && vps "bash /root/install-discordrelay.sh" 2>&1 | tail -c 2800 >> "$R" ;;
-              relay-l4d)
-              scp $SSHO vps/install-discordrelay.sh "$VPS_USER@$VPS_HOST:/root/install-discordrelay.sh" >> "$R" 2>&1 \
-                && vps "bash /root/install-discordrelay.sh /home/tf2/l4d/left4dead" 2>&1 | tail -c 2800 >> "$R" ;;
-              l4d-feed-channel)
-              vps 'D=/home/tf2/discord; [ -s $D/l4d.url ] || { echo "no l4d.url on the VPS"; exit 0; }; install -o tf2 -g tf2 -m 600 $D/l4d.url $D/l4d-feed.url; systemctl enable discord-feed-l4d.service >/dev/null 2>&1; systemctl restart discord-feed-l4d.service; sleep 3; systemctl is-active discord-feed-l4d.service; journalctl -u discord-feed-l4d.service -n 5 --no-pager -o cat' 2>&1 | tail -c 1500 >> "$R" ;;
-              urls)
-              put() { if [ -n "$2" ]; then printf '%s\n' "$2" | vps "umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/$1; chown tf2:tf2 /home/tf2/discord/$1 /home/tf2/discord; chmod 700 /home/tf2/discord" >> "$R" 2>&1 && echo "$1: written" >> "$R"; else echo "$1: secret not set, skipped" >> "$R"; fi; }
-              put l4db.url "$DISCORD_L4DB_STATUS_URL"; put l4db-feed.url "$DISCORD_L4DB_FEED_URL"
-              put l4dc.url "$DISCORD_L4DC_STATUS_URL"; put l4dc-feed.url "$DISCORD_L4DC_FEED_URL" ;;
-              bot)
-              if [ -z "$DISCORD_BOT_TOKEN" ]; then echo "Add repo secret DISCORD_BOT_TOKEN first." >> "$R"
-              else
-                printf '%s' "$DISCORD_BOT_TOKEN" | vps 'umask 077; mkdir -p /home/tf2/discord; cat > /home/tf2/discord/bot.token; chown tf2:tf2 /home/tf2/discord /home/tf2/discord/bot.token; chmod 700 /home/tf2/discord'
-                scp $SSHO vps/discord-bot.py vps/discord-status.py vps/leaderboard.py vps/announcements-*.txt vps/discord-bot-setup.sh "$VPS_USER@$VPS_HOST:/root/" >> "$R" 2>&1 \
-                  && vps 'bash /root/discord-bot-setup.sh' 2>&1 | tail -c 2000 >> "$R"
-              fi ;;
-              bot-status) vps 'systemctl is-active discord-bot; journalctl -u discord-bot -n 25 --no-pager -o cat | sed -E "s/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}/(token)/g"' 2>&1 | tail -c 2500 >> "$R" ;;
-                *) echo "Box: one of: status feed urls l4d-feed-channel relay relay-l4d bot bot-status" >> "$R" ;;
               esac ;;
             vintage)
               # box: the job, then its own text. Jobs: private, public, unlock.
