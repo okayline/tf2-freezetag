@@ -192,27 +192,34 @@ try{var K='bbs88x31key',st=new XMLHttpRequest();st.open('GET','./api/passkey.ssj
 <script>/* 88x31: tap or click a menu letter, or any word of its item, to press that key: the terminal reads the tapped cell and sends the key (made by bbs/setup.sh; do not edit) */
 (function(){
 function tapKey(row, x) {
-	// row: one screen row as [{ch, fg}] (0-based); x: the tapped cell. Returns the key letter to press, or null.
-	var SIDE_L = ' [(<\xB3\xBA|\u2502\u2551', SIDE_R = ' ])>:.\xB3\xBA|\u2502\u2551';
-	function isKey(i) {
-		var c = row[i];
-		if (!c || c.fg < 8 || !/^[A-Za-z0-9&!?*#]$/.test(c.ch)) return false;
-		var l = i > 0 ? row[i - 1].ch : ' ', r = i < row.length - 1 ? row[i + 1].ch : ' ';
-		return SIDE_L.indexOf(l) >= 0 && SIDE_R.indexOf(r) >= 0;
+	// row: one screen row as [{ch, fg}] (0-based); x: the tapped cell. Returns the key to press (one or two characters:
+	// a "/" key like /g sends both), or null.
+	var SIDE_L = ' [(<\xB3\xBA|│║', SIDE_R = ' ])>:.\xB3\xBA|│║', KEYCH = /^[A-Za-z0-9&!?*#+\-<>]$/;
+	function bright(i) { return row[i] && row[i].fg >= 8; }
+	function side(i, set) { return set.indexOf(i >= 0 && i < row.length ? row[i].ch : ' ') >= 0; }
+	function keyAt(i) {
+		if (!bright(i)) return null;
+		var ch = row[i].ch;
+		// "/g": a bright slash right before a key character, tapped on either one
+		if (ch === '/' && bright(i + 1) && KEYCH.test(row[i + 1].ch) && side(i - 1, SIDE_L) && side(i + 2, SIDE_R)) return '/' + row[i + 1].ch;
+		if (!KEYCH.test(ch)) return null;
+		if (i > 0 && row[i - 1].ch === '/' && bright(i - 1) && side(i - 2, SIDE_L) && side(i + 1, SIDE_R)) return '/' + ch;
+		return side(i - 1, SIDE_L) && side(i + 1, SIDE_R) ? ch : null;
 	}
+	function isKey(i) { return !!keyAt(i); }
 	var BOX = '\xDA\xC0\xBF\xD9\xC4┌└┐┘─';
 	// 1. the key of the item tapped: look left from the tap (the words after a key), then right (the words before one, like "Get" in "Get [I]nfo")
 	var spaces = 0, i, ch;
 	for (i = x; i >= 0 && x - i < 40; i--) {
 		ch = row[i].ch;
-		if (isKey(i)) return ch;
+		if (isKey(i)) return keyAt(i);
 		if (BOX.indexOf(ch) >= 0) break;
 		if (ch === ' ') { if (++spaces >= 3) break; } else spaces = 0;
 	}
 	spaces = 0;
 	for (i = x + 1; i < row.length && i - x < 40; i++) {
 		ch = row[i].ch;
-		if (isKey(i)) return ch;
+		if (isKey(i)) return keyAt(i);
 		if (BOX.indexOf(ch) >= 0) break;
 		if (ch === ' ') { if (++spaces >= 2) break; } else spaces = 0;
 	}
@@ -278,7 +285,7 @@ function tapKey(row, x) {
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
 			var k = tapKey(row, x);
-			if (k) C.PushKeyPress(k.charCodeAt(0), 0, false, false, false);
+			if (k) for (var n = 0; n < k.length; n++) C.PushKeyPress(k.charCodeAt(n), 0, false, false, false);
 			else if (ta) wantKb = true;
 		});
 	}
@@ -399,7 +406,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.05
+BBS_VERSION=1.06
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -621,6 +628,18 @@ if k<0: sys.exit("login.js: getstr not found")
 open(sys.argv[2],"w").write("// 88x31: stock exec/login.js plus a one-time code check (made by bbs/setup.sh; do not edit)\n"+src[:e]+hook+src[e:])
 PY3
 find $D/data/pktok -type f -mmin +5 -delete 2>/dev/null || true
+# menus: the Default shell with Oblivion/2's menus inside (owner: keep Default's frame, use Oblivion's a b c menu). mods/default.js
+# is the stock exec/default.js with one line before its menu loop that loads mods/menus88.js (the key tables, from the repo's
+# bbs/mods/menus88.js); the screens are the repo's bbs/menu/main.msg and obv*.msg.
+cp "$HERE/mods/menus88.js" $D/mods/menus88.js 2>/dev/null || echo "menus88: not copied (run setup.sh from the repo's bbs folder)"
+python3 - $D/exec/default.js $D/mods/default.js <<'PY5'
+import sys
+src = open(sys.argv[1]).read()
+at = src.find("shell.menu = shell.main_menu;")
+if at < 0: sys.exit("default.js: menu loop not found")
+open(sys.argv[2], "w").write("// 88x31: stock exec/default.js plus Oblivion/2's menus (mods/menus88.js) (made by bbs/setup.sh; do not edit)\n"
+    + src[:at] + 'load(system.mods_dir + "menus88.js");\n' + src[at:])
+PY5
 # new users (typing "New"): a rolled two-word name like the games (word lists from scoundrel.exe src/names.js) instead of being
 # asked for one; the terminal questions stay, every other question is filled in. main.ini already points at newuser_prompts.
 cat > $D/mods/newuser_prompts.js <<'JS2'

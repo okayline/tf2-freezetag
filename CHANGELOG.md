@@ -2,6 +2,14 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Oblivion/2's menus inside the Default shell, v1.06
+**Thu Oct 29, 2026 · 7:40 PM HST** (committed, not pushed)
+
+- **Changed:** the menus use Oblivion/2's a b c letters and items, inside Default's frame (its header, footer, colors and prompts). Owner: "i REALLY liked the a b c d e f g menu layout" of Oblivion, "can we use default shell and tweak it? i'd like to keep the functionality", "keep the frame of the default theme and use the inside menu part of oblivion only", and "yes" to the sub-menus too. Main menu, plus Oblivion's sub-menus: m messages, e e-mail, t files, q quick. `bbs/setup.sh` makes `mods/default.js` (the stock Default shell with one line that loads `mods/menus88.js`, the repo's `bbs/mods/menus88.js`); the screens are `bbs/menu/main.msg` and `obvmsg`, `obvmail`, `obvquick`, `obvfiles`. Every command is the stock Synchronet one. Footer v1.06.
+- **Fixed from Oblivion's own file** (its keys didn't match its screens): messages n (new scan) and + (next sub) work, > calls a function that exists; files d downloads (it was on /d). E-mail has no f (it did the same as s).
+- **Changed (taps):** the tap script also presses `+ - < >` keys, and a key with a slash before it (`/g`, `/*`, `/-`, `/+`, `/u`, `/d`) sends both characters. Owner: "does the tap screen thing work with the new layout?", then "yes please !". Checked in Node on two menu rows: tapping the key or its words gives g, /g, s, +, >, /*.
+- **Removed:** Default's letters on the main menu (N, R, O, X and the rest) and its old main menu screen. Kept, not on the screen: /a avatar, /l nodes, /m meme, /p poll, /v all polls.
+
 ## BBS: NANO PITCH door, v1.05
 **Thu Oct 29, 2026 · 3:05 PM HST** (committed, not pushed)
 
