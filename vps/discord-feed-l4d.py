@@ -62,6 +62,7 @@ def esc(text, n):
 GAME = "l4d"
 GAP = 2.5          # seconds between Discord posts (about 24 a minute, under Discord's ~30)
 LAST_SPAWN = {}
+CHAT_RELAYED = True  # TF2 chat goes to Discord through its own relay; AuraBot (IRC) sets this False to show it
 LAST_POST = {}     # key -> time it was last posted, to skip the game's repeated lines
 
 
@@ -141,8 +142,8 @@ def format_line(raw):
             return None
         if kind == "role":
             return None if is_bot(g[1]) else "\U0001F504 %s switched to %s" % (esc(g[0], 32), esc(g[2].capitalize(), 16))
-        if kind in ("say", "say_team") and GAME == "tf2":
-            return None                           # the chat relay already posts TF2 chat
+        if kind in ("say", "say_team") and GAME == "tf2" and CHAT_RELAYED:
+            return None                           # the chat relay already posts TF2 chat (to Discord)
         if kind in ("say", "say_team"):
             tag = " *(team)*" if kind == "say_team" else ""
             return "\U0001F4AC **%s**%s: %s" % (esc(g[0], 32), tag, esc(g[2], 250))
