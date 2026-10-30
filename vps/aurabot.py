@@ -875,7 +875,8 @@ class Watcher(threading.Thread):
 class Topics:
     """Keeps each server channel's topic set to the server's status. Setting a topic needs @ in the channel:
     AuraBot gets it by being first into the channel after the IRC server restarts (it reconnects within seconds),
-    or from an op (/op AuraBot). Without it, it tells a logged-in admin once. With it, logged-in admins get @ too."""
+    or from an op (/op AuraBot); alone in a channel without @, it leaves and rejoins to get it. Otherwise it tells a
+    logged-in admin once. With it, logged-in admins get @ too."""
     def __init__(self, irc, admin):
         self.irc, self.admin = irc, admin
         self.reset()
@@ -893,6 +894,11 @@ class Topics:
         now = time.time()
         for chan, text in self.want.items():
             if not self.irc.is_op(chan):
+                if self.irc.members.get(chan, set()) <= {NICK.lower()} and now - self.sent.get("cycle" + chan, 0) > 120:
+                    self.irc.raw("PART %s" % chan)    # alone without @: leave and come back, the first one in gets @
+                    self.irc.raw("JOIN %s" % chan)
+                    self.sent["cycle" + chan] = now
+                    continue
                 if chan not in self.asked:
                     for n in self.admin.logged_in:
                         if n in self.irc.members.get(chan, set()):
