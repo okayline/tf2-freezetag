@@ -50,6 +50,7 @@ jobs:
       STORIES_KEY: ${{ secrets.STORIES_KEY }}
       BBS_SYSPASS: ${{ secrets.BBS_SYSPASS }}
       LOUNGE_PASS: ${{ secrets.LOUNGE_PASS }}
+      AURABOT_PASS: ${{ secrets.AURABOT_PASS }}
       DOVE_PASS: ${{ secrets.DOVE_PASS }}
       ACCOUNTS_KEY: ${{ secrets.ACCOUNTS_KEY }}
       DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -90,6 +91,8 @@ jobs:
               [ -n "$BBS_SYSPASS" ] && printf '%s' "$BBS_SYSPASS" | vps 'umask 077; cat > /root/bbs-syspass' >> "$R" 2>&1
               # the login password for The Lounge (repo secret LOUNGE_PASS) for vps/lounge-setup.sh; never printed
               [ -n "$LOUNGE_PASS" ] && printf '%s' "$LOUNGE_PASS" | vps 'umask 077; cat > /root/lounge-pass' >> "$R" 2>&1
+              # AuraBot's admin login password (repo secret AURABOT_PASS) for vps/aurabot-setup.sh; never printed
+              [ -n "$AURABOT_PASS" ] && printf '%s' "$AURABOT_PASS" | vps 'umask 077; cat > /root/aurabot-pass' >> "$R" 2>&1
               # the BBS's DOVE-Net (Vertrauen QWK account) password (repo secret DOVE_PASS) for bbs/setup.sh; never printed
               [ -n "$DOVE_PASS" ] && printf '%s' "$DOVE_PASS" | vps 'umask 077; cat > /root/dove-pass' >> "$R" 2>&1
               # the shared Accounts key (repo secret ACCOUNTS_KEY) for the BBS passkey login; readable only by the bbs user; never printed
