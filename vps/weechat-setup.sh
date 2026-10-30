@@ -8,6 +8,7 @@
 # put there by vps-tools' run action; never printed). Re-running updates Glowing Bear and re-applies the settings below; every
 # other WeeChat setting you change in the app is kept. Restarts weechat and ttyd (not a game server).
 set -euo pipefail
+HERE=$(cd "$(dirname "$0")" && pwd)
 D=/var/lib/weechat; WWW=/var/www/glowing-bear
 # the identity and channels (the same ones The Lounge used)
 NICK=okay; USERNAME=kurako; REALNAME=kura
@@ -88,6 +89,25 @@ if [ "$(ttyd --version 2>/dev/null | awk '{print $3}' | cut -d- -f1)" != "$TV" ]
     && echo "$TSUM  /tmp/ttyd.new" | sha256sum -c - >/dev/null && install -m 755 /tmp/ttyd.new /usr/local/bin/ttyd; rm -f /tmp/ttyd.new
 fi
 echo "ttyd $(ttyd --version 2>/dev/null)"
+# the terminal's look: ttyd's own page with a starfield behind a see-through terminal (vps/ttyd-space.html). The stock page is
+# read from a throwaway ttyd (so it matches this ttyd version and the /term base path), then patched. Without it, plain ttyd.
+TOPTS=""
+if [ -s "$HERE/ttyd-space.html" ]; then
+  ttyd -i /tmp/ttyd-stock.sock -b /term true >/dev/null 2>&1 & TP=$!
+  sleep 2
+  if curl -fsS --compressed -m 15 --unix-socket /tmp/ttyd-stock.sock http://localhost/term/ -o /tmp/ttyd-stock.html 2>/dev/null && grep -q "</head>" /tmp/ttyd-stock.html; then
+    python3 - "$HERE/ttyd-space.html" <<'PYX'
+import sys
+s = open("/tmp/ttyd-stock.html", encoding="utf-8").read()
+css = open(sys.argv[1], encoding="utf-8").read()
+open("/etc/ttyd-index.html", "w", encoding="utf-8").write(s.replace("</head>", css + "</head>", 1))
+PYX
+    chmod 644 /etc/ttyd-index.html
+    TOPTS="-I /etc/ttyd-index.html -t allowTransparency=true -t 'theme={\"background\":\"rgba(0,0,0,0.28)\"}'"
+    echo "ttyd page: starfield"
+  else echo "ttyd page: could not read the stock page, plain look"; fi
+  kill $TP 2>/dev/null || true; rm -f /tmp/ttyd-stock.sock /tmp/ttyd-stock.html
+fi
 # ttyd listens on a socket only Caddy (group caddy) can reach, never on a port: nothing else on the VPS can type into WeeChat
 cat > /etc/systemd/system/ttyd.service <<UNIT
 [Unit]
@@ -102,7 +122,7 @@ UMask=0007
 RuntimeDirectory=ttyd
 RuntimeDirectoryMode=0750
 Environment=LANG=C.UTF-8
-ExecStart=/usr/local/bin/ttyd -i /run/ttyd/ttyd.sock -b /term -W -O -t fontSize=15 -t cursorBlink=true -t titleFixed=WeeChat $(command -v tmux) -u -L weechat attach -t weechat
+ExecStart=/usr/local/bin/ttyd -i /run/ttyd/ttyd.sock -b /term -W -O $TOPTS -t fontSize=15 -t cursorBlink=true -t titleFixed=WeeChat $(command -v tmux) -u -L weechat attach -t weechat
 Restart=on-failure
 
 [Install]
