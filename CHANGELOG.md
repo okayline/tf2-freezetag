@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: scoundrel.exe is back, as a guest, v1.03
+**Thu Oct 29, 2026 · 2:40 PM HST** (committed, not pushed)
+
+- **Added:** the scoundrel.exe door again (`bbs/xtrn/scoundrel.js`, the v0.98 door). Owner: "i meant dont hook it up to the accounts if it was hard (at the time). but i still want it on the bbs please." Each BBS user gets a scoundrel.exe guest player (scoundrel.exe v0.11.2, `/api/bbs-enter` with no account), and the door keeps its login in `data/scoundrel/`. Users who already had one (from when the door used accounts) keep it. The shared Guest account gets a new player each visit, never kept, and keeps its rolled name. Footer v1.03.
+- **Removed:** the door making and linking an 88x31 account for every BBS user (`accountOf`, `createAccount`, `link` calls to dungeon-items), and v0.99's lines that took the door off.
+
 ## BBS: telnet Guest gets a Drugwar bank just for the visit, v1.02
 **Thu Oct 29, 2026 · 2:20 PM HST** (committed, not pushed)
 
