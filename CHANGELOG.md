@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: the logon page comes in slowly too, v1.15
+**Thu Oct 29, 2026 · 9:45 PM HST** (committed, not pushed)
+
+- **Changed:** on the page after logging in, each line of "Last few callers" waits 0.4 s, like the welcome screen (modopts `[logonlist] last_few_callers_fmt`: Synchronet's own format with four Ctrl-A commas in front, and Ctrl-A `[` `]` for the line break). Owner: "after the logging in line, it appears/scrolls down super fast! could you slow that page down too please!" Footer v1.15.
+- **Removed:** nothing.
+
 ## BBS: slower welcome screen and typing, v1.14
 **Thu Oct 29, 2026 · 9:35 PM HST** (committed, not pushed)
 

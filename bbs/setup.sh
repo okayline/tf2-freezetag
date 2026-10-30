@@ -150,6 +150,17 @@ for k in guest_name guest_email; do
 done
 # logon screen: Synchronet's own (last callers with all columns, avatar to the right): remove the settings that made it fit 40 columns
 sed -i -E '/^\s*(last_few_callers_fmt|draw_avatar_right|draw_avatar_above)\s*=/d' $D/ctrl/modopts.ini
+# ...but each caller's line comes in slowly (a 0.4 s pause before it, like the welcome screen): Synchronet's own line
+# format with four Ctrl-A commas in front, and Ctrl-A [ ] (CR, LF) instead of \r\n, which an ini value cannot hold
+python3 - $D/ctrl/modopts.ini <<'PY11'
+import re,sys
+f=sys.argv[1];t=open(f,encoding="latin-1").read()
+A="\x01"
+v=("last_few_callers_fmt = "+A+","+A+","+A+","+A+","+A+"["+A+"]"+A+"n"+A+"h"+A+"m%-3s"+A+"n"+A+"m%-6s "+A+"w"+A+"h%-25.25s "
+   +A+"m%-25.25s"+A+"n"+A+"m%s "+A+"h%-8.8s"+A+"n"+A+"m%4u")
+t=re.sub(r"(?m)^\[logonlist\][^\n]*\n",lambda m:m.group(0)+"\t"+v+"\n",t,count=1)
+open(f,"w",encoding="latin-1").write(t)
+PY11
 # dark mode on for everyone (the switch itself is hidden below)
 if grep -qE '^\s*darkmode_on\s*=' $D/ctrl/modopts.ini; then sed -i -E 's/^(\s*darkmode_on\s*=).*/\1true/' $D/ctrl/modopts.ini
 else sed -i -E '/^\[web\]/a\    darkmode_on=true' $D/ctrl/modopts.ini; fi
@@ -408,7 +419,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.14
+BBS_VERSION=1.15
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
