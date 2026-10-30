@@ -2,6 +2,11 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: no splash screen on the web terminal, v1.13
+**Thu Oct 29, 2026 · 9:28 PM HST** (committed, not pushed)
+
+- **Removed:** the web terminal's splash screen (the ANSI logo fTelnet showed for a moment while connecting): `Options.SplashScreen` is now a blank screen. Owner: "could we remove the very first splash screen after i reload? it flashes for a second". Footer v1.13.
+
 ## BBS: slow welcome screen and a typed-out login, v1.12
 **Thu Oct 29, 2026 · 9:25 PM HST** (committed, not pushed)
 

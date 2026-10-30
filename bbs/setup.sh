@@ -294,6 +294,8 @@ function tapKey(row, x) {
 <!-- end bigterm -->
 X
   sed -i '/<!-- fTelnet -->/r /tmp/bigterm.html' "$H"
+  # no splash screen: the terminal showed its ANSI logo for a moment while connecting; now a blank screen (ESC[0m ESC[2J)
+  sed -i -E "s#Options\.SplashScreen = '[^']*';#Options.SplashScreen = 'G1swbRtbMko=';#" "$H"
   # taller terminal: 45 lines instead of 25 (still 80 columns)
   sed -i -E 's/(Options\.ScreenRows *= *)25;/\145;/' "$H"
   # the page keeps the terminal in a local variable: also put it on window so the tap script can reach it (fTelnet._Crt)
@@ -406,7 +408,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.12
+BBS_VERSION=1.13
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
