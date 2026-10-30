@@ -107,13 +107,50 @@ def load_feed(tag):
     return mod
 
 
+# emoji -> (IRC color, symbol): the BBS's IRC screen cannot draw emoji (they come out as ¿), so every feed line uses
+# colored plain symbols instead, the same in The Lounge and on the BBS. Colors: 03 green, 04 red, 05 brown, 06 purple,
+# 07 orange, 08 yellow, 09 light green, 10 teal, 11 cyan, 12 blue, 13 pink, 14 grey.
+EMOJI = {
+    "\u2620": ("04", "x"), "\U0001F480": ("14", "x"), "\U0001F6AA": ("03", "#"), "\U0001F3AF": ("07", "o"),
+    "\U0001F469": ("13", "W"), "\U0001F92E": ("03", "~"), "\u2764": ("04", "<3"), "\U0001F6A8": ("04", "!"),
+    "\U0001F43E": ("05", "*"), "\U0001F445": ("13", "~"), "\U0001F9DF": ("03", "Z"), "\u2795": ("09", "+"),
+    "\u2796": ("14", "-"), "\U0001F52B": ("07", "!"), "\U0001FA78": ("04", "v"), "\U0001FA79": ("11", "+"),
+    "\U0001F4AA": ("07", "T"), "\U0001F525": ("07", "*"), "\U0001F3C1": ("11", ">"), "\U0001F7E2": ("09", "o"),
+    "\U0001F534": ("04", "o"), "\U0001F3C6": ("08", "*"), "\U0001F5FA": ("10", "@"), "\U0001F392": ("05", "="),
+    "\U0001F451": ("08", "^"), "\u23F1": ("14", "t"), "\U0001F608": ("06", "}"), "\u26A1": ("08", "!"),
+    "\U0001F6E1": ("12", "]"), "\U0001F4A5": ("07", "*"), "\U0001F504": ("10", "~"), "\U0001F4AC": ("11", ">"),
+    "\U0001F5E1": ("04", "/"), "\U0001F681": ("11", "^"), "\u2699": ("14", "*"), "\U0001F6A9": ("04", ">"),
+    "\U0001F631": ("13", "!"), "\U0001F48A": ("11", "o"), "\U0001FAA2": ("05", "&"), "\U0001F9D7": ("05", "|"),
+    "\U0001F947": ("08", "#"), "\U0001F4CA": ("10", "="),
+}
+PLAIN = {"\u2014": "-", "\u00D7": "x", "\u2026": "...", "\uFE0F": ""}
+
+
+def unemoji(text):
+    """Emoji to colored symbols; other characters the BBS cannot draw to plain ones; unknown emoji left out."""
+    out = []
+    for ch in text:
+        if ch in EMOJI:
+            color, sym = EMOJI[ch]
+            out.append("\x03" + color + sym + "\x00")       # \x00 marks the color's end, fixed up below
+        elif ch in PLAIN:
+            out.append(PLAIN[ch])
+        elif ord(ch) >= 0x1F000 or 0x2600 <= ord(ch) < 0x2800:
+            continue
+        else:
+            out.append(ch)
+    s = "".join(out)
+    s = re.sub(r"\x00(?=[0-9,])", "\x03\x02\x02", s)    # a digit or comma right after a color end would be read as a color
+    return s.replace("\x00", "\x03")
+
+
 def ircify(text):
     """Discord markdown to IRC: bold, italic, no code marks, no backslash escapes."""
     text = re.sub(r"\*\*(.+?)\*\*", lambda m: B + m.group(1) + B, text)
     text = re.sub(r"(?<![\\\w])\*(?!\s)(.+?)(?<!\s)\*(?!\w)", lambda m: I + m.group(1) + I, text)
     text = text.replace("`", "")
     text = re.sub(r"\\(.)", r"\1", text)
-    return text.replace("\r", " ")
+    return unemoji(text.replace("\r", " "))
 
 
 def card_lines(card):
