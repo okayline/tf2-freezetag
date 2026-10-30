@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: the login screen starts at "Login:", v1.11
+**Thu Oct 29, 2026 · 9:20 PM HST** (committed, not pushed)
+
+- **Changed:** the login prompt is just `Login:` (modopts `[login] login_prompt`). Owner: "could we remove this text please? just start with Login:"
+- **Removed:** the connect screens' last two lines ("If you are a new user to the system, type "New" now. / Otherwise, enter your user name or number now."), from both `bbs/text/answer.msg` (new in the repo: the stock 80-column one without them) and `answer.40col.msg`; and the "Enter User Name or 'New' or 'Guest'" line above the prompt. Typing New or Guest still works. Footer v1.11.
+
 ## BBS: emoji as text in IRC, v1.10
 **Thu Oct 29, 2026 · 9:15 PM HST** (committed, not pushed)
 

@@ -406,7 +406,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.10
+BBS_VERSION=1.11
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -758,7 +758,16 @@ open(f,'w').write(re.sub(r'(?m)^(\s*settings\s*=\s*)(0x[0-9a-fA-F]+|\d+)',lambda
 PY7
 # custom text for Synchronet's scripts (the one-line main prompt), from the repo's bbs/ctrl
 cp "$HERE/ctrl/text.ini" $D/ctrl/text.ini 2>/dev/null || echo "text.ini: not copied (run setup.sh from the repo's bbs folder)"
-# our screens from the repo's bbs/text: the 40-column connect screen without the big logo (so it fits 25 lines and never pauses)
+# the login prompt is just "Login:" (stock: "Enter User Name or 'New' or 'Guest'" on the line above it); modopts [login]
+python3 - $D/ctrl/modopts.ini <<'PY9'
+import re,sys
+f=sys.argv[1];t=open(f,encoding="latin-1").read()
+v="login_prompt = \x01n\x01h\x01cLogin: \x01w"
+t,n=re.subn(r"(?m)^\s*login_prompt\s*=.*$","\t"+v,t)
+if not n: t=re.sub(r"(?m)^\[login\][^\n]*\n",lambda m:m.group(0)+"\t"+v+"\n",t,count=1)
+open(f,"w",encoding="latin-1").write(t)
+PY9
+# our screens from the repo's bbs/text: the connect screens (80 and 40 columns) without the "If you are a new user" lines; the 40-column one also without the big logo (so it fits 25 lines and never pauses)
 cp "$HERE"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
 # our menus from the repo's bbs/menu: the main menu, Get Info and Your statistics (one column), no mouse click spots
 cp "$HERE"/menu/*.msg $D/text/menu/ 2>/dev/null || echo "menus: not copied (run setup.sh from the repo's bbs folder)"

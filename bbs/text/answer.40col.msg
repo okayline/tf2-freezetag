@@ -8,5 +8,3 @@
 nh       ncTIME: h@DATETIMEZONE@
 nh       ncADMN: h@SYSOP@
 
-bIf you are a new user to the system, type c"New"b now.
-Otherwise, enter your user name or number now.
