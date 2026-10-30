@@ -406,7 +406,7 @@ if [ -n "$CSSD" ]; then
 fi
 # version number in the footer, next to the year
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.11
+BBS_VERSION=1.12
 # the version is real footer text (selectable), written into the footer component
 FT=$D/webv4/components/footer.xjs
 # and just before it one character (&#8801;) that opens the account menu upward: Log in with passkey, Link passkey, Log out
@@ -636,6 +636,18 @@ mkdir -p $D/mods $D/data/pktok
 python3 - $D/exec/login.js $D/mods/login.js <<'PY3'
 import sys
 src=open(sys.argv[1]).read()
+# the web page's one-time code is typed out at "Login:" one letter at a time, with a _ cursor (owner's idea)
+r="print(str=bbs.rlogin_name);"
+if r not in src: sys.exit("login.js: rlogin print not found")
+src=src.replace(r,"{ str=bbs.rlogin_name; type88(str); }",1)
+src=src.replace("for(var c=0;","""function type88(s) {   // 88x31: type it out like a person, with a _ cursor
+	console.print("_");
+	for (var i = 0; i < s.length; i++) { mswait(40 + random(80)); console.print("\\b" + s[i] + "_"); }
+	mswait(250);
+	console.print("\\b \\b\\r\\n");
+}
+
+for(var c=0;""",1)
 k=src.find("str=console.getstr(")
 e=src.find(");",k)+2 if k>=0 else -1
 hook="""
@@ -767,6 +779,14 @@ t,n=re.subn(r"(?m)^\s*login_prompt\s*=.*$","\t"+v,t)
 if not n: t=re.sub(r"(?m)^\[login\][^\n]*\n",lambda m:m.group(0)+"\t"+v+"\n",t,count=1)
 open(f,"w",encoding="latin-1").write(t)
 PY9
+# the welcome screen scrolls slowly: a short pause (two Ctrl-A commas, 0.2 s) at the end of each line of the stock logo
+# screens (text/banner*.msg; our answer screens have them already). Owner: "could we have it scroll more slowly?"
+for b in $D/text/banner*.msg; do [ -f "$b" ] && python3 - "$b" <<'PY10'
+import sys
+f=sys.argv[1];t=open(f,"rb").read();D=b"\x01,\x01,"
+open(f,"wb").write(b"\r\n".join(l if (l.endswith(D) or not l.strip()) else l+D for l in t.split(b"\r\n")))
+PY10
+done
 # our screens from the repo's bbs/text: the connect screens (80 and 40 columns) without the "If you are a new user" lines; the 40-column one also without the big logo (so it fits 25 lines and never pauses)
 cp "$HERE"/text/*.msg $D/text/ 2>/dev/null || echo "screens: not copied (run setup.sh from the repo's bbs folder)"
 # our menus from the repo's bbs/menu: the main menu, Get Info and Your statistics (one column), no mouse click spots
