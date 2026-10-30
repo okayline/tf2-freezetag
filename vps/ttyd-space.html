@@ -7,5 +7,6 @@ body::before{background-image:radial-gradient(circle at 6px 240px,#ffd9f2 0,#ffd
 body::after{background-image:radial-gradient(circle at 198px 205px,#ffffff 0,#ffffff 1.2px,transparent 2.0px),radial-gradient(circle at 487px 59px,#fff3c4 0,#fff3c4 1.3px,transparent 2.1px),radial-gradient(circle at 284px 381px,#ffd9f2 0,#ffd9f2 1.7px,transparent 2.5px),radial-gradient(circle at 38px 114px,#fff3c4 0,#fff3c4 1.3px,transparent 2.1px),radial-gradient(circle at 509px 25px,#ffd9f2 0,#ffd9f2 1.2px,transparent 2.0px),radial-gradient(circle at 357px 243px,#ffd9f2 0,#ffd9f2 1.0px,transparent 1.8px),radial-gradient(circle at 289px 456px,#ffffff 0,#ffffff 1.1px,transparent 1.9px);background-size:520px 520px,520px 520px,520px 520px,520px 520px,520px 520px,520px 520px,520px 520px;animation:tw 5s ease-in-out infinite alternate}
 @keyframes tw{from{opacity:.15}to{opacity:1}}
 #terminal-container,#terminal-container .terminal,.xterm,.xterm .xterm-viewport,.xterm-screen{background:transparent !important;background-color:transparent !important}
-#terminal-container{position:relative;z-index:1}
+#terminal-container{position:relative;z-index:1;height:85vh;margin:7.5vh auto}
+@supports (height:1dvh){#terminal-container{height:85dvh;margin:7.5dvh auto}}
 </style>
