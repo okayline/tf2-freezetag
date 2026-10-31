@@ -59,10 +59,13 @@ echo "-- Tickrate Enabler (lets -tickrate go above 30)"
 if [ ! -f "$G/addons/tickrate_enabler/tickrate_enabler.so" ]; then
   T=$(mktemp -d)
   U=$(curl -fsSL https://api.github.com/repos/accelerator74/tickrate-enabler/releases/tags/build \
-    | grep -oiE 'https://[^"]*enabler-l4d-linux[^"]*\.tar\.gz' | head -1)
+    | grep -oiE 'https://[^"]*enabler-l4d-linux[^"]*\.zip' | head -1 || true)
   [ -n "$U" ] || { echo "no L4D1 Linux file in the Tickrate Enabler release"; exit 1; }
-  curl -fsSL "$U" -o "$T/t.tgz"
-  tar -xzf "$T/t.tgz" -C "$G"
+  curl -fsSL "$U" -o "$T/t.zip"
+  python3 -m zipfile -e "$T/t.zip" "$T/x"
+  A=$(find "$T/x" -type d -name addons | head -1)
+  [ -n "$A" ] || { echo "no addons folder in the Tickrate Enabler archive"; exit 1; }
+  cp -r "$A"/. "$G/addons/"
   rm -rf "$T"
 fi
 [ -f "$G/addons/tickrate_enabler/tickrate_enabler.so" ] && [ -f "$G/addons/tickrate_enabler_l4d1.vdf" ] \

@@ -5,7 +5,7 @@
 ## L4D: all 3 servers to 60 tick
 **Fri Oct 30, 2026 · 5:40 PM HST** (committed, not pushed; goes live after push, `l4d-deploy` on each server, and a restart while it is empty)
 
-- **Changed:** `l4d/deploy.sh` installs [Tickrate Enabler](https://github.com/Accelerator74/Tickrate-Enabler) (L4D1 Linux build, from its release, like l4dtoolz) and adds `-tickrate 60` to each server's launch line (`TICKRATE`, default 60, a `.conf` can override). `l4d/base/server.cfg` gets `sv_maxupdaterate 60`, `sv_maxcmdrate 60` and `sv_minrate 20000`. Why: players on the versus server (far away, 200+ ping) said plain 30-tick "vanilla" feels laggy. Owner: "okay let's do 60 on all the servers please". Note: the `sv_maxrate 8000` seen earlier was only in the unused `listenserver360.cfg`; live `sv_maxrate` is already 0 (no cap).
+- **Changed:** `l4d/deploy.sh` installs [Tickrate Enabler](https://github.com/Accelerator74/Tickrate-Enabler) (L4D1 Linux build, the .zip from its release, like l4dtoolz) and adds `-tickrate 60` to each server's launch line (`TICKRATE`, default 60, a `.conf` can override). `l4d/base/server.cfg` gets `sv_maxupdaterate 60`, `sv_maxcmdrate 60` and `sv_minrate 20000`. Why: players on the versus server (far away, 200+ ping) said plain 30-tick "vanilla" feels laggy. Owner: "okay let's do 60 on all the servers please". Note: the `sv_maxrate 8000` seen earlier was only in the unused `listenserver360.cfg`; live `sv_maxrate` is already 0 (no cap).
 
 ## BBS: 40 columns on phones, 80 on PCs, v1.17
 **Fri Oct 30, 2026 · 12:25 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
