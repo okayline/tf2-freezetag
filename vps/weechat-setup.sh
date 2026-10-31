@@ -45,6 +45,9 @@ for f in index.html weave.js weave.css; do curl -fsSL -m 60 -o "$T/$f" "https://
 if (cd "$T" && echo "$WSUMS" | sha256sum -c - >/dev/null 2>&1); then
   sed -i "s|uploadBackend: 'jirafeau',|uploadBackend: 'off',|; s|uploadUrl: 'https://files.interdo.me/',|uploadUrl: '',|" "$T/weave.js"
   grep -q "uploadBackend: 'off'," "$T/weave.js" && echo "weave: uploads off" || echo "weave: WARNING uploads setting not found"
+  # no light/dark button in the sidebar (the theme is still chosen in Weave's settings)
+  sed -i 's|<button class="icon-btn" id="btnTheme" type="button" title="Toggle theme"></button>|<button class="icon-btn" id="btnTheme" type="button" title="Toggle theme" hidden></button>|' "$T/index.html"
+  grep -q 'id="btnTheme" type="button" title="Toggle theme" hidden' "$T/index.html" && echo "weave: theme button hidden" || echo "weave: WARNING theme button not found"
   rm -rf $WWW; mkdir -p $(dirname $WWW); mv "$T" $WWW; chmod -R a+rX $WWW; echo "weave: $WWW (${WV:0:7})"
 else rm -rf "$T"; echo "weave: download failed or files changed, kept what was there"; fi
 # Glowing Bear (replaced by Weave)

@@ -9,7 +9,8 @@ Usage: aurabot.py   (no arguments; the servers are listed in SERVERS below)
 - Turns the Discord look into IRC's: **bold** -> bold, *italic* -> italic, `code` -> plain, \\escapes -> plain.
 - Never posts IP addresses or Steam IDs (the feed code leaves them out).
 - Sends at most one line a second (the server would cut off a bot that floods); answers to the admin go first.
-- Admin commands: only in a private message to AuraBot, never in a channel (commands typed in a channel are ignored).
+- Admin commands: in a private message to AuraBot, or as "!" commands in #ops from a logged-in admin (answers go to
+  #ops). Commands typed in any other channel are ignored, and "login" only works in a private message.
   First "login <password>" (the password is in admin-pass next to this script, from repo secret AURABOT_PASS).
   The login belongs to that nickname only while it shares a channel with AuraBot: when it quits, leaves every shared
   channel or changes nickname, it is logged out, so nobody can take over a logged-in nickname. Wrong passwords are
@@ -82,7 +83,7 @@ NOISE = re.compile(r'rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bu
                    r'|server cvars (start|end)|^\S+ "[^"]+" = "[^"]*"\s*$|^L \d+/\d+/\d+ - \d+:\d+:\d+: "[^"]+" = "[^"]*"\s*$'
                    r'|NAV_MOB_ONLY|Computing Flow Distances|Preventing spawning')
 HELP = [
-    "AuraBot admin commands (private messages only). Servers: tf2, classic, vs, vintage",
+    "AuraBot admin commands (in a private message, or in #ops once logged in). Servers: tf2, classic, vs, vintage",
     "!status  every server: map and players",
     "!players <server>  who is on",
     "!say <server> <message>  a message to everyone in the game",
@@ -243,9 +244,11 @@ class Irc:
             self.queue.append("PRIVMSG %s :%s" % (chan, chunk))
 
     def tell(self, nick, text):
-        """A private message to one person; goes before the feed lines."""
+        """A private message to one person; goes before the feed lines. While a command typed in #ops runs
+        (reply_to set), its answers go to #ops instead."""
+        to = getattr(self, "reply_to", None) or nick
         for chunk in [text[i:i + 400] for i in range(0, len(text), 400)] or [""]:
-            self.urgent.append("PRIVMSG %s :%s" % (nick, chunk))
+            self.urgent.append("PRIVMSG %s :%s" % (to, chunk))
 
     def is_op(self, chan, nick=NICK):
         return nick.lower() in self.ops.get(chan.lower(), set())
@@ -1072,13 +1075,21 @@ def main():
                         admin.check_oper(prefix.split("!")[0])
                     if cmd == "001":                        # Irc.pump has just sent JOIN; WHOIS answers come after the NAMES
                         admin.check_saved()
-                    # private messages only (target is our own nickname); channel messages are never commands
-                    if cmd == "PRIVMSG" and len(args) >= 2 and args[0].lower() == NICK.lower() and "!" in prefix:
+                    # commands: private messages (target is our own nickname), and "!" commands in #ops from someone
+                    # already logged in (answers go to #ops). "login" only ever works in a private message.
+                    # Messages in every other channel are never commands.
+                    who = prefix.split("!")[0] if "!" in prefix else ""
+                    in_ops = (cmd == "PRIVMSG" and len(args) >= 2 and args[0].lower() == OPS and who
+                              and args[1].startswith("!") and who.lower() in admin.logged_in)
+                    if in_ops or (cmd == "PRIVMSG" and len(args) >= 2 and args[0].lower() == NICK.lower() and who):
+                        irc.reply_to = OPS if in_ops else None
                         try:
-                            admin.handle(prefix.split("!")[0], args[1])
+                            admin.handle(who, args[1])
                         except Exception as e:                  # a bad command never stops the feeds
                             print("AuraBot: command failed (%s)" % type(e).__name__, flush=True)
-                            irc.tell(prefix.split("!")[0], "Something went wrong with that command.")
+                            irc.tell(who, "Something went wrong with that command.")
+                        finally:
+                            irc.reply_to = None
                 if time.time() - last_report > 300:
                     print("AuraBot: last 5 min: %d lines posted" % posted, flush=True)
                     posted, last_report = 0, time.time()
