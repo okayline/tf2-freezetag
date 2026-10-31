@@ -288,6 +288,7 @@ function tapKey(row, x) {
 		}
 		cv.addEventListener('pointerdown', function (e) { d = { x: e.clientX, y: e.clientY, t: Date.now() }; });
 		cv.addEventListener('pointerup', function (e) {
+			wantKb = false;   // every tap starts without the keyboard (a tap whose click never came used to leave it armed for the next tap)
 			if (!d) return;
 			var m = Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y), ms = Date.now() - d.t; d = null;
 			if (m > 8 || ms > 600) return;
@@ -300,8 +301,8 @@ function tapKey(row, x) {
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
 			var k = tapKey(row, x);
-			if (k) for (var n = 0; n < k.length; n++) C.PushKeyPress(k.charCodeAt(n), 0, false, false, false);
-			else if (ta) wantKb = true;
+			if (k) { for (var n = 0; n < k.length; n++) C.PushKeyPress(k.charCodeAt(n), 0, false, false, false); if (ta && document.activeElement === ta) ta.blur(); }   // a menu letter: send it, and put an open keyboard away
+			else if (ta && Math.abs(y - cy) <= 1) wantKb = true;   // the phone's keyboard comes up only when you tap the prompt: the cursor's line, or the line above or below it
 		});
 	}
 })();
@@ -427,7 +428,7 @@ if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.21
+BBS_VERSION=1.22
 # the footer is the shared one every 88x31 game shows (dungeon-items footer.js): "🄯 ~*~88x31~*~ · § ≡ v<version>".
 # Its ≡ goes to #account, which opens the BBS's own account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)

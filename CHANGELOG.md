@@ -2,6 +2,15 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: sub-menu labels in blue, phone keyboard only on the prompt line, v1.22
+**Sat Oct 31, 2026 · 3:55 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
+
+- **Changed:** the sub-menus (`obvmsg`, `obvmail`, `obvfiles`, `obvquick`, each in the 80-column and `.40col` version) get the same look as the main menu: each item's key and the first three letters of its name in the key's blue, the rest white. 59 items; words and positions unchanged. Checked that a tap on any cell of any item on any menu screen still gives that item's key (2363 cells, none wrong). Owner: "can you recolor the labels in the sub menus please!"
+- **Changed:** on phones the keyboard no longer comes up wherever you tap. It comes up only when you tap the prompt: the cursor's line, or the line above or below it. A tap on a menu letter sends the letter and puts an open keyboard away. Before, any tap that was not a menu letter raised it. Owner: "wherever i click on the screen with phone, my keyboard pops up every time!"
+- **Fixed:** the tap script armed the keyboard on a tap and only cleared it when the follow-up click came; a tap whose click never came left it armed, so the next tap (even a menu letter) raised the keyboard. Every tap now starts cleared. Footer v1.22.
+- **Removed:** the keyboard coming up from a tap on an empty spot far from the prompt.
+- **Not tested on a phone:** the keyboard change (the tap-to-key part is tested on every menu screen).
+
 ## BBS: main menu's first letters in blue, no area in the main prompt, v1.21
 **Sat Oct 31, 2026 · 3:45 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
 
