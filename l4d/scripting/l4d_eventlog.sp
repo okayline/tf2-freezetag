@@ -4,14 +4,17 @@
 // A player is written as <steam id or BOT> "name" (survivor name or infected class).
 // Only writes to the log; it never changes gameplay. Switched on per server with EVENTLOG=1.
 // Version 1: player actions, specials, witch, tank, safe room, round results. Versus points come later.
+// Version 1.1: difficulty, mode and humans on round_start; difficulty changes; votes; each human's country when they join,
+// and their country, ping and minutes when they leave. The country comes from SourceMod's GeoIP database; the address is never written.
 #include <sourcemod>
 #include <sdktools>
+#include <geoip>
 
 public Plugin myinfo = {
     name = "88x31 event log",
     author = "88x31",
-    description = "Logs round events (heals, revives, specials, witch, tank, safe room) for stories and stats",
-    version = "1.0",
+    description = "Logs round events (heals, revives, specials, witch, tank, safe room, difficulty, votes, ping) for stories and stats",
+    version = "1.1",
     url = ""
 };
 
@@ -21,6 +24,7 @@ bool g_leftStart;                  // someone has left the start area this round
 bool g_safe[MAXPLAYERS + 1];       // already logged as reaching the end safe room this round
 int g_safeCount;                   // order of arrival in the safe room
 float g_tankSince[MAXPLAYERS + 1]; // when this client became a tank
+ConVar g_difficulty, g_mode;
 
 public void OnPluginStart()
 {
@@ -45,6 +49,13 @@ public void OnPluginStart()
     HookEvent("player_entered_checkpoint", Ev_Checkpoint);
     HookEvent("finale_win", Ev_FinaleWin, EventHookMode_PostNoCopy);
     HookEvent("mission_lost", Ev_MissionLost, EventHookMode_PostNoCopy);
+    // votes: HookEventEx, so a missing event name can't stop the plugin from loading
+    HookEventEx("vote_started", Ev_VoteStarted);
+    HookEventEx("vote_passed", Ev_VotePassed);
+    HookEventEx("vote_failed", Ev_VoteFailed);
+    g_mode = FindConVar("mp_gamemode");
+    g_difficulty = FindConVar("z_difficulty");
+    if (g_difficulty != null) g_difficulty.AddChangeHook(Cv_Difficulty);   // a lobby or vote sets it; the game log doesn't say
 }
 
 // ---------- helpers ----------
@@ -88,6 +99,13 @@ void Who(int c, char[] out, int len)
 
 int U(Event e, const char[] key) { return GetClientOfUserId(e.GetInt(key)); }
 
+int Humans()
+{
+    int n = 0;
+    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i)) n++;
+    return n;
+}
+
 void Log1(const char[] what, int a, const char[] extra = "")
 {
     char wa[128];
@@ -110,7 +128,10 @@ public void Ev_RoundStart(Event e, const char[] n, bool nb)
     g_leftStart = false;
     g_safeCount = 0;
     for (int i = 1; i <= MaxClients; i++) { g_safe[i] = false; g_tankSince[i] = 0.0; }
-    LogToGame("%s round_start", TAG);
+    char diff[32], mode[32];
+    if (g_difficulty != null) g_difficulty.GetString(diff, sizeof(diff));
+    if (g_mode != null) g_mode.GetString(mode, sizeof(mode));
+    LogToGame("%s round_start difficulty=%s mode=%s humans=%d", TAG, diff, mode, Humans());
 }
 
 public void Ev_RoundEnd(Event e, const char[] n, bool nb)
@@ -225,4 +246,61 @@ public void Ev_Checkpoint(Event e, const char[] n, bool nb)
     char extra[16];
     Format(extra, sizeof(extra), "order=%d", g_safeCount);
     Log1("safe_room", c, extra);
+}
+
+// ---------- difficulty, votes, ping ----------
+
+public void Cv_Difficulty(ConVar cv, const char[] oldValue, const char[] newValue)
+{
+    if (!StrEqual(oldValue, newValue, false)) LogToGame("%s difficulty %s was=%s humans=%d", TAG, newValue, oldValue, Humans());
+}
+
+// issue is the game's own text id, like #L4D_vote_change_difficulty; param is its value, like Expert
+public void Ev_VoteStarted(Event e, const char[] n, bool nb)
+{
+    char issue[64], param[64], extra[160];
+    e.GetString("issue", issue, sizeof(issue));
+    e.GetString("param1", param, sizeof(param));
+    ReplaceString(param, sizeof(param), "\"", "'");
+    Format(extra, sizeof(extra), "issue=%s param=\"%s\"", issue, param);
+    int c = e.GetInt("initiator");
+    if (Valid(c)) Log1("vote_started", c, extra);
+    else LogToGame("%s vote_started %s", TAG, extra);
+}
+
+public void Ev_VotePassed(Event e, const char[] n, bool nb)
+{
+    char details[64], param[64];
+    e.GetString("details", details, sizeof(details));
+    e.GetString("param1", param, sizeof(param));
+    ReplaceString(param, sizeof(param), "\"", "'");
+    LogToGame("%s vote_passed issue=%s param=\"%s\"", TAG, details, param);
+}
+
+public void Ev_VoteFailed(Event e, const char[] n, bool nb) { LogToGame("%s vote_failed", TAG); }
+
+// two-letter country code (?? if unknown); the address stays in memory and is never logged
+void Country(int c, char cc[3])
+{
+    char ip[64];
+    if (!GetClientIP(c, ip, sizeof(ip)) || !GeoipCode2(ip, cc)) strcopy(cc, sizeof(cc), "??");
+}
+
+public void OnClientPostAdminCheck(int c)
+{
+    if (IsFakeClient(c)) return;
+    char cc[3], extra[16];
+    Country(c, cc);
+    Format(extra, sizeof(extra), "country=%s", cc);
+    Log1("join", c, extra);
+}
+
+// average ping over their stay, so we can see how far away players are and whether high ping makes them leave sooner
+public void OnClientDisconnect(int c)
+{
+    if (!IsClientInGame(c) || IsFakeClient(c)) return;
+    char cc[3], extra[64];
+    Country(c, cc);
+    Format(extra, sizeof(extra), "country=%s ping=%d minutes=%d", cc, RoundToNearest(GetClientAvgLatency(c, NetFlow_Both) * 1000.0), RoundToFloor(GetClientTime(c) / 60.0));
+    Log1("disconnect", c, extra);
 }

@@ -9,6 +9,12 @@
 - **Removed:** one chapter per run from today's logs only, oldest round first. Why: the writer stopped Thu Oct 29 evening (the account running the scheduled task "Write the day's server stories" ran out of usage; the owner has paused it), and the old rules only read today's logs, so missed days were never written. A busy day also has far more rounds than chapters (Fri Oct 30: 53 finished rounds, but 17 sessions, 7 of them 30+ minutes). Owner: "can we change WRITER.md, to look back at past runs too", then "yeah that sounds great!"
 - **Not changed:** where the schedule lives (still the scheduled task on the other account).
 
+## L4D event log 1.1: difficulty, votes, ping and country
+**Fri Oct 30, 2026 · 10:35 PM HST** (committed, not pushed; goes live on the next l4d-deploy of each server)
+
+- **Added:** `l4d_eventlog` 1.1 writes `[88x31ev] round_start difficulty=… mode=… humans=…`, a `difficulty` line whenever `z_difficulty` changes (a lobby or a vote sets it, and the game log never said), `vote_started` / `vote_passed` / `vote_failed` lines (issue and value, like `#L4D_vote_change_difficulty` `Expert`), a `join` line with each human's country, and a `disconnect` line with their country, average ping and minutes on the server. The country comes from SourceMod's own GeoIP extension and the GeoLite2 database that ships with SourceMod (already on each server, dated late Oct 2026), so nothing new is downloaded; it refreshes with a `clean` deploy. No addresses are logged. A one-off count from this week's connect lines (counts only): 297 players, United States 154, Mexico 67, Peru 24 (all on versus), Canada 19, Argentina 8, then Chile, Colombia, United Kingdom, Bolivia, Brazil, Honduras, Spain. Why: the owner noticed the players who stay long are often on Expert, and the logs had no difficulty to check that. Owner: "yes please, what else could we log that we aren't already?", then "can you do the geo ip thing?" Compiled on the VPS in a temp folder (no errors); not installed on any server yet.
+- **Removed:** nothing. The Discord feed ignores these new lines.
+
 ## L4D: all 3 servers to 60 tick
 **Fri Oct 30, 2026 · 5:40 PM HST** (live on all 3 servers at 5:50 PM; Tickrate_Enabler 1.5.2 shows in plugin_print)
 
