@@ -73,6 +73,9 @@ if [ -s /root/aurabot-pass ]; then
   # here and swapped for the reference ${sec.data.aurabot} in irc.conf below, once this one-off WeeChat has quit
   CMDS="$CMDS;/secure set aurabot $A;/set $S.command \"/wait 5 /msg AuraBot login AURABOT-SECURE-REF\""
 else echo "no /root/aurabot-pass (repo secret AURABOT_PASS): AuraBot auto-login left as it was"; fi
+# #ops is admins only, and AuraBot needs @ there to keep it so. When AuraBot (re)joins #ops from the VPS itself (host
+# bbs.88x31.app, so not someone outside using its name), WeeChat gives it @ back. Placeholders as above: swapped below.
+CMDS="$CMDS;/trigger addreplace aurabot_op signal *,irc_in2_join \"OPS-NICK == AuraBot && OPS-HOST =* *@bbs.88x31.app && OPS-CHAN == #ops\" \"\" \"/quote -server 88x31 MODE #ops +o AuraBot\""
 CMDS="$CMDS;/save;/quit"
 systemctl stop weechat >/dev/null 2>&1 || true
 # a one-off WeeChat on the same folder applies the settings and saves them (the service must be stopped: one WeeChat per folder)
@@ -80,6 +83,8 @@ sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev
 echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, api relay: $(grep -c '^api = 9002' $D/relay.conf 2>/dev/null) port 9002, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
 sed -i 's|AURABOT-SECURE-REF|${sec.data.aurabot}|' $D/irc.conf 2>/dev/null || true
+sed -i 's|OPS-NICK|${nick}|; s|OPS-HOST|${host}|; s|OPS-CHAN|${channel}|' $D/trigger.conf 2>/dev/null || true
+echo "#ops op-back trigger: $(grep -c '^aurabot_op\.conditions = "${nick} == AuraBot && ${host} =\* \*@bbs.88x31.app && ${channel} == #ops"' $D/trigger.conf 2>/dev/null)"
 echo "auraBot auto-login: $(grep -c '^88x31\.command = "/wait 5 /msg AuraBot login ${sec.data.aurabot}"' $D/irc.conf 2>/dev/null), secure data: $(grep -c '^aurabot = ' $D/sec.conf 2>/dev/null) (not shown), backlog: $(grep -o '^backlog = [0-9]*' $D/logger.conf 2>/dev/null | cut -d' ' -f3)"
 
 echo "== scripts =="
