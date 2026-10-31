@@ -2,7 +2,7 @@
 # Installs restic + rclone and a nightly encrypted backup to pCloud (restic repo at rclone remote "pcloud:" folder Backups/vps-backup).
 # Run as root. Re-running is safe. Needs /root/pcloud-token (JSON from `rclone authorize "pcloud"`), optional /root/pcloud-host,
 # and /root/restic-password. The workflow action "backup" (job install) puts those three files there. Nothing here is printed.
-# Backs up configs, logs, plugins, maps (with .nav files), Minecraft world, WeeChat (IRC logs and settings), service files, SSH/firewall settings and the small tools.
+# Backs up configs, logs, plugins, maps (with .nav files), Minecraft world, WeeChat (IRC logs and settings), BBS door games, AuraBot logins, the old The Lounge archive, service files, SSH/firewall settings and the small tools.
 # NOT the rest of the TF2/L4D game installs (steamcmd re-downloads them).
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Run this as root."; exit 1; }
@@ -35,7 +35,8 @@ for d in /home/tf2/discord /home/tf2/uptime-kuma/data /home/tf2/mc /home/tf2/lea
          /home/tf2/l4d-b/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
          /home/tf2/l4d-c/left4dead/{cfg,logs,addons/sourcemod/{configs,data,plugins,extensions,gamedata}} \
          /etc/systemd/system /etc/caddy /etc/ssh /root/.ssh /etc/ufw /etc/iptables /var/spool/cron /root/tf2-gslt /var/www/stats /etc/l4d-story /opt/story \
-         /sbbs/ctrl /sbbs/data /sbbs/text /sbbs/mods /var/games/nethack /var/lib/weechat; do
+         /sbbs/ctrl /sbbs/data /sbbs/text /sbbs/mods /var/games/nethack /var/lib/weechat \
+         /sbbs/xtrn /home/tf2/aurabot /root/thelounge-old.tgz; do
   [ -e "$d" ] && P+=("$d")
 done
 restic backup --one-file-system --exclude '*.jar' --exclude '/home/tf2/mc/cache' --exclude '/home/tf2/mc/logs' --exclude '*/world-old' --exclude '*.console.txt' "${P[@]}" || exit 1
