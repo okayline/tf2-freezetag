@@ -27,6 +27,9 @@ request became its own script or workflow action. These rules keep it simple.
   anything printed. Use `run` for one-off jobs. The other actions are only for work that needs repo files or
   secrets: `l4d-deploy`, `l4d-setup`, `setup`, `leaderboard`, `discord`, `web`, `motd`, `mc`, `backup`, `vintage`,
   maps and bans. The `discord`, `web`, `motd`, `mc`, `backup`, `vintage` and `leaderboard` actions take the job as the first word in the box.
+- **Delete each run once its output is read** (`gh api -X DELETE repos/okayline/tf2-freezetag/actions/runs/<id>`).
+  The repo is public, so run output is public until then. Reports print totals only: never which player is
+  from where, and no host names. Nothing is lost: logs and configs are in the nightly pCloud backup.
 - **Never stop, start, restart or redeploy a game server unless the owner asks.** The owner decides when
   servers are up or down so players can join. Make config changes in the repo and tell the owner what is
   waiting, then deploy once when they say so.
