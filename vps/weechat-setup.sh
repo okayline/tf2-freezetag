@@ -66,7 +66,9 @@ CMDS="$CMDS;/set logger.look.backlog 1000"
 # never into a setting. AuraBot only takes a login from someone in one of its channels, so the login waits 5 seconds for autojoin.
 if [ -s /root/aurabot-pass ]; then
   A=$(sed -e 's/[;]/\\&/g' /root/aurabot-pass)
-  CMDS="$CMDS;/secure set aurabot $A;/set $S.command \"/wait 5 /msg AuraBot login \${sec.data.aurabot}\""
+  # WeeChat fills in ${...} in startup commands, which would save the password itself in irc.conf; so a placeholder is set
+  # here and swapped for the reference ${sec.data.aurabot} in irc.conf below, once this one-off WeeChat has quit
+  CMDS="$CMDS;/secure set aurabot $A;/set $S.command \"/wait 5 /msg AuraBot login AURABOT-SECURE-REF\""
 else echo "no /root/aurabot-pass (repo secret AURABOT_PASS): AuraBot auto-login left as it was"; fi
 CMDS="$CMDS;/save;/quit"
 systemctl stop weechat >/dev/null 2>&1 || true
@@ -74,6 +76,7 @@ systemctl stop weechat >/dev/null 2>&1 || true
 sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev/null 2>&1 || true
 echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, api relay: $(grep -c '^api = 9002' $D/relay.conf 2>/dev/null) port 9002, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
+sed -i 's|AURABOT-SECURE-REF|${sec.data.aurabot}|' $D/irc.conf 2>/dev/null || true
 echo "auraBot auto-login: $(grep -c '^88x31\.command = "/wait 5 /msg AuraBot login ${sec.data.aurabot}"' $D/irc.conf 2>/dev/null), secure data: $(grep -c '^aurabot = ' $D/sec.conf 2>/dev/null) (not shown), backlog: $(grep -o '^backlog = [0-9]*' $D/logger.conf 2>/dev/null | cut -d' ' -f3)"
 
 echo "== scripts =="
