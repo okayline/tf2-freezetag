@@ -11,6 +11,8 @@ var SITE = 'https://scoundrel.88x31.app';
 var TOKDIR = system.data_dir + 'scoundrel/';
 var RANKS = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
 var KIND = { monster: 'DEMON', weapon: 'BLADE', potion: 'HEALTH' };
+// a phone's 40-column screen gets its own layout (small cards two by two); 80 columns and wider keep the original one
+var NARROW = typeof console.screen_columns === 'number' && console.screen_columns < 80;
 
 function key() {
 	var f = new File(system.ctrl_dir + 'secrets/accounts-key');
@@ -71,13 +73,66 @@ function preview(v, c, bare) {
 	return (armed ? 'blade -' + Math.max(0, c.rank - v.weapon.card.rank) : 'bare -' + c.rank);
 }
 
+// text broken into lines of at most n visible characters (the \1x color codes take no room)
+function wrap(text, n) {
+	var lines = [], line = '', len = 0;
+	String(text || '').split(' ').forEach(function (w) {
+		var wl = w.replace(/\x01./g, '').length;
+		if (len && len + 1 + wl > n) { lines.push(line); line = ''; len = 0; }
+		line += (len ? ' ' : '') + w; len += (len ? 1 : 0) + wl;
+	});
+	if (line) lines.push(line);
+	return lines;
+}
+
 function header(info, screen) {
 	console.clear();
+	if (NARROW) {
+		console.print('\1h\1ySCOUNDREL.EXE\1n // ' + screen + ' \1h\1k// DECK #' + info.number + '\1n\r\n');
+		console.print('\1n\1b' + Array(40).join('\xc4') + '\1n\r\n');
+		return;
+	}
 	console.print('\1h\1ySCOUNDREL.EXE\1n  //  ' + screen + '  \1h\1k//  DECK #' + info.number + '\1n\r\n');
 	console.print('\1n\1b' + Array(81).join('\xc4') + '\1n\r\n');
 }
 
+// one small card of the 40-column room: 5 lines, 18 wide (a dimmed one cannot be taken, like a blade in bare-hands mode)
+function cardN(s, c, v, bare) {
+	var inert = bare && c.kind !== 'monster', col = inert ? '\1h\1k' : color(c), line = Array(11).join('\xc4');
+	return [
+		col + '\xda\xc4 \1h\1w[' + (s + 1) + ']' + col + ' ' + line + '\xbf\1n',
+		col + '\xb3 ' + pad(rank(c), 15) + '\xb3\1n',
+		col + '\xb3 ' + pad(KIND[c.kind], 15) + '\xb3\1n',
+		col + '\xb3' + (inert ? '\1h\1k' : '\1n') + ' ' + pad(preview(v, c, bare), 15) + col + '\xb3\1n',
+		col + '\xc0' + Array(17).join('\xc4') + '\xd9\1n'
+	];
+}
+
+function drawRunN(st, msg, bare) {
+	var v = st.run.view;
+	header(st, 'ROOM ' + v.turn);
+	console.print('\r\n \1h\1wHP\1n ' + lpad(v.health, 2) + '/' + v.maxHealth + ' \1h\1g' + bar(v.health, v.maxHealth, 20) + '\1n\r\n');
+	console.print(' \1h\1wBLADE\1n ' + (v.weapon ? '\1h\1c' + rank(v.weapon.card) + '\1n ' + (v.weaponCeiling == null ? 'hits anything' : v.weaponCeiling <= 2 ? 'dull' : 'hits up to ' + (RANKS[v.weaponCeiling - 1] || (v.weaponCeiling - 1))) : 'none') + '\r\n');
+	console.print(' \1h\1wIN DECK\1n ' + v.deckCount + '\r\n');
+	console.print(' ' + v.deckMonsters + ' demons / ' + v.deckWeapons + ' blades / ' + v.deckPotions + ' health\r\n\r\n');
+	var cards = [];
+	for (var s = 0; s < 4; s++) {
+		var i = v.slots[s], c = i == null ? null : v.room[i];
+		cards.push(c ? cardN(s, c, v, bare) : [0, 1, 2, 3, 4].map(function () { return Array(19).join(' '); }));
+	}
+	[[0, 1], [2, 3]].forEach(function (pair, n) {
+		if (n) console.print('\r\n');
+		for (var r = 0; r < 5; r++) console.print(' ' + cards[pair[0]][r] + ' ' + cards[pair[1]][r] + '\r\n');
+	});
+	console.print('\r\n');
+	wrap(msg, 38).slice(0, 2).forEach(function (l) { console.print(' ' + l + '\1n\r\n'); });
+	console.print('\r\n');
+	if (bare) console.print(' \1h\1ytap a demon to fight it bare-handed\1n\r\n\r\n \1h\1w[B]\1n back\r\n');
+	else console.print(' \1h\1ktap a card to take it\1n\r\n ' + (v.canSkip ? '\1h\1w[S]\1nKIP ROOM  ' : '') + '\1h\1w[B]\1nARE HANDS  \1h\1w[Q]\1nUIT\r\n');
+}
+
 function drawRun(st, msg, bare) {
+	if (NARROW) return drawRunN(st, msg, bare);
 	var v = st.run.view;
 	header(st, 'ROOM ' + v.turn);
 	console.print('\r\n  \1h\1wHP\1n ' + lpad(v.health, 2) + '/' + v.maxHealth + '  \1h\1g' + bar(v.health, v.maxHealth, 20) + '\1n');
@@ -118,6 +173,16 @@ function board(st) {
 	var b = api('/api/leaderboard?day=' + st.day);
 	header(st, 'BOARD');
 	if (b.error) { console.print('\r\n  \1h\1r' + b.error + '\1n\r\n'); }
+	else if (NARROW) {
+		console.print('\r\n ' + b.played + ' played today, ' + b.won + ' cleared the deck\r\n\r\n');
+		(b.top || []).slice(0, 10).forEach(function (r) {
+			console.print(' ' + lpad(r.rank, 3) + '. ' + pad(r.name, 19) + lpad(r.score, 3) + ' ' + (r.status === 'won' ? '\1h\1gcleared\1n' : '\1h\1rdied\1n') + '\r\n');
+		});
+		if (b.you) console.print('\r\n \1h\1wYOU\1n  #' + b.you.rank + '  score ' + b.you.score + '\r\n');
+		console.print('\r\n \1h\1w[B]\1nACK');
+		console.getkey(K_NOCRLF);
+		return;
+	}
 	else {
 		console.print('\r\n  ' + b.played + ' played today, ' + b.won + ' cleared the deck\r\n\r\n');
 		(b.top || []).slice(0, 15).forEach(function (r) {
@@ -132,10 +197,18 @@ function board(st) {
 function endScreen(st) {
 	var r = st.run;
 	header(st, r.status === 'won' ? 'CLEARED' : 'DELETED');
+	if (NARROW) {
+		var marks = r.marks ? [].concat(r.marks).join('').replace(/[^\x20-\x7e]/g, function (ch) { return { '\u21b7': '>', '\u2694': 'x', '\u203c': '!', '\u2665': '+', '\u00b7': '.' }[ch] || '?'; }) : '';
+		console.print('\r\n ' + (r.status === 'won' ? '\1h\1gYou cleared the deck.' : '\1h\1rThe dungeon got you.') + '\1n\r\n');
+		console.print('\r\n \1h\1wSCORE\1n ' + r.score + '\r\n');
+		if (marks) { console.print('\r\n'); for (var m = 0; m < marks.length; m += 38) console.print(' ' + marks.substr(m, 38) + '\r\n'); }
+		console.print('\r\n Come back tomorrow for a new deck.\r\n\r\n \1h\1w[B]\1nOARD  \1h\1w[Q]\1nUIT');
+	} else {
 	console.print('\r\n  ' + (r.status === 'won' ? '\1h\1gYou cleared the deck.' : '\1h\1rThe dungeon got you.') + '\1n\r\n');
 	console.print('\r\n  \1h\1wSCORE\1n ' + r.score + '\r\n');
 	if (r.marks) console.print('\r\n  ' + [].concat(r.marks).join('').replace(/[^\x20-\x7e]/g, function (ch) { return { '\u21b7': '>', '⚔': 'x', '‼': '!', '♥': '+', '·': '.' }[ch] || '?'; }) + '\r\n');
 	console.print('\r\n  Come back tomorrow for a new deck.\r\n\r\n  \1h\1w[B]\1nOARD   \1h\1w[Q]\1nUIT');
+	}
 	for (;;) { var k = console.getkey(K_UPPER | K_NOCRLF); if (k === 'B') { board(st); return endScreen(st); } if (k === 'Q' || k === '\x1b') return; }
 }
 

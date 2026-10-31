@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: Scoundrel on phones, small cards in 40 columns, v1.23
+**Sat Oct 31, 2026 · 3:58 AM HST** (goes live when the BBS setup is run on the VPS)
+
+- **Added:** `bbs/xtrn/scoundrel.js` has a 40-column layout, used when the terminal is narrower than 80 columns (phones). Room: the HP bar, blade and deck count, then four small cards two by two (18 wide, 5 lines: number, rank, kind, what taking it does), the last move's message wrapped to two lines, and the controls. Bare-hands mode dims the blades and health cards. The title, board (top 10) and end screens are redrawn to fit too. The 80-column screens are untouched. Same game, same deck, same board as scoundrel.88x31.app; only the drawing differs. Owner: "can you put that on the bbs please!"
+- **Added:** in the phone/web terminal, a tap anywhere on a Scoundrel card takes that card (it presses the card's number). The tap script looks for the card's box on the screen; this runs before the menu-letter check, so a card's bright rank letter is never read as a menu key. Checked on every cell of the room screen for 4, 3 and 1 cards (2000 cells each, none wrong); the menu-letter check still gives the same result on all menu screens. Footer v1.23.
+- **Not tested on a phone:** how the screen looks and taps on a real phone (the layout was checked as text: nothing wider than 39 columns).
+
 ## BBS: sub-menu labels in blue, phone keyboard only on the prompt line, v1.22
 **Sat Oct 31, 2026 · 3:55 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
 

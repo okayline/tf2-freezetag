@@ -245,6 +245,22 @@ function tapKey(row, x) {
 	return (odd.length === 1 && b - a >= 1) ? odd[0] : null;
 }
 
+function tapCard(g, i, x) {
+	// g: screen rows as strings; i: the tapped row's index in g; x: the tapped cell. A tap anywhere on a scoundrel.exe card
+	// (the 40-column room: boxes with "[1]" in the top edge, 18 wide, 5 rows) presses that card's number. Returns it, or null.
+	var N = { '\xDA': '\u250C', '\xBF': '\u2510', '\xC0': '\u2514', '\xD9': '\u2518', '\xC4': '\u2500', '\xB3': '\u2502' };
+	function norm(s) { return s.replace(/[\xDA\xBF\xC0\xD9\xC4\xB3]/g, function (c) { return N[c]; }); }
+	for (var r = i; r >= 0 && i - r <= 4; r--) {
+		var re = /\u250C\u2500 \[([1-4])\] \u2500{10}\u2510/g, m, t = norm(g[r] || '');
+		while ((m = re.exec(t))) {
+			if (x < m.index || x > m.index + 17) continue;
+			var bot = norm(g[r + 4] || '');
+			if (bot.charAt(m.index) === '\u2514' && bot.charAt(m.index + 17) === '\u2518') return m[1];
+		}
+	}
+	return null;
+}
+
 	var t = setInterval(function () { var C = window.fTelnet && fTelnet._Crt; if (!C || !C.Canvas || !C.SaveScreen) return; clearInterval(t); hook(C); }, 300);
 	function hook(C) {
 		var cv = C.Canvas, d = null;
@@ -300,7 +316,9 @@ function tapKey(row, x) {
 			if (ps.indexOf('[Hit a key]') >= 0) { C.PushKeyDown(0, 13, false, false, false); return; }
 			var cells = C.SaveScreen(1, y, cols, y)[0], row = [];
 			for (var i = 0; i < cols; i++) row.push({ ch: cells[i].Ch, fg: cells[i].Attr & 15 });
-			var k = tapKey(row, x);
+			var g = [], y0 = Math.max(1, y - 4), y1 = Math.min(rows, y + 4), blk = C.SaveScreen(1, y0, cols, y1);
+			for (var q = 0; q < blk.length; q++) { var ln = ''; for (var w = 0; w < cols; w++) ln += blk[q][w].Ch; g.push(ln); }
+			var k = tapCard(g, y - y0, x) || tapKey(row, x);   // a scoundrel.exe card first: its bright letters would read as menu keys
 			if (k) { for (var n = 0; n < k.length; n++) C.PushKeyPress(k.charCodeAt(n), 0, false, false, false); if (ta && document.activeElement === ta) ta.blur(); }   // a menu letter: send it, and put an open keyboard away
 			else if (ta && Math.abs(y - cy) <= 1) wantKb = true;   // the phone's keyboard comes up only when you tap the prompt: the cursor's line, or the line above or below it
 		});
@@ -428,7 +446,7 @@ if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.22
+BBS_VERSION=1.23
 # the footer is the shared one every 88x31 game shows (dungeon-items footer.js): "🄯 ~*~88x31~*~ · § ≡ v<version>".
 # Its ≡ goes to #account, which opens the BBS's own account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)
