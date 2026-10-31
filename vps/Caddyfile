@@ -36,12 +36,9 @@ bbs.88x31.app {
 
 irc.88x31.app {
 	tls internal
-	# the older relay, for phone apps (WeeChat Android). The app sends no Origin header, and WeeChat only accepts
-	# this site's origin (weechat-setup.sh), so Caddy adds it here. The relay password is still required.
+	# the older relay, for phone apps (WeeChat Android)
 	handle /weechat {
-		reverse_proxy 127.0.0.1:9001 {
-			header_up Origin https://irc.88x31.app
-		}
+		reverse_proxy 127.0.0.1:9001
 	}
 	# the API relay, for Weave: WeeChat only accepts it at exactly /api, so the path is passed on unchanged
 	@api path /api /api/*
