@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Story writer: logs read once a day into a queue; two chapters every 12 hours
+**Fri Oct 30, 2026 · 11:50 PM HST** (committed, not pushed; the scheduled task reads `WRITER.md` from GitHub, so it applies after a push)
+
+- **Added:** a session queue in `l4d/stories/WRITER.md`, kept on the server at `/etc/l4d-story/queue.json` (root only, already in the nightly backup). Once a day (the first run after 20 hours), the writer reads the last 7 days of logs in one go and adds every finished session without a chapter, with all its facts. Every run (9:47 AM and 9:47 PM) writes and saves the two oldest sessions from the queue and removes each one only after its save is confirmed.
+- **Removed:** reading the logs on every run. Why: the owner asked for the logs to be read once a day with everything gathered in one go, and for a steady two posts every 12 hours while there is a backlog. It also uses less of the account's usage on the run that doesn't read logs. Owner: "could we have the writer only look at the logs once a day? and get everything it needs to write in one go."
+
 ## Story writer: start from Wed Oct 28
 **Fri Oct 30, 2026 · 11:50 PM HST**
 
