@@ -73,8 +73,7 @@ CAMPAIGNS = {"nomercy": ("No Mercy", "hospital01_apartment"), "crashcourse": ("C
              "bloodharvest": ("Blood Harvest", "farm01_hilltop"), "sacrifice": ("The Sacrifice", "river01_docks")}
 DIFFICULTIES = ["Easy", "Normal", "Hard", "Impossible"]
 AD_EVERY = 65 * 60                     # seconds between in-game chat announcements per server
-OPS = "#ops"                           # the admins' channel (secret, +s, admins only): alerts, servers going offline/online, commits
-OPS_GRACE = 20                         # seconds someone may sit in #ops before logging in (WeeChat logs in 5 s after connecting)
+OPS = "#ops"                           # the admins' channel (secret, +s): alerts, servers going offline/online, commits
 ALERT_CHANNEL = OPS                    # low memory / disk warnings and the nightly backup result
 GH_USER = "okayline"                   # pushes to this account's PUBLIC repos are posted in OPS (private repos never are)
 GH_EVERY = 120                         # seconds between checks of its GitHub events (unchanged answers don't count against the limit)
@@ -990,42 +989,6 @@ class Watcher(threading.Thread):
             time.sleep(30)
 
 
-class OpsGuard:
-    """#ops is for admins only: anyone in it who is not logged in (password or IRC operator) after OPS_GRACE seconds
-    is kicked. The grace gives WeeChat's automatic login (5 s after it connects) and an operator's WHOIS time.
-    Kicking needs @ in #ops, which AuraBot gets by being first in; without it, it says so in the journal once."""
-    def __init__(self, irc, admin):
-        self.irc, self.admin = irc, admin
-        self.reset()
-
-    def reset(self):
-        self.since, self.warned = {}, False
-
-    def sync(self):
-        now = time.time()
-        members = self.irc.members.get(OPS, set()) - {NICK.lower()}
-        self.since = {n: t for n, t in self.since.items() if n in members or (n.startswith("op ") and n[3:] in members)}
-        for n in members:
-            if n in self.admin.logged_in:
-                self.since.pop(n, None)
-                # admins get @ in #ops too, so whoever stays in can give AuraBot its @ back after it restarts
-                if self.irc.is_op(OPS) and not self.irc.is_op(OPS, n) and now - self.since.get("op " + n, 0) > 60:
-                    self.irc.raw("MODE %s +o %s" % (OPS, n))
-                    self.since["op " + n] = now
-                continue
-            first = self.since.setdefault(n, now)
-            if now - first < OPS_GRACE:
-                continue
-            if not self.irc.is_op(OPS):
-                if not self.warned:
-                    print("AuraBot: can't keep #ops admin-only: no @ there", flush=True)
-                    self.warned = True
-                continue
-            self.irc.raw("KICK %s %s :#ops is for admins (log in to AuraBot first)" % (OPS, n))
-            print("AuraBot: kicked %s from #ops (not logged in)" % n, flush=True)
-            self.since[n] = now                # don't repeat while the server answers
-
-
 class Topics:
     """Keeps each server channel's topic set to the server's status. Setting a topic needs @ in the channel:
     AuraBot gets it by being first into the channel after the IRC server restarts (it reconnects within seconds),
@@ -1079,14 +1042,12 @@ def main():
     irc = Irc()
     admin = Admin(irc)
     topics = Topics(irc, admin)
-    guard = OpsGuard(irc, admin)
     last_report, posted = time.time(), 0
     while True:
         try:
             irc.connect([fd.chan for fd in feeds] + [OPS])
             admin.restore()
             topics.reset()
-            guard.reset()
             print("AuraBot: connected", flush=True)
             while True:
                 for fd in feeds:
@@ -1102,7 +1063,6 @@ def main():
                     else:
                         topics.want[chan.lower()] = text
                 topics.sync()
-                guard.sync()
                 if len(irc.queue) > 60:                     # far behind: drop the oldest
                     dropped = len(irc.queue) - 40
                     irc.queue = irc.queue[dropped:]
