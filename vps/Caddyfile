@@ -4,7 +4,7 @@
 #   stats.88x31.app -> public stats page (files in /var/www/stats, rebuilt every 5 minutes by vps/stats-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   status.88x31.app -> Uptime Kuma (127.0.0.1:3001, installed by vps/kuma-setup.sh), self-signed certificate for Cloudflare "Full" mode
 #   bbs.88x31.app   -> 88x31 BBS web site (Synchronet, 127.0.0.1:8023); its browser terminal's websocket goes to 1123. Real certificate (DNS-only record, telnet uses the same name)
-#   irc.88x31.app   -> Weave, WeeChat's web page (/var/www/weave); /term/ is WeeChat's terminal (ttyd, behind a login);
+#   irc.88x31.app   -> Weave, WeeChat's web page (/var/www/weave)
 #                      /api is the API relay for Weave (127.0.0.1:9002), /weechat the older relay (127.0.0.1:9001); all installed by vps/weechat-setup.sh; self-signed certificate for Cloudflare "Full" mode
 #   anything else on port 80 (the bare IP) -> log page
 
@@ -45,9 +45,6 @@ irc.88x31.app {
 	handle @api {
 		reverse_proxy 127.0.0.1:9002
 	}
-	# WeeChat's terminal (ttyd) at /term/ behind a login: the file is made by vps/weechat-setup.sh and stays on the server;
-	# without it /term/ is just a missing page
-	import /etc/caddy/irc-term/*.caddy
 	# everything else is Weave. It may only talk to this site: no uploads, and no images or videos from links posted in chat.
 	# (Weave's own page policy adds the rest; a browser applies both.)
 	handle {
