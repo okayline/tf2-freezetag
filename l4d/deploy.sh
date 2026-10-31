@@ -12,6 +12,7 @@ KEY=${1:-}; CLEAN=${2:-}
 case "$KEY" in classic|versus|vintage) ;; *) echo "usage: deploy.sh classic|versus|vintage [clean]"; exit 1;; esac
 # shellcheck disable=SC1090
 . "$HERE/servers/$KEY.conf"
+TICKRATE=${TICKRATE:-60}   # same for every server; a .conf can override it. Must match the rates in base/server.cfg.
 
 OWNER_ID=STEAM_0:1:21624068
 ROOT=/home/tf2/$DIR
@@ -53,6 +54,19 @@ fi
 [ -f "$G/addons/l4dtoolz/l4dtoolz_mm.so" ] || { echo "l4dtoolz_mm.so not found"; exit 1; }
 MP=$G/addons/metamod/metaplugins.ini
 grep -q '^addons/l4dtoolz/l4dtoolz_mm' "$MP" 2>/dev/null || echo "addons/l4dtoolz/l4dtoolz_mm" >> "$MP"
+
+echo "-- Tickrate Enabler (lets -tickrate go above 30)"
+if [ ! -f "$G/addons/tickrate_enabler/tickrate_enabler.so" ]; then
+  T=$(mktemp -d)
+  U=$(curl -fsSL https://api.github.com/repos/accelerator74/tickrate-enabler/releases/tags/build \
+    | grep -oiE 'https://[^"]*enabler-l4d-linux[^"]*\.tar\.gz' | head -1)
+  [ -n "$U" ] || { echo "no L4D1 Linux file in the Tickrate Enabler release"; exit 1; }
+  curl -fsSL "$U" -o "$T/t.tgz"
+  tar -xzf "$T/t.tgz" -C "$G"
+  rm -rf "$T"
+fi
+[ -f "$G/addons/tickrate_enabler/tickrate_enabler.so" ] && [ -f "$G/addons/tickrate_enabler_l4d1.vdf" ] \
+  || { echo "Tickrate Enabler files not found"; exit 1; }
 
 echo "-- admins"
 A=$SM/configs/admins_simple.ini
@@ -123,7 +137,7 @@ Wants=network-online.target
 [Service]
 User=tf2
 WorkingDirectory=$ROOT
-ExecStart=/usr/bin/screen -DmS $SCREEN $ROOT/srcds_run -game left4dead -console -port $PORT +maxplayers 8 +mp_gamemode $MODE +map $START_MAP +hostname "$NAME"
+ExecStart=/usr/bin/screen -DmS $SCREEN $ROOT/srcds_run -game left4dead -console -port $PORT -tickrate $TICKRATE +maxplayers 8 +mp_gamemode $MODE +map $START_MAP +hostname "$NAME"
 Restart=on-failure
 RestartSec=10
 # keep it from starving TF2 on this small VPS
