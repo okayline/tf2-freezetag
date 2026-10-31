@@ -59,12 +59,22 @@ S="irc.server.88x31"
 CMDS="/set relay.network.ipv6 off;/set relay.network.bind_address \"127.0.0.1\";/set relay.network.password \"$P\""
 CMDS="$CMDS;/set relay.network.websocket_allowed_origins \"^https://irc.88x31.app$\";/relay add weechat 9001;/relay add api 9002"
 CMDS="$CMDS;/server add 88x31 127.0.0.1/6667 -notls;/set $S.tls off;/set $S.nicks \"$NICK\";/set $S.username \"$USERNAME\""
-CMDS="$CMDS;/set $S.realname \"$REALNAME\";/set $S.autoconnect on;/set $S.autojoin \"$CHANNELS\";/save;/quit"
+CMDS="$CMDS;/set $S.realname \"$REALNAME\";/set $S.autoconnect on;/set $S.autojoin \"$CHANNELS\""
+# history: after a restart each buffer gets back its last 1000 logged lines (WeeChat's default is 20)
+CMDS="$CMDS;/set logger.look.backlog 1000"
+# AuraBot login on every connect: the password (repo secret AURABOT_PASS, in /root/aurabot-pass) goes into WeeChat's secure data,
+# never into a setting. AuraBot only takes a login from someone in one of its channels, so the login waits 5 seconds for autojoin.
+if [ -s /root/aurabot-pass ]; then
+  A=$(sed -e 's/[;]/\\&/g' /root/aurabot-pass)
+  CMDS="$CMDS;/secure set aurabot $A;/set $S.command \"/wait 5 /msg AuraBot login \${sec.data.aurabot}\""
+else echo "no /root/aurabot-pass (repo secret AURABOT_PASS): AuraBot auto-login left as it was"; fi
+CMDS="$CMDS;/save;/quit"
 systemctl stop weechat >/dev/null 2>&1 || true
 # a one-off WeeChat on the same folder applies the settings and saves them (the service must be stopped: one WeeChat per folder)
 sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev/null 2>&1 || true
 echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, api relay: $(grep -c '^api = 9002' $D/relay.conf 2>/dev/null) port 9002, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
+echo "auraBot auto-login: $(grep -c '^88x31\.command = "/wait 5 /msg AuraBot login ${sec.data.aurabot}"' $D/irc.conf 2>/dev/null), secure data: $(grep -c '^aurabot = ' $D/sec.conf 2>/dev/null) (not shown), backlog: $(grep -o '^backlog = [0-9]*' $D/logger.conf 2>/dev/null | cut -d' ' -f3)"
 
 echo "== scripts =="
 # WeeChat scripts from weechat.org's script library, loaded at start (autoload). Add a file name to the list to add a script.
