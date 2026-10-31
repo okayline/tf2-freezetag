@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Installs WeeChat (always connected to the BBS's IRC server, running inside tmux as the "weechat" service) and two ways in:
-#   - Glowing Bear, WeeChat's web page, at irc.88x31.app (WeeChat's relay on 127.0.0.1:9001; vps/Caddyfile)
+#   - Weave, WeeChat's web page, at irc.88x31.app (WeeChat's API relay on 127.0.0.1:9002 at /api; vps/Caddyfile)
+#     The older relay (127.0.0.1:9001 at /weechat) stays for phone apps like WeeChat Android.
 #   - the real terminal WeeChat in the browser at irc.88x31.app/term (ttyd attaches to the tmux session; Caddy asks for a
 #     login first: user "kura", the same password as the relay)
 # Replaces The Lounge: removes it if it is still installed (its old settings and logs are kept once in /root/thelounge-old.tgz).
 # Run as root, from the repo's vps folder or anywhere. The password is read from /root/weechat-pass (repo secret LOUNGE_PASS,
-# put there by vps-tools' run action; never printed). Re-running updates Glowing Bear and re-applies the settings below; every
+# put there by vps-tools' run action; never printed). Re-running reinstalls Weave and re-applies the settings below; every
 # other WeeChat setting you change in the app is kept. Restarts weechat and ttyd (not a game server).
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
-D=/var/lib/weechat; WWW=/var/www/glowing-bear
+D=/var/lib/weechat; WWW=/var/www/weave
 # the identity and channels (the same ones The Lounge used)
 NICK=okay; USERNAME=kurako; REALNAME=kura
 CHANNELS="#88x31,#tf2-freezetag,#l4d-classic,#l4d-vs,#l4d-vintage"
@@ -32,34 +33,24 @@ echo "weechat $(weechat --version 2>/dev/null | head -n 1), $(tmux -V)"
 id weechat >/dev/null 2>&1 || useradd -r -m -d $D -s /usr/sbin/nologin weechat
 mkdir -p $D; chown weechat:weechat $D; chmod 700 $D
 
-echo "== Glowing Bear (web page) =="
-T=$(mktemp -d); curl -fsSL -m 120 https://github.com/glowing-bear/glowing-bear/archive/refs/heads/gh-pages.tar.gz | tar -xz -C "$T" --strip-components 1
-[ -f "$T/index.html" ] && { rm -rf $WWW; mkdir -p $(dirname $WWW); mv "$T" $WWW; chmod -R a+rX $WWW; echo "glowing bear: $WWW"; } || { rm -rf "$T"; echo "glowing bear: download failed, kept the old one"; }
-
-# no uploads: Glowing Bear's picture button, drag-and-drop and paste-an-image all send the picture to Imgur (a third party).
-# The button, the drop and the Imgur settings are taken out of the page; a script stops image paste and drop; and Caddy sends a
-# header that forbids the page from contacting anything but this site (vps/Caddyfile), so Imgur could not be reached anyway.
-python3 - $WWW <<'PYG'
-import re, sys, os
-w = sys.argv[1]
-p = w + "/directives/input.html"
-if os.path.exists(p):
-    s = open(p, encoding="utf-8").read()
-    s = re.sub(r'\s*<label class="btn btn-send-image.*?</label>', '', s, flags=re.S)
-    s = re.sub(r'\s*<div id="imgur-upload-progress"></div>', '', s)
-    s = s.replace(' imgur-drop', '')
-    open(p, "w", encoding="utf-8").write(s)
-p = w + "/index.html"
-s = open(p, encoding="utf-8").read()
-s = re.sub(r'<li class="standard-labels">(?:(?!</li>).)*?iToken.*?</li>', '', s, count=1, flags=re.S)
-inj = ('<style id="no-uploads">.btn-send-image,.imgur-upload,#imgur-upload,#imgur-upload-progress,.upload-error{display:none !important}</style>'
-       '<script id="no-uploads-js">(function(){function f(e){var d=e.clipboardData||e.dataTransfer;if(d&&d.files&&d.files.length){e.preventDefault();e.stopImmediatePropagation();}}'
-       '["paste","drop","dragover"].forEach(function(n){window.addEventListener(n,f,true);});})();</script>')
-if 'id="no-uploads"' not in s:
-    s = s.replace("</head>", inj + "</head>", 1)
-open(p, "w", encoding="utf-8").write(s)
-print("glowing bear: uploads off")
-PYG
+echo "== Weave (web page) =="
+# Weave (github.com/rnocx/Weave): three static files, pinned to a reviewed commit and checked against their SHA-256. To update:
+# read the new version's weave.js for outside requests, then change WV and the three sums. It talks to WeeChat's API relay
+# (127.0.0.1:9002, /api on the site). Its file uploads go to outside services, so they are switched off here (uploadBackend
+# 'off'), and Caddy's header only lets the page talk to this site (vps/Caddyfile), so links' images are not loaded either.
+WV=b42e7bd10582c5563a7c3578e31e301dbb258a02
+WSUMS="715f881de25fe51bd4c90cb7df884e47dd123a28b66ebd140af55d1fec97baf9  index.html
+768e36547b2b21984398ed44cd732ec42563d4603450e4c382a00a504633fba0  weave.js
+5936e79a3c0c2aa2f510ecb302062127d50820bbda75a6e4503f47c44ee67729  weave.css"
+T=$(mktemp -d)
+for f in index.html weave.js weave.css; do curl -fsSL -m 60 -o "$T/$f" "https://raw.githubusercontent.com/rnocx/Weave/$WV/$f" || true; done
+if (cd "$T" && echo "$WSUMS" | sha256sum -c - >/dev/null 2>&1); then
+  sed -i "s|uploadBackend: 'jirafeau',|uploadBackend: 'off',|; s|uploadUrl: 'https://files.interdo.me/',|uploadUrl: '',|" "$T/weave.js"
+  grep -q "uploadBackend: 'off'," "$T/weave.js" && echo "weave: uploads off" || echo "weave: WARNING uploads setting not found"
+  rm -rf $WWW; mkdir -p $(dirname $WWW); mv "$T" $WWW; chmod -R a+rX $WWW; echo "weave: $WWW (${WV:0:7})"
+else rm -rf "$T"; echo "weave: download failed or files changed, kept what was there"; fi
+# Glowing Bear (replaced by Weave)
+[ -d /var/www/glowing-bear ] && rm -rf /var/www/glowing-bear && echo "glowing bear: removed"
 
 echo "== settings =="
 [ -s /root/weechat-pass ] || { echo "no /root/weechat-pass (repo secret LOUNGE_PASS): run this through vps-tools' run action"; exit 1; }
@@ -68,13 +59,13 @@ P=$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/[;]/\\&/g' /root/weechat-pass)
 S="irc.server.88x31"
 # ipv6 off: with it on (the default), WeeChat refuses the IPv4 address 127.0.0.1 and the relay never listens
 CMDS="/set relay.network.ipv6 off;/set relay.network.bind_address \"127.0.0.1\";/set relay.network.password \"$P\""
-CMDS="$CMDS;/set relay.network.websocket_allowed_origins \"^https://irc.88x31.app$\";/relay add weechat 9001"
+CMDS="$CMDS;/set relay.network.websocket_allowed_origins \"^https://irc.88x31.app$\";/relay add weechat 9001;/relay add api 9002"
 CMDS="$CMDS;/server add 88x31 127.0.0.1/6667 -notls;/set $S.tls off;/set $S.nicks \"$NICK\";/set $S.username \"$USERNAME\""
 CMDS="$CMDS;/set $S.realname \"$REALNAME\";/set $S.autoconnect on;/set $S.autojoin \"$CHANNELS\";/save;/quit"
 systemctl stop weechat >/dev/null 2>&1 || true
 # a one-off WeeChat on the same folder applies the settings and saves them (the service must be stopped: one WeeChat per folder)
 sudo -u weechat timeout 60 weechat-headless --dir $D --run-command "$CMDS" >/dev/null 2>&1 || true
-echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
+echo "relay: $(grep -c '^weechat = 9001' $D/relay.conf 2>/dev/null) port 9001, api relay: $(grep -c '^api = 9002' $D/relay.conf 2>/dev/null) port 9002, password $(grep -q '^password = "..*"' $D/relay.conf 2>/dev/null && echo set || echo MISSING) (not shown)"
 echo "server: $(grep -c "^88x31\.addresses = \"127.0.0.1/6667\"" $D/irc.conf 2>/dev/null) 88x31 at 127.0.0.1/6667, nick $(grep -o '^88x31\.nicks = "[^"]*"' $D/irc.conf 2>/dev/null | cut -d'"' -f2)"
 
 echo "== scripts =="
@@ -99,7 +90,7 @@ set -sa terminal-features ",xterm-256color:RGB"
 CONF
 cat > /etc/systemd/system/weechat.service <<UNIT
 [Unit]
-Description=WeeChat in tmux (IRC client; relay for Glowing Bear; terminal for ttyd)
+Description=WeeChat in tmux (IRC client; relays for Weave and phone apps; terminal for ttyd)
 After=network-online.target sbbs.service
 
 [Service]
@@ -183,4 +174,4 @@ systemctl start weechat
 sleep 3
 systemctl restart ttyd
 if caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1; then systemctl reload caddy && echo "caddy: reloaded"; else echo "caddy: config did not validate, not reloaded"; fi
-echo "weechat: $(systemctl is-active weechat), relay listening: $(ss -ltnH '( sport = :9001 )' | wc -l), ttyd: $(systemctl is-active ttyd)"
+echo "weechat: $(systemctl is-active weechat), relay listening: $(ss -ltnH '( sport = :9001 )' | wc -l), api relay listening: $(ss -ltnH '( sport = :9002 )' | wc -l), ttyd: $(systemctl is-active ttyd)"
