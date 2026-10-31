@@ -2,6 +2,12 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Story writer: start from Wed Oct 28
+**Fri Oct 30, 2026 · 11:50 PM HST**
+
+- **Changed:** `l4d/stories/WRITER.md` only writes sessions that started on or after 2026-10-28 (Hawaii date). Sessions from Sun Oct 25 to Tue Oct 27 are left unwritten for good. Owner: "can we start on the 28th then please!" (the event log, with heals, revives, witch and tank details, started on Wed Oct 28).
+- **Removed:** writing sessions from before Oct 28 (the 7-day window would have started the backlog on Sun Oct 25).
+
 ## Story writer: one chapter per play session, two per run, 7 days back
 **Fri Oct 30, 2026 · 11:20 PM HST** (committed, not pushed; the scheduled task reads `WRITER.md` from GitHub, so it applies after a push)
 
