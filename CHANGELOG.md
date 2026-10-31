@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## Story writer: one chapter per play session, two per run, 7 days back
+**Fri Oct 30, 2026 · 11:20 PM HST** (committed, not pushed; the scheduled task reads `WRITER.md` from GitHub, so it applies after a push)
+
+- **Changed:** `l4d/stories/WRITER.md`. A chapter is now about one play session (from a human joining the empty server until it is empty again), about that session's single best moment. Each run writes up to two, the oldest unwritten finished sessions of the last 7 days first, saved under the Hawaii day the session started (with that day's author style). Sessions under 10 minutes, still going or with no real action are skipped. Facts now hold `session_start` and `session_end`; a session counts as written if a saved chapter's `session_start` (or, for older chapters, `round_start`) falls inside it. Time limit about 10 minutes.
+- **Removed:** one chapter per run from today's logs only, oldest round first. Why: the writer stopped Thu Oct 29 evening (the account running the scheduled task "Write the day's server stories" ran out of usage; the owner has paused it), and the old rules only read today's logs, so missed days were never written. A busy day also has far more rounds than chapters (Fri Oct 30: 53 finished rounds, but 17 sessions, 7 of them 30+ minutes). Owner: "can we change WRITER.md, to look back at past runs too", then "yeah that sounds great!"
+- **Not changed:** where the schedule lives (still the scheduled task on the other account).
+
 ## L4D: all 3 servers to 60 tick
 **Fri Oct 30, 2026 · 5:40 PM HST** (live on all 3 servers at 5:50 PM; Tickrate_Enabler 1.5.2 shows in plugin_print)
 
