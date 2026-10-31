@@ -3,7 +3,7 @@
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
 ## L4D: all 3 servers to 60 tick
-**Fri Oct 30, 2026 · 5:40 PM HST** (committed, not pushed; goes live after push, `l4d-deploy` on each server, and a restart while it is empty)
+**Fri Oct 30, 2026 · 5:40 PM HST** (live on all 3 servers at 5:50 PM; Tickrate_Enabler 1.5.2 shows in plugin_print)
 
 - **Changed:** `l4d/deploy.sh` installs [Tickrate Enabler](https://github.com/Accelerator74/Tickrate-Enabler) (L4D1 Linux build, the .zip from its release, like l4dtoolz) and adds `-tickrate 60` to each server's launch line (`TICKRATE`, default 60, a `.conf` can override). `l4d/base/server.cfg` gets `sv_maxupdaterate 60`, `sv_maxcmdrate 60` and `sv_minrate 20000`. Why: players on the versus server (far away, 200+ ping) said plain 30-tick "vanilla" feels laggy. Owner: "okay let's do 60 on all the servers please". Note: the `sv_maxrate 8000` seen earlier was only in the unused `listenserver360.cfg`; live `sv_maxrate` is already 0 (no cap).
 
