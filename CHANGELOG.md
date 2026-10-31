@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: phones no longer stretch the terminal sideways, v1.20
+**Sat Oct 31, 2026 · 3:35 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
+
+- **Changed:** the rule that made the web terminal fill the whole page width on phones (`bbs/setup.sh`, the `pointer:coarse` rule) now only applies when the phone is held upright (`orientation:portrait`). Sideways, the terminal keeps its own size, the way it does on a PC. Upright phones are unchanged. Owner: "on phones can we remove the 'landscape mode full width' thing?" Footer v1.20.
+- **Not changed:** 40 or 80 columns is still decided once when the page loads (a phone under 700 px wide gets 40). Turn the phone sideways and reload to get the sideways layout.
+- **Removed:** the landscape stretch.
+
 ## Story writer: logs read once a day into a queue; two chapters every 12 hours
 **Fri Oct 30, 2026 · 11:50 PM HST** (committed, not pushed; the scheduled task reads `WRITER.md` from GitHub, so it applies after a push)
 
