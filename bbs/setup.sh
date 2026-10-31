@@ -427,7 +427,7 @@ if [ -n "$CSSD" ]; then
   echo "/* dosfont: Web437 IBM VGA 8x16, VileR (int10h.org), CC BY-SA 4.0, see /fonts/LICENSE.TXT */ @font-face{font-family:'IBM VGA';src:url('../fonts/Web437_IBM_VGA_8x16.woff') format('woff')} html,body,body *{font-family:'IBM VGA',monospace !important;font-size:16px} body{-webkit-font-smoothing:none}" >> $CSSD/custom.css
 fi
 # BBS web version: bump it on every release (pushed change to the site)
-BBS_VERSION=1.20
+BBS_VERSION=1.21
 # the footer is the shared one every 88x31 game shows (dungeon-items footer.js): "🄯 ~*~88x31~*~ · § ≡ v<version>".
 # Its ≡ goes to #account, which opens the BBS's own account menu upward: Log in with passkey, Link passkey, Log out
 # (pkSignIn is in the top bar's component, loaded before the footer)

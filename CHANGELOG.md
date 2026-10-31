@@ -2,6 +2,13 @@
 
 [TF2] Freeze Tag (patched): the Freeze Tag SourceMod plugin for a modded TF2 server, plus its server settings and the push-to-update deploy. The plugin is **Freeze Tag 1.1.4 (patched)**; the settings plugin `88x31_settings` is 1.0. There are no other version numbers, so entries are named by what changed. Newest first. Times are Hawaii time (HST).
 
+## BBS: main menu's first letters in blue, no area in the main prompt, v1.21
+**Sat Oct 31, 2026 · 3:45 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
+
+- **Changed:** in `bbs/menu/main.msg` and `main.40col.msg`, each item's key and the first three letters of its name are the key's blue, the rest of the name stays white ("a  aut" blue, "o-msg" white). All 23 items; the words and positions are unchanged. Owner: "color the first three letters the same blue that the letters are".
+- **Removed:** the message group and sub (like "[1] Local [1] Notice") from the main menu's prompt, which is now "■ Main ■ time : " like the E-mail and Quick prompts. `ctrl/text.ini` has a new `shell_message_prompt_end` (the old ending) that the Message menu's prompt in `bbs/mods/menus88.js` now reads, so that menu still shows the group and sub you are in. Owner: "can we get rid of [1] Local [1] Notice in the bottom bar". Footer v1.21.
+- **Not changed:** the sub-menus (messages, e-mail, files, quickie) keep their one-color labels; the Message menu's prompt.
+
 ## BBS: phones no longer stretch the terminal sideways, v1.20
 **Sat Oct 31, 2026 · 3:35 AM HST** (committed, not pushed; goes live when the BBS setup is run on the VPS)
 

@@ -66,7 +66,7 @@ shell.message_menu = {
 	cls: true,
 	eval: 'bbs.main_cmds++',
 	node_action: NODE_RMSG,
-	prompt: prompt88("Message", gettext(" \x01n\x01c[\x01h@GN@\x01n\x01c] @GRP@\x01\\ [\x01h@SN@\x01n\x01c] @SUB@: \x01n", "shell_main_prompt_end")),
+	prompt: prompt88("Message", gettext(" \x01n\x01c[\x01h@GN@\x01n\x01c] @GRP@\x01\\ [\x01h@SN@\x01n\x01c] @SUB@: \x01n", "shell_message_prompt_end")),
 	num_input: shell.get_sub_num,
 	slash_num_input: shell.get_grp_num,
 	command: {
