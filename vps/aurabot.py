@@ -30,6 +30,8 @@ import json
 import glob
 import datetime
 import importlib.util
+import urllib.request
+import urllib.error
 import queue
 import random
 import threading
@@ -70,7 +72,10 @@ CAMPAIGNS = {"nomercy": ("No Mercy", "hospital01_apartment"), "crashcourse": ("C
              "bloodharvest": ("Blood Harvest", "farm01_hilltop"), "sacrifice": ("The Sacrifice", "river01_docks")}
 DIFFICULTIES = ["Easy", "Normal", "Hard", "Impossible"]
 AD_EVERY = 65 * 60                     # seconds between in-game chat announcements per server
-ALERT_CHANNEL = "#tf2-freezetag"       # low memory / disk warnings and the nightly backup result (same as on Discord)
+OPS = "#ops"                           # the admins' channel (secret, +s): alerts, servers going offline/online, commits
+ALERT_CHANNEL = OPS                    # low memory / disk warnings and the nightly backup result
+GH_USER = "okayline"                   # pushes to this account's PUBLIC repos are posted in OPS (private repos never are)
+GH_EVERY = 120                         # seconds between checks of its GitHub events (unchanged answers don't count against the limit)
 LB_IGNORE = "/home/tf2/leaderboard-ignore.txt"
 LB_KIND = {"tf2": "tf2", "classic": "l4d", "vs": "l4dvs", "vintage": "l4d"}
 NOISE = re.compile(r'rcon from|Log file (started|closed)|path_goal|\bstuck\b|\bunstuck\b'
@@ -315,6 +320,7 @@ class Irc:
             cmd, args = parts[0].upper(), parts[1:] + ([trail] if trail or " :" in msg else [])
             if cmd == "001":
                 self.raw("JOIN " + ",".join(self.chans))
+                self.raw("MODE %s +s" % OPS)              # secret: #ops stays out of /list (works when AuraBot has @ there)
                 self.ready = True
             elif cmd == "433":                                    # nickname taken: try again a bit later
                 raise ConnectionError("nickname %s is taken" % NICK)
@@ -795,6 +801,7 @@ class Watcher(threading.Thread):
         self.out = queue.Queue()
         self.state, self.last_sample, self.last_ad, self.last_line, self.last_alert = {}, {}, {}, {}, {}
         self.last_backup = None
+        self.gh = {"etag": None, "seen": None, "next": 0}   # GitHub events: last answer's ETag, newest event id posted
 
     def say(self, chan, text):
         self.out.put(("say", chan, text))
@@ -882,6 +889,7 @@ class Watcher(threading.Thread):
                 self.topic(key, names, info)
             if up and st["up"] is False:
                 self.say(CHAN[key], I + "%s is back online" % s["label"] + I)
+                self.say(OPS, I + "%s is back online" % s["label"] + I)
             if st["up"] is None:
                 st["up"] = up
             elif up:
@@ -890,6 +898,7 @@ class Watcher(threading.Thread):
                 st["up"] = False
                 why = "stopped" if not is_active(s["service"]) else "not answering"
                 self.say(CHAN[key], I + "%s went offline (%s)" % (s["label"], why) + I)
+                self.say(OPS, I + "%s went offline (%s)" % (s["label"], why) + I)
         now = time.time()
         du = shutil.disk_usage("/")
         if mem_free_mb() < 300 and now - self.last_alert.get("mem", 0) > 6 * 3600:
@@ -909,8 +918,67 @@ class Watcher(threading.Thread):
             if not first:
                 self.say(ALERT_CHANNEL, I + "the backup finished: %s" % ("ok" if kv.get("Result") == "success" else "FAILED (%s)" % kv.get("Result")) + I)
 
+    def github(self, now):
+        """New pushes to GH_USER's public repos, from GitHub's public events (no token needed). The first check after a
+        start only remembers where it is, so a restart never reposts old commits."""
+        if now < self.gh["next"]:
+            return
+        self.gh["next"] = now + GH_EVERY
+        req = urllib.request.Request("https://api.github.com/users/%s/events/public?per_page=30" % GH_USER,
+                                     headers={"User-Agent": "AuraBot", "Accept": "application/vnd.github+json"})
+        if self.gh["etag"]:
+            req.add_header("If-None-Match", self.gh["etag"])
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                self.gh["etag"] = r.headers.get("ETag")
+                events = json.load(r)
+        except urllib.error.HTTPError as e:
+            if e.code != 304:                       # 304: nothing new
+                print("AuraBot: github events HTTP %d" % e.code, flush=True)
+            return
+        pushes = [e for e in events if e.get("type") == "PushEvent" and str(e.get("id", "")).isdigit()]
+        if not pushes:
+            return
+        newest = max(int(e["id"]) for e in pushes)
+        if self.gh["seen"] is None:
+            self.gh["seen"] = newest
+            return
+        for e in sorted(pushes, key=lambda e: int(e["id"])):
+            if int(e["id"]) <= self.gh["seen"]:
+                continue
+            repo = e.get("repo", {}).get("name", "?")
+            p = e.get("payload", {})
+            branch = str(p.get("ref", "")).replace("refs/heads/", "")
+            commits = p.get("commits") or []
+            if not commits and p.get("head"):       # GitHub's events leave the commits out now: one lookup per push
+                before, head = str(p.get("before", "")), str(p["head"])
+                path = "compare/%s...%s" % (before, head) if before.strip("0") else "commits/%s" % head
+                try:
+                    req = urllib.request.Request("https://api.github.com/repos/%s/%s" % (repo, path),
+                                                 headers={"User-Agent": "AuraBot", "Accept": "application/vnd.github+json"})
+                    with urllib.request.urlopen(req, timeout=15) as r:
+                        c = json.load(r)
+                    found = c.get("commits") if "commits" in c else [c]
+                    commits = [{"sha": x.get("sha", ""), "message": x.get("commit", {}).get("message", "")} for x in found]
+                except Exception:
+                    pass
+                if not commits:                     # lookup failed (limit reached?): at least say something was pushed
+                    commits = [{"sha": head, "message": "(pushed)"}]
+            short = repo.split("/", 1)[-1]
+            where = short if branch in ("main", "master", "") else "%s/%s" % (short, branch)
+            for c in commits[-3:]:
+                msg = re.sub(r"[\x00-\x1f]", " ", str(c.get("message", "")).split("\n", 1)[0])[:200].strip()
+                self.say(OPS, "%s%s%s %s (%s)" % (B, where, B, msg, str(c.get("sha", ""))[:7]))
+            if len(commits) > 3:
+                self.say(OPS, I + "…and %d more in %s" % (len(commits) - 3, where) + I)
+        self.gh["seen"] = newest
+
     def run(self):
         while True:
+            try:
+                self.github(time.time())
+            except Exception as e:
+                print("AuraBot: github error %s" % type(e).__name__, flush=True)
             try:
                 self.tick()
             except Exception as e:
@@ -974,7 +1042,7 @@ def main():
     last_report, posted = time.time(), 0
     while True:
         try:
-            irc.connect([fd.chan for fd in feeds])
+            irc.connect([fd.chan for fd in feeds] + [OPS])
             admin.restore()
             topics.reset()
             print("AuraBot: connected", flush=True)

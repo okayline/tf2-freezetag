@@ -11,7 +11,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 D=/var/lib/weechat; WWW=/var/www/weave
 # the identity and channels (the same ones The Lounge used)
 NICK=okay; USERNAME=kurako; REALNAME=kura
-CHANNELS="#88x31,#tf2-freezetag,#l4d-classic,#l4d-vs,#l4d-vintage"
+CHANNELS="#88x31,#ops,#tf2-freezetag,#l4d-classic,#l4d-vs,#l4d-vintage"
 export DEBIAN_FRONTEND=noninteractive
 
 echo "== The Lounge (replaced) =="
